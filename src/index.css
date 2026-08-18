@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   FIGMA DESIGN SYSTEM GUIDANCE - EDUSPHERE ACADEMY
+   ========================================================================== */
+
+:root {
+  /* 🎨 1. COLOR GUIDANCE (Light Mode Default) */
+  
+  /* Brand Primary Shades */
+  --primary-50:  #EEF2FF;
+  --primary-100: #E0E7FF;
+  --primary-200: #C7D2FE;
+  --primary-300: #A5B4FC;
+  --primary-400: #818CF8;
+  --primary-500: #6366F1;
+  --primary-600: #4F46E5; /* Main Brand Action Color */
+  --primary-700: #4338CA;
+  --primary-800: #3730A3;
+  --primary-900: #312E81;
+
+  /* Primary Text & Secondary Text */
+  --text-primary: #0F172A;   /* Slate 900 - High Contrast Heading */
+  --text-secondary: #475569; /* Slate 600 - Subtitles & Paragraphs */
+  --text-muted: #94A3B8;     /* Slate 400 - Captions & Placeholders */
+  --text-inverse: #FFFFFF;   /* White text on dark elements */
+
+  /* Neutral Background & Surface Layers (Solid Colors - No Heavy Blurs) */
+  --neutral-bg: #F8FAFC;       /* Light Gray Page Background */
+  --neutral-surface: #FFFFFF;  /* Card & Modal Background */
+  --neutral-surface-hover: #F1F5F9;
+  --border-color: #E2E8F0;     /* Crisp 1px Clean Border */
+  --border-color-strong: #CBD5E1;
+
+  /* Semantic Colors */
+  --semantic-success: #10B981; /* Green */
+  --semantic-error: #EF4444;   /* Red */
+  --semantic-warning: #F59E0B; /* Amber/Yellow */
+  --semantic-info: #06B6D4;    /* Cyan */
+
+  /* Clean Subdued Shadow (Zero Heavy Glow) */
+  --shadow-flat-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-flat-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* 🌙 Dark Mode Tokens Override */
+.dark {
+  --text-primary: #F8FAFC;     /* Slate 50 */
+  --text-secondary: #94A3B8;   /* Slate 400 */
+  --text-muted: #64748B;       /* Slate 500 */
+  --text-inverse: #0F172A;
+
+  --neutral-bg: #0B0F19;       /* Deep Solid Obsidian Dark BG */
+  --neutral-surface: #151D2A;  /* Solid Slate Card Surface */
+  --neutral-surface-hover: #1E293B;
+  --border-color: #263346;     /* Subtle Crisp Dark Border */
+  --border-color-strong: #334155;
+
+  --shadow-flat-sm: none;
+  --shadow-flat-md: none;
+}
+
+/* ==========================================================================
+   2. TYPOGRAPHY GUIDANCE (Figma Scale Utility Classes)
+   ========================================================================== */
+
+@layer utilities {
+  /* H1 Styles (36px Desktop / 28px Mobile) */
+  .text-h1-bold {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.25rem; /* 36px */
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    font-weight: 800;
+  }
+  .text-h1-medium {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.25rem;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
+  .text-h1-regular {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.25rem;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    font-weight: 400;
+  }
+
+  /* H2 Styles (24px) */
+  .text-h2-bold {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.5rem; /* 24px */
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  .text-h2-medium {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    font-weight: 500;
+  }
+  .text-h2-regular {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+  }
+
+  /* H3 Styles (18px) */
+  .text-h3-bold {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.35;
+    font-weight: 700;
+  }
+  .text-h3-medium {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.125rem;
+    line-height: 1.35;
+    font-weight: 500;
+  }
+
+  /* P1 Paragraph Large (16px) */
+  .text-p1-bold {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem; /* 16px */
+    line-height: 1.5;
+    font-weight: 700;
+  }
+  .text-p1-medium {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  .text-p1-regular {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* P2 Paragraph Regular (14px) */
+  .text-p2-bold {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.45;
+    font-weight: 700;
+  }
+  .text-p2-medium {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    font-weight: 500;
+  }
+  .text-p2-regular {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    font-weight: 400;
+  }
+
+  /* Caption Small (12px) */
+  .text-caption-bold {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem; /* 12px */
+    line-height: 1.4;
+    font-weight: 700;
+  }
+  .text-caption-medium {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+  .text-caption-regular {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+}
+
+/* Base Body Styles */
+@layer base {
+  body {
+    background-color: var(--neutral-bg);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color-strong);
+  border-radius: 3px;
+}
