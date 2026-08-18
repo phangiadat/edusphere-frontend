@@ -136,10 +136,10 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleDarkMode }) =>
                 className="flex items-center gap-2 p-1.5 rounded-lg border border-[var(--border-color)] hover:bg-[var(--neutral-surface-hover)] transition"
               >
                 <div className="w-8 h-8 rounded-full bg-[var(--primary-600)] text-white font-bold text-sm flex items-center justify-center">
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  {(user.fullName || user.name || 'U').charAt(0).toUpperCase()}
                 </div>
                 <span className="text-p2-bold text-[var(--text-primary)] hidden sm:inline-block max-w-[120px] truncate">
-                  {user.name}
+                  {user.fullName || user.name}
                 </span>
                 <ChevronDown className="w-4 h-4 text-[var(--text-secondary)]" />
               </button>

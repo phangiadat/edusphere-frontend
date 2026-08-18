@@ -4,7 +4,8 @@ export type UserStatus = 'ACTIVE' | 'SUSPENDED';
 export interface User {
   id: string;
   email: string;
-  name: string;
+  name?: string;
+  fullName?: string;
   role: UserRole;
   status: UserStatus;
   avatar?: string;
@@ -21,8 +22,7 @@ export interface LoginDto {
 export interface RegisterDto {
   email: string;
   password: string;
-  name: string;
-  role?: 'STUDENT' | 'INSTRUCTOR';
+  fullName: string;
 }
 
 export interface AuthResponse {

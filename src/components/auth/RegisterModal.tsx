@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User as UserIcon, Eye, EyeOff, X, Loader2, AlertCircle, GraduationCap, BookOpen } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Eye, EyeOff, X, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const RegisterModal: React.FC = () => {
   const { register, closeAuthModal, openAuthModal } = useAuth();
   
-  const [name, setName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'STUDENT' | 'INSTRUCTOR'>('STUDENT');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -18,7 +17,7 @@ export const RegisterModal: React.FC = () => {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!name.trim() || !email.trim() || !password.trim()) {
+    if (!fullName.trim() || !email.trim() || !password.trim()) {
       setErrorMessage('Vui lòng nhập đầy đủ Họ tên, Email và Mật khẩu.');
       return;
     }
@@ -35,7 +34,7 @@ export const RegisterModal: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await register({ name, email, password, role });
+      await register({ fullName: fullName.trim(), email: email.trim(), password });
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const responseError = err as { response?: { data?: { message?: string | string[] } } };
@@ -83,35 +82,6 @@ export const RegisterModal: React.FC = () => {
           </div>
         )}
 
-        {/* Role Selector */}
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          <button
-            type="button"
-            onClick={() => setRole('STUDENT')}
-            className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition ${
-              role === 'STUDENT'
-                ? 'border-[var(--primary-600)] bg-[var(--primary-50)] text-[var(--primary-600)] dark:bg-slate-800 dark:text-white font-bold'
-                : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--neutral-surface-hover)]'
-            }`}
-          >
-            <GraduationCap className="w-5 h-5" />
-            <span className="text-caption-bold">Học viên</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setRole('INSTRUCTOR')}
-            className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition ${
-              role === 'INSTRUCTOR'
-                ? 'border-[var(--primary-600)] bg-[var(--primary-50)] text-[var(--primary-600)] dark:bg-slate-800 dark:text-white font-bold'
-                : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--neutral-surface-hover)]'
-            }`}
-          >
-            <BookOpen className="w-5 h-5" />
-            <span className="text-caption-bold">Giảng viên</span>
-          </button>
-        </div>
-
         {/* Register Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5">
           
@@ -125,8 +95,8 @@ export const RegisterModal: React.FC = () => {
               <input 
                 type="text"
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 placeholder="Nguyễn Văn A"
                 className="w-full pl-10 pr-4 py-2.5 text-p2-medium rounded-lg bg-[var(--neutral-bg)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-600)]"
               />
