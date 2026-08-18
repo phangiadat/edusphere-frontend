@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User as UserIcon, Eye, EyeOff, X, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Eye, EyeOff, X, Loader2, AlertCircle, GraduationCap, BookOpen, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const RegisterModal: React.FC = () => {
@@ -9,6 +9,7 @@ export const RegisterModal: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<'STUDENT' | 'INSTRUCTOR'>('STUDENT');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -34,7 +35,7 @@ export const RegisterModal: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await register({ fullName: fullName.trim(), email: email.trim(), password });
+      await register({ fullName: fullName.trim(), email: email.trim(), password, role });
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const responseError = err as { response?: { data?: { message?: string | string[] } } };
@@ -81,6 +82,56 @@ export const RegisterModal: React.FC = () => {
             <span>{errorMessage}</span>
           </div>
         )}
+
+        {/* Role Selector Cards (Chọn vai trò Học viên / Giảng viên) */}
+        <div className="space-y-1.5 mb-5">
+          <label className="block text-caption-bold text-[var(--text-primary)]">
+            Bạn tham gia EduSphere với vai trò nào?
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setRole('STUDENT')}
+              className={`p-3 rounded-xl border text-left flex flex-col justify-between relative transition ${
+                role === 'STUDENT'
+                  ? 'border-[var(--primary-600)] bg-[var(--primary-50)] dark:bg-slate-800 text-[var(--primary-600)] dark:text-white'
+                  : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--neutral-surface-hover)]'
+              }`}
+            >
+              {role === 'STUDENT' && (
+                <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[var(--primary-600)] text-white flex items-center justify-center text-[10px]">
+                  <Check className="w-3 h-3" />
+                </span>
+              )}
+              <GraduationCap className="w-6 h-6 mb-2 text-[var(--primary-600)]" />
+              <div>
+                <div className="text-p2-bold text-[var(--text-primary)]">Học viên</div>
+                <div className="text-[10px] text-[var(--text-muted)] leading-tight mt-0.5">Tôi muốn tham gia đăng ký học</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setRole('INSTRUCTOR')}
+              className={`p-3 rounded-xl border text-left flex flex-col justify-between relative transition ${
+                role === 'INSTRUCTOR'
+                  ? 'border-[var(--primary-600)] bg-[var(--primary-50)] dark:bg-slate-800 text-[var(--primary-600)] dark:text-white'
+                  : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--neutral-surface-hover)]'
+              }`}
+            >
+              {role === 'INSTRUCTOR' && (
+                <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[var(--primary-600)] text-white flex items-center justify-center text-[10px]">
+                  <Check className="w-3 h-3" />
+                </span>
+              )}
+              <BookOpen className="w-6 h-6 mb-2 text-[var(--primary-600)]" />
+              <div>
+                <div className="text-p2-bold text-[var(--text-primary)]">Giảng viên</div>
+                <div className="text-[10px] text-[var(--text-muted)] leading-tight mt-0.5">Tôi muốn tạo và bán khóa học</div>
+              </div>
+            </button>
+          </div>
+        </div>
 
         {/* Register Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5">
@@ -176,7 +227,7 @@ export const RegisterModal: React.FC = () => {
                 <span>Đang tạo tài khoản...</span>
               </>
             ) : (
-              <span>Đăng ký ngay</span>
+              <span>Đăng ký tài khoản {role === 'INSTRUCTOR' ? 'Giảng viên' : 'Học viên'}</span>
             )}
           </button>
         </form>

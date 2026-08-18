@@ -23,6 +23,7 @@ export interface RegisterDto {
   email: string;
   password: string;
   fullName: string;
+  role?: 'STUDENT' | 'INSTRUCTOR';
 }
 
 export interface AuthResponse {
