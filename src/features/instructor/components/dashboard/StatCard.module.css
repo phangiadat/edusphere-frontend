@@ -1,0 +1,101 @@
+/* External CSS Module for StatCard Component - NO INLINE CSS & NO GRADIENTS */
+
+.card {
+  background-color: var(--neutral-surface, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 0.875rem; /* 14px */
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.875rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--primary-400, #a78bfa);
+  box-shadow: 0 4px 12px -2px rgba(124, 58, 237, 0.08);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.iconBox {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem; /* 10px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Solid colors set via CSS Module classes - No gradients */
+}
+
+.iconPurple {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+.iconIndigo {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+}
+
+.iconAmber {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.iconEmerald {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.valRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.value {
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
+  line-height: 1.2;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.badgePositive {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badgeNeutral {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}

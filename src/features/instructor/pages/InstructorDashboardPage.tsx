@@ -1,6 +1,9 @@
 import React from 'react';
-import { Users, GraduationCap, Star, DollarSign, Sparkles } from 'lucide-react';
+import { DollarSign, Users, BookOpen, Star, Sparkles } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
+import { StatCard } from '../components/dashboard/StatCard';
+import { RevenueChart } from '../components/dashboard/RevenueChart';
+import { RecentActivity } from '../components/dashboard/RecentActivity';
 import styles from './InstructorDashboardPage.module.css';
 
 export const InstructorDashboardPage: React.FC = () => {
@@ -8,58 +11,64 @@ export const InstructorDashboardPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* Welcome Banner Card */}
-      <div className={styles.welcomeCard}>
-        <div className="flex items-center gap-2 text-amber-300 font-bold text-xs uppercase tracking-widest mb-1">
-          <Sparkles className="w-4 h-4" /> Instructor Management Studio
+      {/* Top Banner Header */}
+      <div className={styles.headerBanner}>
+        <div className={styles.bannerBadge}>
+          <Sparkles className="w-4 h-4" /> B2B SaaS Instructor Studio
         </div>
-        <h1 className={styles.welcomeTitle}>Welcome to Instructor Dashboard</h1>
-        <p className={styles.welcomeSubtitle}>
-          Xin chào giảng viên <span className="font-bold text-white underline">{user?.fullName || 'Phan Gia Đạt'}</span>. Hệ thống đã sẵn sàng cho hoạt động quản lý khóa học và giảng dạy!
+        <h1 className={styles.bannerTitle}>Welcome to Instructor Dashboard</h1>
+        <p className={styles.bannerSubtitle}>
+          Xin chào giảng viên{' '}
+          <span className={styles.instructorHighlight}>
+            {user?.fullName || 'Phan Gia Đạt'}
+          </span>
+          . Theo dõi chỉ số doanh thu, kết quả giảng dạy và tương tác học viên hôm nay.
         </p>
       </div>
 
-      {/* Stats Cards Grid */}
+      {/* Area 1: Overview KPI Stat Cards (4-Column Grid) */}
       <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={`${styles.statIcon} bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400`}>
-            <Users className="w-6 h-6" />
-          </div>
-          <div>
-            <div className={styles.statVal}>1,850</div>
-            <div className={styles.statLabel}>Tổng học viên</div>
-          </div>
-        </div>
+        <StatCard
+          title="Tổng doanh thu"
+          value="$4,500"
+          changeText="+12.5%"
+          isPositive={true}
+          icon={DollarSign}
+          iconVariant="purple"
+        />
 
-        <div className={styles.statCard}>
-          <div className={`${styles.statIcon} bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400`}>
-            <GraduationCap className="w-6 h-6" />
-          </div>
-          <div>
-            <div className={styles.statVal}>8</div>
-            <div className={styles.statLabel}>Khóa học đang mở</div>
-          </div>
-        </div>
+        <StatCard
+          title="Tổng học viên"
+          value="1,240"
+          changeText="+8.2%"
+          isPositive={true}
+          icon={Users}
+          iconVariant="indigo"
+        />
 
-        <div className={styles.statCard}>
-          <div className={`${styles.statIcon} bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400`}>
-            <Star className="w-6 h-6" />
-          </div>
-          <div>
-            <div className={styles.statVal}>4.9 / 5.0</div>
-            <div className={styles.statLabel}>Đánh giá trung bình</div>
-          </div>
-        </div>
+        <StatCard
+          title="Khóa học đang mở"
+          value="12"
+          changeText="Active"
+          isPositive={true}
+          icon={BookOpen}
+          iconVariant="amber"
+        />
 
-        <div className={styles.statCard}>
-          <div className={`${styles.statIcon} bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400`}>
-            <DollarSign className="w-6 h-6" />
-          </div>
-          <div>
-            <div className={styles.statVal}>48.5M ₫</div>
-            <div className={styles.statLabel}>Doanh thu tháng này</div>
-          </div>
-        </div>
+        <StatCard
+          title="Đánh giá trung bình"
+          value="4.8 / 5.0"
+          changeText="310 lượt"
+          isPositive={true}
+          icon={Star}
+          iconVariant="emerald"
+        />
+      </div>
+
+      {/* Areas 2 & 3: Revenue Chart & Recent Activity (Responsive 2-Column Layout) */}
+      <div className={styles.bottomGrid}>
+        <RevenueChart />
+        <RecentActivity />
       </div>
     </div>
   );
