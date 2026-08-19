@@ -5,6 +5,7 @@ import { RoleGuard } from '../features/auth/components/RoleGuard';
 import { InstructorLayout } from '../features/instructor/layout/InstructorLayout';
 import { InstructorDashboardPage } from '../features/instructor/pages/InstructorDashboardPage';
 import { InstructorCoursesPage } from '../features/instructor/pages/InstructorCoursesPage';
+import { InstructorCourseDetailPage } from '../features/instructor/pages/InstructorCourseDetailPage';
 import { InstructorAssignmentsPage } from '../features/instructor/pages/InstructorAssignmentsPage';
 import { InstructorChatPage } from '../features/instructor/pages/InstructorChatPage';
 import App from '../App';
@@ -27,6 +28,7 @@ export const AppRoutes: React.FC = () => {
         <Route index element={<Navigate to="/instructor/dashboard" replace />} />
         <Route path="dashboard" element={<InstructorDashboardPage />} />
         <Route path="courses" element={<InstructorCoursesPage />} />
+        <Route path="courses/:courseId" element={<InstructorCourseDetailPage />} />
         <Route path="assignments" element={<InstructorAssignmentsPage />} />
         <Route path="chat" element={<InstructorChatPage />} />
       </Route>

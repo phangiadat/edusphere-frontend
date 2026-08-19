@@ -1,0 +1,171 @@
+/* External CSS Module for CurriculumTab Component - NO INLINE CSS & NO GRADIENTS */
+
+.container {
+  background-color: var(--neutral-surface, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 0.875rem; /* 14px */
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+.headerRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+@media (min-width: 640px) {
+  .headerRow {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.titleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #64748b);
+}
+
+.addChapterBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.125rem;
+  border-radius: 0.625rem;
+  background-color: var(--primary-600, #7c3aed);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px -2px rgba(124, 58, 237, 0.25);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.addChapterBtn:hover {
+  background-color: #6d28d9;
+  transform: translateY(-1px);
+}
+
+/* Add New Chapter Inline Card */
+.addCard {
+  background-color: var(--neutral-bg, #f8fafc);
+  border: 1px solid var(--primary-400, #a78bfa);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.addLabel {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--primary-600, #7c3aed);
+}
+
+.addInputRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.addInput {
+  flex: 1;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background-color: #ffffff;
+  font-size: 0.875rem;
+  color: var(--text-primary, #0f172a);
+  transition: all 0.2s ease;
+}
+
+.addInput:focus {
+  outline: none;
+  border-color: var(--primary-600, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.confirmAddBtn {
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--primary-600, #7c3aed);
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirmAddBtn:hover {
+  background-color: #6d28d9;
+}
+
+.cancelAddBtn {
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: var(--text-secondary, #64748b);
+  border: 1px solid var(--border-color, #cbd5e1);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancelAddBtn:hover {
+  background-color: var(--neutral-bg, #f1f5f9);
+}
+
+/* Chapter List Container */
+.chapterList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.emptyState {
+  padding: 3rem 1.5rem;
+  border: 1px dashed var(--border-color, #cbd5e1);
+  border-radius: 0.75rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-secondary, #64748b);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Filter, BookOpen } from 'lucide-react';
 import { CourseCard } from '../components/courses/CourseCard';
 import type { CourseItem } from '../components/courses/CourseCard';
@@ -99,6 +100,7 @@ const INITIAL_COURSES: CourseItem[] = [
 ];
 
 export const InstructorCoursesPage: React.FC = () => {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseItem[]>(INITIAL_COURSES);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -131,8 +133,7 @@ export const InstructorCoursesPage: React.FC = () => {
   };
 
   const handleOpenEditModal = (course: CourseItem) => {
-    setEditingCourse(course);
-    setIsModalOpen(true);
+    navigate(`/instructor/courses/${course.id}`);
   };
 
   const handleDeleteCourse = (courseId: string) => {

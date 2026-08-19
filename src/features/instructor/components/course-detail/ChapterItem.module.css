@@ -1,0 +1,164 @@
+/* External CSS Module for ChapterItem Component - NO INLINE CSS & NO GRADIENTS */
+
+.itemRow {
+  background-color: var(--neutral-surface, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 0.75rem; /* 12px */
+  padding: 0.875rem 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.itemRow:hover {
+  border-color: var(--primary-400, #a78bfa);
+  box-shadow: 0 4px 12px -2px rgba(124, 58, 237, 0.08);
+}
+
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.gripIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: #94a3b8;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.orderBadge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  background-color: #f3e8ff;
+  color: #7c3aed;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chapterTitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inlineInput {
+  flex: 1;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--primary-600, #7c3aed);
+  background-color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.rightGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-shrink: 0;
+}
+
+/* Switch Toggle for isPublished */
+.toggleLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary, #64748b);
+  user-select: none;
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 2.25rem;
+  height: 1.25rem;
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+.toggleSwitchActive {
+  background-color: #10b981;
+}
+
+.toggleDot {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.toggleDotActive {
+  transform: translateX(1rem);
+}
+
+/* Action Icons */
+.actionBtn {
+  padding: 0.375rem;
+  border-radius: 0.5rem;
+  color: var(--text-secondary, #64748b);
+  background-color: var(--neutral-bg, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.actionBtn:hover {
+  background-color: var(--neutral-surface-hover, #f1f5f9);
+  color: var(--primary-600, #7c3aed);
+  border-color: var(--primary-400, #a78bfa);
+}
+
+.deleteBtn {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.deleteBtn:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.saveInlineBtn {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: var(--primary-600, #7c3aed);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.saveInlineBtn:hover {
+  background-color: #6d28d9;
+}
