@@ -1,26 +1,26 @@
 import React from 'react';
-import { Play, ShoppingCart, ShieldCheck, Smartphone, Award, Infinity, FileText } from 'lucide-react';
+import { Play, ShoppingCart, ShieldCheck, Smartphone, Award, Infinity, FileText, CheckCircle2, ArrowRight } from 'lucide-react';
 
 interface CoursePurchaseSidebarProps {
   thumbnail?: string | null;
   price: number;
-  originalPrice?: number;
   onOpenMainPreview: () => void;
   onBuyNow: () => void;
   onAddToCart: () => void;
+  isInCart?: boolean;
+  onGoToCart?: () => void;
 }
 
 export const CoursePurchaseSidebar: React.FC<CoursePurchaseSidebarProps> = ({
   thumbnail,
   price,
-  originalPrice = 1200000,
   onOpenMainPreview,
   onBuyNow,
   onAddToCart,
+  isInCart = false,
+  onGoToCart,
 }) => {
   const formattedPrice = price.toLocaleString('vi-VN') + ' đ';
-  const formattedOriginalPrice = originalPrice.toLocaleString('vi-VN') + ' đ';
-  const discountPercent = Math.round(((originalPrice - price) / originalPrice) * 100);
 
   return (
     <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl shadow-xl p-4 sm:p-6 space-y-6 sticky top-20">
@@ -49,31 +49,29 @@ export const CoursePurchaseSidebar: React.FC<CoursePurchaseSidebarProps> = ({
       <div className="space-y-1">
         <div className="flex items-baseline gap-3">
           <span className="text-h2-bold text-[var(--text-primary)]">{formattedPrice}</span>
-          {price < originalPrice && (
-            <span className="text-p1-regular text-[var(--text-muted)] line-through">
-              {formattedOriginalPrice}
-            </span>
-          )}
-          {discountPercent > 0 && (
-            <span className="px-2 py-0.5 rounded text-caption-bold bg-red-500/10 text-red-600 dark:text-red-400">
-              Giảm {discountPercent}%
-            </span>
-          )}
         </div>
-        <p className="text-caption-regular text-red-500 font-medium">
-          🔥 Ưu đãi có hạn chỉ còn trong 2 ngày!
-        </p>
       </div>
 
       {/* Action Buttons */}
       <div className="space-y-3">
-        <button
-          onClick={onAddToCart}
-          className="w-full py-3.5 rounded-xl bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white text-p2-bold transition flex items-center justify-center gap-2 shadow-md active:scale-[0.99]"
-        >
-          <ShoppingCart className="w-5 h-5" />
-          <span>Thêm vào giỏ hàng</span>
-        </button>
+        {isInCart ? (
+          <button
+            onClick={onGoToCart}
+            className="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-p2-bold transition flex items-center justify-center gap-2 shadow-md active:scale-[0.99]"
+          >
+            <CheckCircle2 className="w-5 h-5 text-emerald-300" />
+            <span>Đã có trong giỏ hàng — Chuyển đến giỏ hàng</span>
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </button>
+        ) : (
+          <button
+            onClick={onAddToCart}
+            className="w-full py-3.5 rounded-xl bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white text-p2-bold transition flex items-center justify-center gap-2 shadow-md active:scale-[0.99]"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            <span>Thêm vào giỏ hàng</span>
+          </button>
+        )}
 
         <button
           onClick={onBuyNow}
