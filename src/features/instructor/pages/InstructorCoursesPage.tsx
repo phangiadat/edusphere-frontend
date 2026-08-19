@@ -3,6 +3,7 @@ import { Plus, Search, Filter, BookOpen } from 'lucide-react';
 import { CourseCard } from '../components/courses/CourseCard';
 import type { CourseItem } from '../components/courses/CourseCard';
 import { CourseFormModal } from '../components/courses/CourseFormModal';
+import { ToastNotification } from '../components/common/ToastNotification';
 import styles from './InstructorCoursesPage.module.css';
 
 // Initial Seed Data matching Database Schema
@@ -107,6 +108,14 @@ export const InstructorCoursesPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseItem | null>(null);
 
+  // Toast Notification State
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showSuccessToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
   // Filtered Courses
   const filteredCourses = courses.filter((c) => {
     const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -129,6 +138,7 @@ export const InstructorCoursesPage: React.FC = () => {
   const handleDeleteCourse = (courseId: string) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa khóa học này không?')) {
       setCourses((prev) => prev.filter((c) => c.id !== courseId));
+      showSuccessToast('🗑️ Đã xóa khóa học khỏi hệ thống thành công.');
     }
   };
 
@@ -138,6 +148,7 @@ export const InstructorCoursesPage: React.FC = () => {
       setCourses((prev) =>
         prev.map((c) => (c.id === courseData.id ? ({ ...c, ...courseData } as CourseItem) : c))
       );
+      showSuccessToast('✨ Đã cập nhật thông tin khóa học thành công!');
     } else {
       // Create new course
       const newCourse: CourseItem = {
@@ -154,6 +165,7 @@ export const InstructorCoursesPage: React.FC = () => {
         rating: 5.0,
       };
       setCourses((prev) => [newCourse, ...prev]);
+      showSuccessToast(`🎉 Đã tạo mới khóa học "${newCourse.title.substring(0, 30)}..." thành công!`);
     }
   };
 
@@ -250,6 +262,12 @@ export const InstructorCoursesPage: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveCourse}
         initialData={editingCourse}
+      />
+
+      {/* Floating Success Toast Notification */}
+      <ToastNotification
+        message={toastMessage}
+        onClose={() => setToastMessage(null)}
       />
     </div>
   );
