@@ -9,6 +9,7 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   avatar?: string;
+  avatarUrl?: string;
   bio?: string;
   createdAt?: string;
   updatedAt?: string;

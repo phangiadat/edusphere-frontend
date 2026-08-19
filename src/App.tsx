@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { AuthModalContainer } from './components/auth/AuthModalContainer';
 import { Navbar } from './components/layout/Navbar';
@@ -125,82 +124,80 @@ export default function App() {
   };
 
   return (
-    <AuthProvider>
-      <CartProvider>
-        <div className={`min-h-screen ${darkMode ? 'dark bg-dark-bg text-slate-100' : 'bg-slate-50 text-slate-900'} transition-colors duration-300 selection:bg-[var(--primary-600)] selection:text-white relative`}>
-          
-          {/* 🧭 Header Navbar (Hidden when in CourseLearn workspace) */}
-          {currentView !== 'learn' && (
-            <Navbar 
-              darkMode={darkMode} 
-              onToggleDarkMode={toggleDarkMode} 
+    <CartProvider>
+      <div className={`min-h-screen ${darkMode ? 'dark bg-dark-bg text-slate-100' : 'bg-slate-50 text-slate-900'} transition-colors duration-300 selection:bg-[var(--primary-600)] selection:text-white relative`}>
+        
+        {/* 🧭 Header Navbar (Hidden when in CourseLearn workspace) */}
+        {currentView !== 'learn' && (
+          <Navbar 
+            darkMode={darkMode} 
+            onToggleDarkMode={toggleDarkMode} 
+            onNavigateCart={navigateToCart}
+            onSelectCategory={handleSelectCategory}
+            onSearchCourse={handleSearchCourse}
+          />
+        )}
+        
+        {/* 🚀 Main Content Switching */}
+        <main>
+          {currentView === 'home' ? (
+            <>
+              <HeroSection 
+                onExploreCourses={handleClearCategoryFilter}
+                onSearchCourse={handleSearchCourse}
+              />
+              <StatsBar />
+              <CategoriesSection 
+                onSelectCategory={handleSelectCategory}
+              />
+              <FeaturedCourses 
+                selectedCategory={selectedCategory}
+                onClearCategoryFilter={handleClearCategoryFilter}
+                searchQuery={searchQuery}
+              />
+              <WhyChooseUs />
+              <TopInstructors />
+              <SpecialOffer />
+              <Testimonials />
+              <FaqSection />
+              <CtaBanner />
+            </>
+          ) : currentView === 'cart' ? (
+            <ShoppingCartPage 
+              onNavigateToCourse={navigateToCourse}
+              onNavigateHome={navigateHome}
+              onNavigateSuccess={navigateToPaymentSuccess}
+            />
+          ) : currentView === 'payment-success' ? (
+            <PaymentSuccessPage 
+              onNavigateMyCourses={navigateToMyCourses}
+              onNavigateHome={navigateHome}
+            />
+          ) : currentView === 'my-courses' ? (
+            <MyCoursesPage 
+              onNavigateToCourse={navigateToLearn}
+              onNavigateHome={navigateHome}
+            />
+          ) : currentView === 'learn' ? (
+            <CourseLearnPage 
+              courseId={selectedCourseId}
+              onNavigateMyCourses={navigateToMyCourses}
+            />
+          ) : (
+            <CourseDetailPage 
+              courseId={selectedCourseId} 
               onNavigateCart={navigateToCart}
-              onSelectCategory={handleSelectCategory}
-              onSearchCourse={handleSearchCourse}
+              onNavigateHome={navigateHome}
             />
           )}
-          
-          {/* 🚀 Main Content Switching */}
-          <main>
-            {currentView === 'home' ? (
-              <>
-                <HeroSection 
-                  onExploreCourses={handleClearCategoryFilter}
-                  onSearchCourse={handleSearchCourse}
-                />
-                <StatsBar />
-                <CategoriesSection 
-                  onSelectCategory={handleSelectCategory}
-                />
-                <FeaturedCourses 
-                  selectedCategory={selectedCategory}
-                  onClearCategoryFilter={handleClearCategoryFilter}
-                  searchQuery={searchQuery}
-                />
-                <WhyChooseUs />
-                <TopInstructors />
-                <SpecialOffer />
-                <Testimonials />
-                <FaqSection />
-                <CtaBanner />
-              </>
-            ) : currentView === 'cart' ? (
-              <ShoppingCartPage 
-                onNavigateToCourse={navigateToCourse}
-                onNavigateHome={navigateHome}
-                onNavigateSuccess={navigateToPaymentSuccess}
-              />
-            ) : currentView === 'payment-success' ? (
-              <PaymentSuccessPage 
-                onNavigateMyCourses={navigateToMyCourses}
-                onNavigateHome={navigateHome}
-              />
-            ) : currentView === 'my-courses' ? (
-              <MyCoursesPage 
-                onNavigateToCourse={navigateToLearn}
-                onNavigateHome={navigateHome}
-              />
-            ) : currentView === 'learn' ? (
-              <CourseLearnPage 
-                courseId={selectedCourseId}
-                onNavigateMyCourses={navigateToMyCourses}
-              />
-            ) : (
-              <CourseDetailPage 
-                courseId={selectedCourseId} 
-                onNavigateCart={navigateToCart}
-                onNavigateHome={navigateHome}
-              />
-            )}
-          </main>
+        </main>
 
-          {/* 🏁 Footer (Hidden when in CourseLearn workspace) */}
-          {currentView !== 'learn' && <Footer />}
+        {/* 🏁 Footer (Hidden when in CourseLearn workspace) */}
+        {currentView !== 'learn' && <Footer />}
 
-          {/* 🔐 Auth Modals (Login, Register, Forgot Password) */}
-          <AuthModalContainer />
-        </div>
-      </CartProvider>
-    </AuthProvider>
+        {/* 🔐 Auth Modals (Login, Register, Forgot Password) */}
+        <AuthModalContainer />
+      </div>
+    </CartProvider>
   );
 }
