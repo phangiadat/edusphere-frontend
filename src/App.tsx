@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import { AuthModalContainer } from './components/auth/AuthModalContainer';
 import { Navbar } from './components/layout/Navbar';
 import { HeroSection } from './components/home/HeroSection';
@@ -14,27 +15,53 @@ import { FaqSection } from './components/home/FaqSection';
 import { CtaBanner } from './components/home/CtaBanner';
 import { Footer } from './components/layout/Footer';
 import { CourseDetailPage } from './pages/CourseDetailPage';
-import { BookOpen, Home } from 'lucide-react';
+import { ShoppingCartPage } from './pages/ShoppingCartPage';
+import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
+import { MyCoursesPage } from './pages/MyCoursesPage';
+import { CourseLearnPage } from './pages/CourseLearnPage';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const [currentView, setCurrentView] = useState<'home' | 'course-detail'>('course-detail');
+  const [currentView, setCurrentView] = useState<'home' | 'course-detail' | 'cart' | 'payment-success' | 'my-courses' | 'learn'>('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string>('course-nestjs-masterclass');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Handle Hash route changes (e.g., #course-detail or #home)
+  // Handle Hash & URL route changes (e.g., #cart, #payment-success, #my-courses, #learn/xyz, #course/xyz)
   useEffect(() => {
     const handleHashChange = () => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
       const hash = window.location.hash;
-      if (hash.startsWith('#course/')) {
+      const pathname = window.location.pathname;
+
+      if (hash === '#payment-success' || pathname.includes('/payment/success')) {
+        setCurrentView('payment-success');
+      } else if (hash === '#my-courses') {
+        setCurrentView('my-courses');
+      } else if (hash === '#cart') {
+        setCurrentView('cart');
+      } else if (hash.startsWith('#learn/')) {
+        const id = hash.replace('#learn/', '');
+        setSelectedCourseId(id);
+        setCurrentView('learn');
+      } else if (hash.includes('/learn')) {
+        const id = hash.replace('#course/', '').replace('/learn', '');
+        setSelectedCourseId(id);
+        setCurrentView('learn');
+      } else if (hash.startsWith('#course/')) {
         const id = hash.replace('#course/', '');
         setSelectedCourseId(id);
         setCurrentView('course-detail');
       } else if (hash === '#course-detail') {
         setCurrentView('course-detail');
-      } else if (hash === '#home') {
+      } else {
+        // Default to home view if hash is empty (""), #, #home, or #courses
         setCurrentView('home');
       }
     };
+
+    // Initial check
+    handleHashChange();
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
@@ -45,73 +72,134 @@ export default function App() {
     document.documentElement.classList.toggle('dark');
   };
 
+  const navigateToCart = () => {
+    window.location.hash = '#cart';
+    setCurrentView('cart');
+  };
+
+  const navigateHome = () => {
+    setSelectedCategory(null);
+    setSearchQuery('');
+    window.location.hash = '#home';
+    setCurrentView('home');
+  };
+
+  const navigateToMyCourses = () => {
+    window.location.hash = '#my-courses';
+    setCurrentView('my-courses');
+  };
+
+  const navigateToPaymentSuccess = () => {
+    window.location.hash = '#payment-success';
+    setCurrentView('payment-success');
+  };
+
+  const navigateToCourse = (courseId: string) => {
+    setSelectedCourseId(courseId);
+    window.location.hash = `#course/${courseId}`;
+    setCurrentView('course-detail');
+  };
+
+  const navigateToLearn = (courseId: string) => {
+    setSelectedCourseId(courseId);
+    window.location.hash = `#learn/${courseId}`;
+    setCurrentView('learn');
+  };
+
+  const handleSelectCategory = (categoryName: string) => {
+    setSelectedCategory(categoryName);
+    if (currentView !== 'home') {
+      setCurrentView('home');
+    }
+  };
+
+  const handleClearCategoryFilter = () => {
+    setSelectedCategory(null);
+  };
+
+  const handleSearchCourse = (query: string) => {
+    setSearchQuery(query);
+    if (currentView !== 'home') {
+      setCurrentView('home');
+    }
+  };
+
   return (
     <AuthProvider>
-      <div className={`min-h-screen ${darkMode ? 'dark bg-dark-bg text-slate-100' : 'bg-slate-50 text-slate-900'} transition-colors duration-300 selection:bg-[var(--primary-600)] selection:text-white relative`}>
-        
-        {/* Quick View Switcher Bar */}
-        <div className="bg-[var(--primary-600)] text-white text-caption-bold py-2 px-4 flex items-center justify-between text-xs shadow-inner">
-          <div className="flex items-center gap-2">
-            <span>✨ Chế độ xem hiện tại:</span>
-            <span className="underline uppercase tracking-wider">
-              {currentView === 'course-detail' ? 'Trang Chi tiết Khóa học (Udemy Layout)' : 'Trang chủ EduSphere'}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentView('home')}
-              className={`px-2.5 py-1 rounded transition flex items-center gap-1 ${
-                currentView === 'home'
-                  ? 'bg-white text-[var(--primary-600)] font-bold'
-                  : 'bg-white/20 hover:bg-white/30 text-white'
-              }`}
-            >
-              <Home className="w-3.5 h-3.5" /> Trang chủ
-            </button>
-
-            <button
-              onClick={() => setCurrentView('course-detail')}
-              className={`px-2.5 py-1 rounded transition flex items-center gap-1 ${
-                currentView === 'course-detail'
-                  ? 'bg-white text-[var(--primary-600)] font-bold'
-                  : 'bg-white/20 hover:bg-white/30 text-white'
-              }`}
-            >
-              <BookOpen className="w-3.5 h-3.5" /> Xem Chi tiết Khóa học
-            </button>
-          </div>
-        </div>
-
-        {/* 🧭 Header Navbar */}
-        <Navbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
-        
-        {/* 🚀 Main Content Switching */}
-        <main>
-          {currentView === 'home' ? (
-            <>
-              <HeroSection />
-              <StatsBar />
-              <CategoriesSection />
-              <FeaturedCourses />
-              <WhyChooseUs />
-              <TopInstructors />
-              <SpecialOffer />
-              <Testimonials />
-              <FaqSection />
-              <CtaBanner />
-            </>
-          ) : (
-            <CourseDetailPage courseId={selectedCourseId} />
+      <CartProvider>
+        <div className={`min-h-screen ${darkMode ? 'dark bg-dark-bg text-slate-100' : 'bg-slate-50 text-slate-900'} transition-colors duration-300 selection:bg-[var(--primary-600)] selection:text-white relative`}>
+          
+          {/* 🧭 Header Navbar (Hidden when in CourseLearn workspace) */}
+          {currentView !== 'learn' && (
+            <Navbar 
+              darkMode={darkMode} 
+              onToggleDarkMode={toggleDarkMode} 
+              onNavigateCart={navigateToCart}
+              onSelectCategory={handleSelectCategory}
+            />
           )}
-        </main>
+          
+          {/* 🚀 Main Content Switching */}
+          <main>
+            {currentView === 'home' ? (
+              <>
+                <HeroSection 
+                  onExploreCourses={handleClearCategoryFilter}
+                  onSearchCourse={handleSearchCourse}
+                />
+                <StatsBar />
+                <CategoriesSection 
+                  onSelectCategory={handleSelectCategory}
+                />
+                <FeaturedCourses 
+                  selectedCategory={selectedCategory}
+                  onClearCategoryFilter={handleClearCategoryFilter}
+                  searchQuery={searchQuery}
+                />
+                <WhyChooseUs />
+                <TopInstructors />
+                <SpecialOffer />
+                <Testimonials />
+                <FaqSection />
+                <CtaBanner />
+              </>
+            ) : currentView === 'cart' ? (
+              <ShoppingCartPage 
+                onNavigateToCourse={navigateToCourse}
+                onNavigateHome={navigateHome}
+                onNavigateSuccess={navigateToPaymentSuccess}
+              />
+            ) : currentView === 'payment-success' ? (
+              <PaymentSuccessPage 
+                onNavigateMyCourses={navigateToMyCourses}
+                onNavigateHome={navigateHome}
+              />
+            ) : currentView === 'my-courses' ? (
+              <MyCoursesPage 
+                onNavigateToCourse={navigateToLearn}
+                onNavigateHome={navigateHome}
+              />
+            ) : currentView === 'learn' ? (
+              <CourseLearnPage 
+                courseId={selectedCourseId}
+                onNavigateMyCourses={navigateToMyCourses}
+              />
+            ) : (
+              <CourseDetailPage 
+                courseId={selectedCourseId} 
+                onNavigateCart={navigateToCart}
+                onNavigateHome={navigateHome}
+              />
+            )}
+          </main>
 
-        {/* 🏁 Footer */}
-        <Footer />
+          {/* 🏁 Footer (Hidden when in CourseLearn workspace) */}
+          {currentView !== 'learn' && <Footer />}
 
-        {/* 🔐 Auth Modals (Login, Register, Forgot Password) */}
-        <AuthModalContainer />
-      </div>
+          {/* 🔐 Auth Modals (Login, Register, Forgot Password) */}
+          <AuthModalContainer />
+        </div>
+      </CartProvider>
     </AuthProvider>
   );
 }

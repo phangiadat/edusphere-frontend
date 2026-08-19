@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { 
   CheckCircle2, 
   Star, 
-  BookOpen, 
-  Award, 
   MessageSquare, 
   Loader2,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from 'lucide-react';
 import { courseApi } from '../api/courseApi';
 import { CourseDetailHero } from '../components/course/CourseDetailHero';
@@ -14,106 +13,268 @@ import { SyllabusAccordion } from '../components/course/SyllabusAccordion';
 import type { ChapterData, LessonData } from '../components/course/SyllabusAccordion';
 import { CoursePurchaseSidebar } from '../components/course/CoursePurchaseSidebar';
 import { VideoPreviewModal } from '../components/course/VideoPreviewModal';
+import { useCart } from '../context/CartContext';
 
 interface CourseDetailPageProps {
   courseId?: string;
+  onNavigateCart?: () => void;
+  onNavigateHome?: () => void;
 }
 
+// Fallback dictionary for all 8 distinct courses
+const ALL_DEMO_COURSES_DETAIL: Record<string, any> = {
+  'course-nestjs-masterclass': {
+    id: 'course-nestjs-masterclass',
+    title: 'Lập trình NestJS & Microservices từ Zero đến Production',
+    description: 'Khóa học thiết kế hệ thống Backend chuẩn Enterprise sử dụng NestJS, PostgreSQL, Prisma ORM, Redis Caching, Websocket Chat 1-1 và tích hợp Trợ lý AI Gemini 2.0.',
+    price: 599000,
+    thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+    instructor: {
+      fullName: 'Phan Gia Đạt',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      bio: 'Senior Backend Engineer & NestJS Master Architect với hơn 6 năm kinh nghiệm thiết kế hệ thống Microservices.',
+    },
+    category: { name: 'Lập trình Backend' },
+    chapters: [
+      {
+        id: 'ch-nest-1',
+        title: 'Chương 1: Tổng quan Kiến trúc & Khởi tạo Dự án NestJS',
+        order: 1,
+        lessons: [
+          { id: 'l-nest-1', title: '1. Overview về NestJS Architecture & Dependency Injection', duration: 650, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-nest-2', title: '2. Cài đặt Nest CLI & Cấu trúc thư mục chuẩn Enterprise', duration: 920, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        ],
+      },
+      {
+        id: 'ch-nest-2',
+        title: 'Chương 2: Tích hợp Cơ sở Dữ liệu PostgreSQL với Prisma ORM',
+        order: 2,
+        lessons: [
+          { id: 'l-nest-3', title: '3. Thiết kế Database Schema chuẩn hóa với Prisma 6', duration: 1400, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-nest-4', title: '4. Viết CRUD Operations & Global Exception Filter', duration: 1650, isFreePreview: false },
+        ],
+      },
+    ],
+  },
+  'course-react-18-masterclass': {
+    id: 'course-react-18-masterclass',
+    title: 'React 18 & Next.js 14 Ultimate Masterclass 2026',
+    description: 'Làm chủ Server Components, App Router, TailwindCSS v4 và tích hợp Cổng thanh toán Stripe tự động qua Webhook.',
+    price: 699000,
+    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80',
+    instructor: {
+      fullName: 'Minh Anh',
+      avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
+      bio: 'Fullstack Specialist & React Next.js Lead Developer.',
+    },
+    category: { name: 'Lập trình Frontend' },
+    chapters: [
+      {
+        id: 'ch-react-1',
+        title: 'Chương 1: Nền tảng React 18 & Concurrent Features',
+        order: 1,
+        lessons: [
+          { id: 'l-react-1', title: '1. Tổng quan React 18: useTransition & Suspense', duration: 800, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-react-2', title: '2. Quản lý trạng thái ứng dụng với Zustand & React Context', duration: 1100, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        ],
+      },
+      {
+        id: 'ch-react-2',
+        title: 'Chương 2: Kiến trúc Next.js 14 App Router',
+        order: 2,
+        lessons: [
+          { id: 'l-react-3', title: '3. Server Components vs Client Components trong Next.js', duration: 1350, isFreePreview: false },
+          { id: 'l-react-4', title: '4. Tích hợp Cổng thanh toán Stripe & Webhook Handler', duration: 1750, isFreePreview: false },
+        ],
+      },
+    ],
+  },
+  'course-uiux-figma': {
+    id: 'course-uiux-figma',
+    title: 'Thiết kế UI/UX Chuyên nghiệp với Figma & Design System 2026',
+    description: 'Quy trình nghiên cứu trải nghiệm người dùng, xây dựng Design Tokens, Auto Layout 5.0, Component Variants và Prototype ứng dụng thực tế.',
+    price: 499000,
+    thumbnail: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=800&q=80',
+    instructor: {
+      fullName: 'Minh Anh',
+      avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
+      bio: 'Lead UI/UX Designer với hơn 7 năm kinh nghiệm thiết kế sản phẩm số.',
+    },
+    category: { name: 'Thiết kế UI/UX' },
+    chapters: [
+      {
+        id: 'ch-uiux-1',
+        title: 'Chương 1: Tư duy UX Research & Wireframing',
+        order: 1,
+        lessons: [
+          { id: 'l-uiux-1', title: '1. Nguyên lý Thiết kế Giao diện Người dùng & UX Laws', duration: 750, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-uiux-2', title: '2. Làm chủ Figma: Auto Layout, Smart Animate & Component Set', duration: 1200, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+        ],
+      },
+      {
+        id: 'ch-uiux-2',
+        title: 'Chương 2: Xây dựng Enterprise Design System',
+        order: 2,
+        lessons: [
+          { id: 'l-uiux-3', title: '3. Thiết lập Design Tokens (Colors, Typography, Spacing Grid)', duration: 1450, isFreePreview: false },
+        ],
+      },
+    ],
+  },
+  'course-ai-gemini': {
+    id: 'course-ai-gemini',
+    title: 'Xây dựng Trợ lý AI với Gemini 2.0 API & LangChain Python',
+    description: 'Hướng dẫn lập trình ứng dụng AI thực chiến: RAG (Retrieval-Augmented Generation), Prompt Engineering, Function Calling và kết nối Vector Database.',
+    price: 799000,
+    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80',
+    instructor: {
+      fullName: 'Hoàng Nam',
+      avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
+      bio: 'AI Engineer & Generative AI Specialist.',
+    },
+    category: { name: 'AI & Machine Learning' },
+    chapters: [
+      {
+        id: 'ch-ai-1',
+        title: 'Chương 1: Giới thiệu Gemini 2.0 API & LLMs',
+        order: 1,
+        lessons: [
+          { id: 'l-ai-1', title: '1. Khởi tạo Gemini 2.0 SDK với Python LangChain', duration: 850, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-ai-2', title: '2. Kỹ thuật Prompt Engineering & System Instructions', duration: 1300, isFreePreview: false },
+        ],
+      },
+    ],
+  },
+  'course-devops-docker': {
+    id: 'course-devops-docker',
+    title: 'DevOps Thực chiến: Docker, Kubernetes, AWS & CI/CD',
+    description: 'Đóng gói ứng dụng Microservices với Docker, vận hành cụm Kubernetes trên AWS EKS, viết Pipeline GitHub Actions tự động Deploy Production.',
+    price: 649000,
+    thumbnail: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?auto=format&fit=crop&w=800&q=80',
+    instructor: {
+      fullName: 'Tuấn Anh',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80',
+      bio: 'DevOps Architect & Cloud Infrastructure Specialist.',
+    },
+    category: { name: 'DevOps & Cloud' },
+    chapters: [
+      {
+        id: 'ch-devops-1',
+        title: 'Chương 1: Containerization với Docker & Docker Compose',
+        order: 1,
+        lessons: [
+          { id: 'l-devops-1', title: '1. Đóng gói ứng dụng NestJS & PostgreSQL với Dockerfile Multi-stage', duration: 900, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-devops-2', title: '2. Khởi tạo CI/CD Pipeline tự động chạy Unit Test và Deploy EC2', duration: 1700, isFreePreview: false },
+        ],
+      },
+    ],
+  },
+  'course-mobile-react-native': {
+    id: 'course-mobile-react-native',
+    title: 'Lập trình Mobile Đa nền tảng với React Native & Expo 2026',
+    description: 'Xây dựng ứng dụng di động iOS và Android từ một bộ mã nguồn TypeScript duy nhất. Kết nối Push Notifications, Camera API và Offline Storage.',
+    price: 549000,
+    thumbnail: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80',
+    instructor: {
+      fullName: 'Đăng Khoa',
+      avatarUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=300&q=80',
+      bio: 'Mobile Specialist & React Native Architect.',
+    },
+    category: { name: 'Lập trình Mobile' },
+    chapters: [
+      {
+        id: 'ch-mobile-1',
+        title: 'Chương 1: Khởi đầu với Expo Router & Native UI',
+        order: 1,
+        lessons: [
+          { id: 'l-mobile-1', title: '1. Giới thiệu React Native, Expo SDK 51 & Cấu trúc dự án Mobile', duration: 800, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-mobile-2', title: '2. Điều hướng màn hình mượt mà với Expo Router & Bottom Tabs', duration: 1150, isFreePreview: false },
+        ],
+      },
+    ],
+  },
+  'course-postgres-prisma': {
+    id: 'course-postgres-prisma',
+    title: 'Thành thạo PostgreSQL Database & Prisma ORM cho Web Developer',
+    description: 'Tối ưu chỉ mục Indexing, Query Optimization, Connection Pooling, Transaction Locks và thiết kế cơ sở dữ liệu lớn đáp ứng triệu người dùng.',
+    price: 499000,
+    thumbnail: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=800&q=80',
+    instructor: {
+      fullName: 'Phan Gia Đạt',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      bio: 'Senior Backend Engineer & Database Architect.',
+    },
+    category: { name: 'Data Science & SQL' },
+    chapters: [
+      {
+        id: 'ch-postgres-1',
+        title: 'Chương 1: Tối ưu SQL Truy vấn & PostgreSQL Indexing',
+        order: 1,
+        lessons: [
+          { id: 'l-postgres-1', title: '1. Phân tích truy vấn SQL với EXPLAIN ANALYZE & B-Tree Indexing', duration: 950, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-postgres-2', title: '2. Quản lý Transactions & Isolation Levels trong Prisma ORM', duration: 1400, isFreePreview: false },
+        ],
+      },
+    ],
+  },
+  'course-cyber-security': {
+    id: 'course-cyber-security',
+    title: 'Web Security Masterclass: JWT, OAuth2, XSS & CSRF Prevention',
+    description: 'Phương pháp bảo mật hệ thống toàn diện: Phòng chống SQL Injection, XSS, CSRF, cấu hình Helmet HTTP Headers, Rate Limiting chống DDoS.',
+    price: 599000,
+    thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
+    instructor: {
+      fullName: 'Trần Bảo',
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
+      bio: 'Security Specialist & Ethical Hacker.',
+    },
+    category: { name: 'Cyber Security' },
+    chapters: [
+      {
+        id: 'ch-sec-1',
+        title: 'Chương 1: Các lỗ hổng bảo mật Web phổ biến (OWASP Top 10)',
+        order: 1,
+        lessons: [
+          { id: 'l-sec-1', title: '1. Phân tích đòn tấn công XSS, CSRF & Cookie SameSite', duration: 880, isFreePreview: true, videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'l-sec-2', title: '2. Cấu hình Throttler Rate Limiting với Redis chống Spam & DDoS', duration: 1350, isFreePreview: false },
+        ],
+      },
+    ],
+  },
+};
+
 export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({ 
-  courseId = 'course-nestjs-masterclass' 
+  courseId = 'course-nestjs-masterclass',
+  onNavigateCart,
+  onNavigateHome,
 }) => {
   const [course, setCourse] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { addToCart, isInCart } = useCart();
 
   // Video Preview Modal State
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [activePreviewLesson, setActivePreviewLesson] = useState<LessonData | null>(null);
 
   useEffect(() => {
+    // Scroll to top immediately when course detail mounts or courseId changes
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
     const fetchCourse = async () => {
       setIsLoading(true);
       setError(null);
       try {
         const data = await courseApi.getCourseDetailPublic(courseId);
-        setCourse(data);
+        if (data && data.title) {
+          setCourse(data);
+        } else {
+          setCourse(ALL_DEMO_COURSES_DETAIL[courseId] || ALL_DEMO_COURSES_DETAIL['course-nestjs-masterclass']);
+        }
       } catch (err) {
-        console.error('Lỗi khi tải chi tiết khóa học:', err);
-        // Fallback demo seed data if network offline
-        setCourse({
-          id: 'course-nestjs-masterclass',
-          title: 'Lập trình NestJS & Microservices từ Zero đến Production',
-          description: 'Khóa học thiết kế hệ thống Backend chuẩn Enterprise sử dụng NestJS, PostgreSQL, Prisma ORM, Redis Caching, Websocket Chat 1-1 và tích hợp Trợ lý AI Gemini 2.0.',
-          price: 599000,
-          thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-          instructor: {
-            fullName: 'Phan Gia Đạt',
-            avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-            bio: 'Senior Backend Engineer & NestJS Master Architect với hơn 6 năm kinh nghiệm thiết kế hệ thống Microservices.',
-          },
-          category: { name: 'Lập trình Backend' },
-          chapters: [
-            {
-              id: 'ch-1',
-              title: 'Chương 1: Tổng quan Kiến trúc & Khởi tạo Dự án NestJS',
-              order: 1,
-              lessons: [
-                {
-                  id: 'l-1',
-                  title: '1. Overview về NestJS Architecture & Dependency Injection',
-                  duration: 650,
-                  isFreePreview: true,
-                  videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-                },
-                {
-                  id: 'l-2',
-                  title: '2. Cài đặt Nest CLI & Cấu trúc thư mục chuẩn Enterprise',
-                  duration: 920,
-                  isFreePreview: true,
-                  videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-                },
-                {
-                  id: 'l-3',
-                  title: '3. Thực hành viết Module, Controller và Service đầu tiên',
-                  duration: 1150,
-                  isFreePreview: false,
-                },
-              ],
-            },
-            {
-              id: 'ch-2',
-              title: 'Chương 2: Tích hợp Cơ sở Dữ liệu PostgreSQL với Prisma ORM',
-              order: 2,
-              lessons: [
-                {
-                  id: 'l-4',
-                  title: '4. Thiết kế Database Schema chuẩn hóa với Prisma 6',
-                  duration: 1400,
-                  isFreePreview: true,
-                  videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-                },
-                {
-                  id: 'l-5',
-                  title: '5. Viết CRUD Operations & Global Exception Filter',
-                  duration: 1650,
-                  isFreePreview: false,
-                },
-              ],
-            },
-          ],
-          reviews: [
-            {
-              id: 'rev-1',
-              rating: 5,
-              comment: 'Khóa học NestJS cực kỳ hay và thực tế! Nút xem trước giúp mình đánh giá được chất lượng video trước khi mua.',
-              user: {
-                fullName: 'Nguyễn Văn Hải',
-                avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
-              },
-              createdAt: '2026-08-15',
-            },
-          ],
-        });
+        console.warn(`Lỗi/Dùng dữ liệu demo khóa học (${courseId}):`, err);
+        setCourse(ALL_DEMO_COURSES_DETAIL[courseId] || ALL_DEMO_COURSES_DETAIL['course-nestjs-masterclass']);
       } finally {
         setIsLoading(false);
       }
@@ -130,7 +291,6 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
 
   // Open Main Course Preview Modal
   const handleOpenMainPreview = () => {
-    // Find first previewable lesson
     const firstPreviewable = course?.chapters
       ?.flatMap((ch: any) => ch.lessons)
       ?.find((l: any) => l.isFreePreview);
@@ -147,6 +307,33 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
       });
     }
     setIsPreviewOpen(true);
+  };
+
+  const handleAddToCart = () => {
+    if (!course) return;
+    addToCart({
+      id: course.id || courseId,
+      title: course.title,
+      instructorName: course.instructor?.fullName || 'Giảng viên EduSphere',
+      rating: 4.9,
+      ratingsCount: 142,
+      totalHours: '32 total hours',
+      lecturesCount: 68,
+      level: 'All Levels',
+      price: course.price || 599000,
+      thumbnail: course.thumbnail || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+      isUpdatedRecently: true,
+      isPremium: true,
+    });
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    if (onNavigateCart) {
+      onNavigateCart();
+    } else {
+      window.location.hash = '#cart';
+    }
   };
 
   if (isLoading) {
@@ -171,10 +358,31 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
   const chapters: ChapterData[] = course.chapters || [];
   const instructor = course.instructor || { fullName: 'Phan Gia Đạt' };
   const reviews = course.reviews || [];
+  const isAlreadyInCart = isInCart(course.id);
 
   return (
     <div className="min-h-screen bg-[var(--neutral-bg)] transition-colors">
       
+      {/* 0. Top Navigation Breadcrumb Bar */}
+      <div className="bg-[var(--neutral-surface)] border-b border-[var(--border-color)] py-3.5 px-4 sm:px-6 lg:px-8 shadow-xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <button
+            onClick={() => {
+              if (onNavigateHome) onNavigateHome();
+              else window.location.hash = '#home';
+            }}
+            className="inline-flex items-center gap-2 text-p2-bold text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition hover:underline group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
+            <span>Quay lại Trang chủ / Danh sách khóa học</span>
+          </button>
+
+          <div className="text-caption-medium text-[var(--text-muted)] hidden sm:block">
+            Trang chủ &gt; Khóa học &gt; <span className="text-[var(--text-primary)] font-semibold truncate max-w-[240px] inline-block align-bottom">{course.title}</span>
+          </div>
+        </div>
+      </div>
+
       {/* 1. Header Hero Banner */}
       <CourseDetailHero
         title={course.title}
@@ -186,41 +394,48 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
         studentCount={1280}
       />
 
-      {/* 2. Main Page Layout (68% Content / 32% Sidebar) */}
+      {/* 2. Main Content Body (3-Column Layout: Left 68%, Right Sticky 32%) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* LEFT COLUMN (68% = 8 cols) */}
           <div className="lg:col-span-8 space-y-10">
             
-            {/* A. What You'll Learn Box */}
-            <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl p-6 sm:p-8 shadow-sm space-y-4">
+            {/* What you'll learn card */}
+            <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl p-6 space-y-4">
               <h3 className="text-h3-bold text-[var(--text-primary)]">
                 Bạn sẽ học được gì trong khóa học này?
               </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-                {[
-                  'Nắm vững kiến trúc NestJS, Dependency Injection & IoC Container',
-                  'Thiết kế CSDL PostgreSQL & ORM Prisma 6 chuẩn Enterprise',
-                  'Bảo mật API với JWT Access Token & Refresh Token Rotation',
-                  'Xây dựng hệ thống Chat Realtime 1-1 với Websocket Socket.IO',
-                  'Tích hợp Cổng thanh toán Stripe tự động qua Webhook',
-                  'Tích hợp Trợ lý AI Gemini 2.0 tạo lộ trình & tự động chấm bài',
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-5 h-5 text-[var(--primary-600)] flex-shrink-0 mt-0.5" />
-                    <span className="text-p2-medium text-[var(--text-primary)]">{item}</span>
-                  </div>
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-p2-regular text-[var(--text-primary)]">
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <span>Làm chủ toàn bộ kiến thức và ứng dụng thực chiến trong dự án thực tế</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <span>Xây dựng kiến trúc mô hình chuẩn Enterprise đáp ứng quy mô lớn</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <span>Tối ưu hóa hiệu năng, bảo mật và quy trình phát triển chuyên nghiệp</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <span>Được cấp Chứng chỉ Hoàn thành khóa học EduSphere Verified</span>
+                </div>
               </div>
             </div>
 
-            {/* B. Syllabus Accordion Section */}
+            {/* Course Syllabus Accordion Section */}
             <div className="space-y-4">
-              <h3 className="text-h2-bold text-[var(--text-primary)]">
-                Nội dung khóa học
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-h2-bold text-[var(--text-primary)]">
+                  Nội dung khóa học (Syllabus)
+                </h3>
+                <span className="text-caption-medium text-[var(--text-muted)]">
+                  {chapters.length} Chương • {chapters.reduce((acc, c) => acc + (c.lessons?.length || 0), 0)} Bài học
+                </span>
+              </div>
 
               <SyllabusAccordion
                 chapters={chapters}
@@ -228,84 +443,33 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
               />
             </div>
 
-            {/* C. Requirements Section */}
-            <div className="space-y-3 pt-4 border-t border-[var(--border-color)]">
-              <h3 className="text-h3-bold text-[var(--text-primary)]">
-                Yêu cầu đầu vào
-              </h3>
-              <ul className="list-disc list-inside space-y-2 text-p2-medium text-[var(--text-secondary)]">
-                <li>Kiến thức căn bản về JavaScript (ES6+) và TypeScript.</li>
-                <li>Máy tính cài sẵn Node.js (phiên bản v18 trở lên) và VS Code.</li>
-                <li>Tâm thế chủ động thực hành viết code qua từng chương bài học.</li>
-              </ul>
-            </div>
-
-            {/* D. Description Section */}
-            <div className="space-y-3 pt-4 border-t border-[var(--border-color)]">
-              <h3 className="text-h3-bold text-[var(--text-primary)]">
-                Mô tả chi tiết khóa học
-              </h3>
-              <div className="text-p2-regular text-[var(--text-secondary)] space-y-3 leading-relaxed">
-                <p>
-                  Khóa học <strong>{course.title}</strong> được thiết kế theo lộ trình thực chiến nhất dành cho các lập trình viên muốn nâng cao tư duy thiết kế hệ thống Backend quy mô lớn.
-                </p>
-                <p>
-                  Trong suốt khóa học, bạn sẽ không chỉ dừng lại ở các lý thuyết cơ bản mà sẽ trực tiếp tự tay viết từng dòng code để hoàn thiện một hệ thống bán khóa học hoàn chỉnh bao gồm REST API, Caching Redis, Socket.IO Chat và Trợ lý AI.
-                </p>
-              </div>
-            </div>
-
-            {/* E. Instructor Bio Section */}
-            <div className="space-y-4 pt-4 border-t border-[var(--border-color)]">
-              <h3 className="text-h3-bold text-[var(--text-primary)]">
-                Giảng viên hướng dẫn
-              </h3>
-
-              <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl p-6 flex flex-col sm:flex-row items-start gap-5">
+            {/* Instructor Info Box */}
+            <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl p-6 space-y-4">
+              <h3 className="text-h3-bold text-[var(--text-primary)]">Giảng viên hướng dẫn</h3>
+              <div className="flex items-start gap-4">
                 <img
                   src={instructor.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
                   alt={instructor.fullName}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-[var(--primary-600)] flex-shrink-0"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-purple-500"
                 />
-
-                <div className="space-y-2 flex-1">
-                  <div>
-                    <h4 className="text-p1-bold text-[var(--text-primary)]">{instructor.fullName}</h4>
-                    <p className="text-caption-bold text-[var(--primary-600)]">Senior Backend Engineer & NestJS Master Architect</p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-4 text-caption-medium text-[var(--text-secondary)]">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span>4.9 Đánh giá giảng viên</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Award className="w-4 h-4 text-[var(--primary-600)]" />
-                      <span>12 Khóa học</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="w-4 h-4 text-[var(--primary-600)]" />
-                      <span>15,400+ Học viên</span>
-                    </div>
-                  </div>
-
-                  <p className="text-p2-regular text-[var(--text-secondary)] pt-1">
-                    {instructor.bio || 'Hơn 6 năm kinh nghiệm giảng dạy và thiết kế hệ thống Microservices chuẩn Enterprise cho các tập đoàn công nghệ hàng đầu.'}
-                  </p>
+                <div className="space-y-1">
+                  <h4 className="text-p1-bold text-[var(--text-primary)]">{instructor.fullName}</h4>
+                  <p className="text-caption-medium text-purple-600 dark:text-purple-400">Chuyên gia đào tạo EduSphere Academy</p>
+                  <p className="text-p2-regular text-[var(--text-secondary)] pt-1">{instructor.bio || 'Hơn 6 năm kinh nghiệm giảng dạy và phát triển sản phẩm công nghệ.'}</p>
                 </div>
               </div>
             </div>
 
-            {/* F. Student Reviews Section */}
-            <div className="space-y-6 pt-4 border-t border-[var(--border-color)]" id="reviews">
-              <h3 className="text-h3-bold text-[var(--text-primary)]">
-                Đánh giá từ học viên
+            {/* Student Reviews Section */}
+            <div className="space-y-4">
+              <h3 className="text-h2-bold text-[var(--text-primary)]">
+                Đánh giá từ Học viên ({reviews.length})
               </h3>
-
-              <div className="space-y-4">
+              
+              <div className="space-y-3">
                 {reviews.length > 0 ? (
                   reviews.map((rev: any) => (
-                    <div key={rev.id} className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-xl p-5 space-y-3">
+                    <div key={rev.id} className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-xl p-4 space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <img
@@ -349,10 +513,11 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
             <CoursePurchaseSidebar
               thumbnail={course.thumbnail}
               price={course.price || 599000}
-              originalPrice={1200000}
               onOpenMainPreview={handleOpenMainPreview}
-              onBuyNow={() => alert('Chuyển hướng đến Cổng thanh toán Stripe...')}
-              onAddToCart={() => alert('Đã thêm khóa học vào giỏ hàng!')}
+              onBuyNow={handleBuyNow}
+              onAddToCart={handleAddToCart}
+              isInCart={isAlreadyInCart}
+              onGoToCart={onNavigateCart || (() => { window.location.hash = '#cart'; })}
             />
           </div>
 
