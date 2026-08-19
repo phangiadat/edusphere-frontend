@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, BookOpen, Save } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, BookOpen, Save, UploadCloud, Info, RefreshCw } from 'lucide-react';
 import type { CourseItem, CourseStatusType } from './CourseCard';
 import styles from './CourseFormModal.module.css';
 
@@ -34,6 +34,8 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
   const [thumbnail, setThumbnail] = useState('');
   const [description, setDescription] = useState('');
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title || '');
@@ -43,7 +45,7 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
       setThumbnail(initialData.thumbnail || '');
       setDescription(initialData.description || '');
     } else {
-      // Reset form for create new
+      // Reset form for create new (Default to DRAFT)
       setTitle('');
       setCategoryName('Lập trình Web');
       setPrice(499000);
@@ -54,6 +56,25 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
   }, [initialData, isOpen]);
 
   if (!isOpen) return null;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result) {
+          setThumbnail(reader.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleTriggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +113,15 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
 
         {/* Body Form */}
         <form id="course-form" onSubmit={handleSubmit} className={styles.body}>
+          
+          {/* Info Banner explaining Course Status Workflow */}
+          <div className={styles.noticeBanner}>
+            <Info className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <p className={styles.noticeText}>
+              💡 <strong>Quy trình phê duyệt:</strong> Khóa học mới sẽ khởi tạo ở dạng <strong>Bản nháp (DRAFT)</strong>. Sau khi hoàn thiện nội dung, hãy chọn <strong>Chờ duyệt (PENDING)</strong> để gửi Admin kiểm duyệt mở bán.
+            </p>
+          </div>
+
           {/* Title */}
           <div className={styles.formGroup}>
             <label className={styles.label}>Tiêu đề Khóa học *</label>
@@ -137,31 +167,55 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
             </div>
           </div>
 
-          {/* Grid: Status & Thumbnail */}
-          <div className={styles.formGrid}>
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Trạng thái Xuất bản *</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as CourseStatusType)}
-                className={styles.input}
-              >
-                <option value="DRAFT">Bản nháp (DRAFT)</option>
-                <option value="PUBLISHED">Đang bán (PUBLISHED)</option>
-                <option value="PENDING">Chờ duyệt (PENDING)</option>
-              </select>
-            </div>
+          {/* Status Select Workflow (Instructor perspective) */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Trạng thái Khóa học *</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as CourseStatusType)}
+              className={styles.input}
+            >
+              <option value="DRAFT">📝 Bản nháp (DRAFT) - Đang biên soạn</option>
+              <option value="PENDING">⏳ Chờ duyệt (PENDING) - Gửi Admin kiểm duyệt</option>
+              {initialData?.status === 'PUBLISHED' && (
+                <option value="PUBLISHED">✅ Đang bán (PUBLISHED - Đã được duyệt)</option>
+              )}
+            </select>
+          </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>URL Ảnh bìa (Thumbnail)</label>
-              <input
-                type="url"
-                value={thumbnail}
-                onChange={(e) => setThumbnail(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className={styles.input}
-              />
-            </div>
+          {/* Thumbnail File Upload / Cloudinary Preview Area */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Ảnh bìa Khóa học (Thumbnail)</label>
+            
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className={styles.fileInputHidden}
+              onChange={handleFileChange}
+            />
+
+            {thumbnail ? (
+              <div className={styles.previewBox}>
+                <img src={thumbnail} alt="Thumbnail preview" className={styles.previewImage} />
+                <button
+                  type="button"
+                  onClick={handleTriggerFileInput}
+                  className={styles.changeImageBtn}
+                >
+                  <span className="flex items-center gap-1">
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Tải ảnh khác</span>
+                  </span>
+                </button>
+              </div>
+            ) : (
+              <div onClick={handleTriggerFileInput} className={styles.uploadZone}>
+                <UploadCloud className={styles.uploadIcon} />
+                <div className={styles.uploadText}>Kéo thả hoặc bấm để chọn ảnh từ máy tính</div>
+                <div className={styles.uploadSubtext}>Hỗ trợ định dạng PNG, JPG, WEBP (Khuyên dùng tỷ lệ 16:9)</div>
+              </div>
+            )}
           </div>
 
           {/* Description */}
