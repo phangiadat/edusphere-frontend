@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Star, 
   Clock, 
@@ -15,6 +15,7 @@ import {
 import type { Course } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { courseApi } from '../../api/courseApi';
+import { CourseHoverCard } from './CourseHoverCard';
 
 interface FeaturedCoursesProps {
   selectedCategory?: string | null;
@@ -180,8 +181,23 @@ export const FeaturedCourses: React.FC<FeaturedCoursesProps> = ({
   const [courses, setCourses] = useState<Course[]>([]);
   const [totalCourses, setTotalCourses] = useState<number>(DEMO_COURSES.length);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const { addToCart, isInCart } = useCart();
+
+  // Udemy-style Hover Popover State
+  const [hoveredCourseId, setHoveredCourseId] = useState<string | null>(null);
+  const hoverTimeoutRef = useRef<any>(null);
+
+  const handleMouseEnter = (courseId: string) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredCourseId(courseId);
+    }, 200);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setHoveredCourseId(null);
+  };
 
   // Fetch courses whenever page, selectedCategory, searchQuery, or activeTab changes
   useEffect(() => {
@@ -401,18 +417,21 @@ export const FeaturedCourses: React.FC<FeaturedCoursesProps> = ({
       ) : (
         /* Courses Cards Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => {
+          {courses.map((course, index) => {
             const inCart = isInCart(course.id);
+            const isHovered = hoveredCourseId === course.id;
             return (
               <div
                 key={course.id}
-                className="rounded-xl bg-[var(--neutral-surface)] border border-[var(--border-color)] overflow-hidden hover:border-purple-500 transition duration-200 flex flex-col justify-between"
+                onMouseEnter={() => handleMouseEnter(course.id)}
+                onMouseLeave={handleMouseLeave}
+                className="relative rounded-xl bg-[var(--neutral-surface)] border border-[var(--border-color)] overflow-visible hover:border-purple-500 transition duration-200 flex flex-col justify-between"
               >
                 <div>
                   {/* Thumbnail Container */}
                   <div 
                     onClick={() => { window.location.hash = `#course/${course.id}`; }}
-                    className="relative aspect-video overflow-hidden cursor-pointer group bg-slate-100"
+                    className="relative aspect-video overflow-hidden cursor-pointer group bg-slate-100 rounded-t-xl"
                   >
                     <img
                       src={course.thumbnail}
@@ -511,6 +530,17 @@ export const FeaturedCourses: React.FC<FeaturedCoursesProps> = ({
                     </button>
                   </div>
                 </div>
+
+                {/* Udemy Style Floating Course Hover Popover Card */}
+                {isHovered && (
+                  <div className="hidden lg:block">
+                    <CourseHoverCard
+                      course={course}
+                      position={index % 3 === 2 ? 'left' : 'right'}
+                      onNavigateDetail={() => { window.location.hash = `#course/${course.id}`; }}
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
