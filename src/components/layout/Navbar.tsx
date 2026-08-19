@@ -16,37 +16,67 @@ import {
   Briefcase,
   LogOut,
   Settings,
-  GraduationCap
+  GraduationCap,
+  ShoppingCart
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 
 interface NavbarProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  onNavigateCart?: () => void;
+  onSelectCategory?: (categoryName: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleDarkMode }) => {
+export const Navbar: React.FC<NavbarProps> = ({ 
+  darkMode, 
+  onToggleDarkMode,
+  onNavigateCart,
+  onSelectCategory,
+}) => {
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
+  const { cartCount, cartItems, totalPrice } = useCart();
   
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartHovered, setIsCartHovered] = useState(false);
 
   const categories = [
     { name: 'Lập trình Web', icon: Code, count: '42 khóa' },
-    { name: 'UI/UX Design', icon: Layout, count: '18 khóa' },
+    { name: 'Thiết kế UI/UX', icon: Layout, count: '28 khóa' },
     { name: 'AI & Machine Learning', icon: Brain, count: '25 khóa' },
-    { name: 'Lập trình Mobile', icon: Smartphone, count: '15 khóa' },
-    { name: 'DevOps & Cloud', icon: Server, count: '12 khóa' },
-    { name: 'Kinh doanh & Marketing', icon: Briefcase, count: '20 khóa' },
+    { name: 'Lập trình Mobile', icon: Smartphone, count: '18 khóa' },
+    { name: 'DevOps & Cloud', icon: Server, count: '15 khóa' },
+    { name: 'Data Science & SQL', icon: Briefcase, count: '20 khóa' },
   ];
+
+  const handleCartClick = () => {
+    if (onNavigateCart) {
+      onNavigateCart();
+    } else {
+      window.location.hash = '#cart';
+    }
+  };
+
+  const handleCategoryItemClick = (catName: string) => {
+    setIsCategoryOpen(false);
+    if (onSelectCategory) {
+      onSelectCategory(catName);
+    }
+    const coursesSection = document.getElementById('courses');
+    if (coursesSection) {
+      coursesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-[var(--neutral-surface)] border-b border-[var(--border-color)] transition-colors shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         
         {/* Brand Logo */}
-        <a href="#" className="flex items-center gap-2.5 focus:outline-none rounded-lg p-1 flex-shrink-0">
+        <a href="#home" className="flex items-center gap-2.5 focus:outline-none rounded-lg p-1 flex-shrink-0">
           <div className="w-9 h-9 rounded-lg bg-[var(--primary-600)] flex items-center justify-center text-white font-bold">
             <BookOpen className="w-5 h-5" />
           </div>
@@ -77,10 +107,10 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleDarkMode }) =>
                 {categories.map((cat, idx) => {
                   const Icon = cat.icon;
                   return (
-                    <a
+                    <div
                       key={idx}
-                      href="#"
-                      className="flex items-center justify-between p-2.5 rounded-lg hover:bg-[var(--neutral-surface-hover)] transition group"
+                      onClick={() => handleCategoryItemClick(cat.name)}
+                      className="flex items-center justify-between p-2.5 rounded-lg hover:bg-[var(--neutral-surface-hover)] transition group cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         <div className="p-2 rounded-md bg-[var(--primary-50)] text-[var(--primary-600)] dark:bg-slate-800 dark:text-[var(--primary-300)]">
@@ -91,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleDarkMode }) =>
                         </span>
                       </div>
                       <span className="text-caption-regular text-[var(--text-muted)]">{cat.count}</span>
-                    </a>
+                    </div>
                   );
                 })}
               </div>
@@ -111,6 +141,8 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleDarkMode }) =>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          
+          {/* Dark Mode Toggle */}
           <button 
             onClick={onToggleDarkMode}
             className="p-2 rounded-lg hover:bg-[var(--neutral-surface-hover)] text-[var(--text-secondary)] transition"
@@ -119,6 +151,65 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleDarkMode }) =>
             {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
           </button>
 
+          {/* 🛒 Shopping Cart Icon with Badge */}
+          <div 
+            className="relative"
+            onMouseEnter={() => setIsCartHovered(true)}
+            onMouseLeave={() => setIsCartHovered(false)}
+          >
+            <button 
+              onClick={handleCartClick}
+              className="relative p-2 rounded-lg hover:bg-[var(--neutral-surface-hover)] text-[var(--text-primary)] transition flex items-center justify-center group"
+              aria-label="Giỏ hàng"
+            >
+              <ShoppingCart className="w-5.5 h-5.5 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition" />
+              
+              {/* Cart Badge Count Pill */}
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1.5 bg-purple-600 text-white font-black text-[11px] h-5 min-w-5 px-1 rounded-full flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            {/* Cart Quick Preview Dropdown on Hover */}
+            {isCartHovered && cartCount > 0 && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-4 z-50 space-y-3 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2.5">
+                  <span className="text-p2-bold text-[var(--text-primary)]">Giỏ hàng ({cartCount})</span>
+                  <span className="text-caption-bold text-purple-600 dark:text-purple-400">
+                    đ{totalPrice.toLocaleString('vi-VN')}
+                  </span>
+                </div>
+
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  {cartItems.slice(0, 3).map((item) => (
+                    <div key={item.id} className="flex gap-2.5 items-center">
+                      <img src={item.thumbnail} alt={item.title} className="w-12 h-9 object-cover rounded-md flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-caption-bold text-[var(--text-primary)] truncate">{item.title}</p>
+                        <p className="text-[11px] text-purple-600 dark:text-purple-400 font-bold">đ{item.price.toLocaleString('vi-VN')}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {cartCount > 3 && (
+                    <p className="text-center text-[11px] text-[var(--text-muted)] italic">
+                      và {cartCount - 3} khóa học khác...
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleCartClick}
+                  className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-caption-bold rounded-xl transition shadow text-center block"
+                >
+                  Chuyển đến Giỏ hàng
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Notification Bell */}
           <button 
             className="relative p-2 rounded-lg hover:bg-[var(--neutral-surface-hover)] text-[var(--text-secondary)] transition"
             aria-label="Thông báo"
@@ -154,6 +245,10 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleDarkMode }) =>
                       {user.role}
                     </span>
                   </div>
+
+                  <a href="#cart" onClick={handleCartClick} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-p2-medium text-[var(--text-primary)] hover:bg-[var(--neutral-surface-hover)]">
+                    <ShoppingCart className="w-4 h-4 text-purple-600" /> Giỏ hàng ({cartCount})
+                  </a>
 
                   <a href="#my-courses" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-p2-medium text-[var(--text-primary)] hover:bg-[var(--neutral-surface-hover)]">
                     <GraduationCap className="w-4 h-4 text-[var(--primary-600)]" /> Khóa học của tôi
@@ -203,6 +298,10 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleDarkMode }) =>
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-[var(--neutral-surface)] border-b border-[var(--border-color)] px-4 py-4 space-y-3">
+          <a href="#cart" onClick={() => { setIsMobileMenuOpen(false); handleCartClick(); }} className="flex items-center justify-between text-p2-bold py-2 text-[var(--text-primary)]">
+            <span>Giỏ hàng</span>
+            <span className="bg-purple-600 text-white font-bold text-xs px-2 py-0.5 rounded-full">{cartCount}</span>
+          </a>
           <a href="#courses" className="block text-p2-bold py-2 text-[var(--text-primary)]">Khóa học</a>
           <a href="#why-us" className="block text-p2-bold py-2 text-[var(--text-primary)]">Tính năng AI</a>
           <a href="#instructors" className="block text-p2-bold py-2 text-[var(--text-primary)]">Giảng viên</a>

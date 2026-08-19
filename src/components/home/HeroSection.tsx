@@ -10,20 +10,49 @@ import {
   BookOpen 
 } from 'lucide-react';
 
-export const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  onExploreCourses?: () => void;
+  onSearchCourse?: (query: string) => void;
+}
+
+export const HeroSection: React.FC<HeroSectionProps> = ({
+  onExploreCourses,
+  onSearchCourse,
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Auto-complete course suggestions
   const suggestions = [
-    { title: 'Lập trình NestJS & Microservices', category: 'Backend Development', price: '599.000₫' },
-    { title: 'React 18 & Next.js 14 Masterclass', category: 'Frontend Development', price: '699.000₫' },
-    { title: 'Thiết kế UI/UX với Figma 2026', category: 'UI/UX Design', price: '499.000₫' },
+    { title: 'Lập trình NestJS & Microservices', category: 'Lập trình Web', price: '599.000₫' },
+    { title: 'React 18 & Next.js 14 Masterclass', category: 'Lập trình Web', price: '699.000₫' },
+    { title: 'Thiết kế UI/UX với Figma 2026', category: 'Thiết kế UI/UX', price: '499.000₫' },
     { title: 'Python AI & Gemini 2.0 API', category: 'AI & Machine Learning', price: '799.000₫' },
   ].filter(s => 
     s.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     s.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (onSearchCourse) {
+      onSearchCourse(searchQuery);
+    }
+    const coursesElement = document.getElementById('courses');
+    if (coursesElement) {
+      coursesElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleExploreClick = () => {
+    if (onExploreCourses) {
+      onExploreCourses();
+    }
+    const coursesElement = document.getElementById('courses');
+    if (coursesElement) {
+      coursesElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <section className="py-12 lg:py-20 bg-[var(--neutral-bg)] border-b border-[var(--border-color)]">
@@ -56,7 +85,7 @@ export const HeroSection: React.FC = () => {
                THANH TÌM KIẾM TRUNG TÂM DUY NHẤT (PROMINENT CENTER SEARCH BAR)
                ================================================================== */}
             <div className="pt-2 max-w-xl relative">
-              <div className={`relative flex items-center bg-[var(--neutral-surface)] border-2 ${isSearchFocused ? 'border-[var(--primary-600)] shadow-sm' : 'border-[var(--border-color-strong)]'} rounded-xl p-1.5 transition-all`}>
+              <form onSubmit={handleSearchSubmit} className={`relative flex items-center bg-[var(--neutral-surface)] border-2 ${isSearchFocused ? 'border-[var(--primary-600)] shadow-sm' : 'border-[var(--border-color-strong)]'} rounded-xl p-1.5 transition-all`}>
                 
                 <Search className="w-5 h-5 ml-3 text-[var(--primary-600)] flex-shrink-0" />
                 
@@ -70,11 +99,11 @@ export const HeroSection: React.FC = () => {
                   className="w-full px-3 py-2 text-p1-medium bg-transparent border-none focus:outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
                 />
 
-                <button className="px-6 py-2.5 rounded-lg bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white text-p2-bold transition flex items-center gap-1.5 flex-shrink-0">
+                <button type="submit" className="px-6 py-2.5 rounded-lg bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white text-p2-bold transition flex items-center gap-1.5 flex-shrink-0">
                   <span>Tìm kiếm</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
-              </div>
+              </form>
 
               {/* Instant Search Suggestions Dropdown */}
               {isSearchFocused && searchQuery.length > 0 && (
@@ -84,10 +113,13 @@ export const HeroSection: React.FC = () => {
                   </div>
                   {suggestions.length > 0 ? (
                     suggestions.map((item, idx) => (
-                      <a
+                      <div
                         key={idx}
-                        href="#courses"
-                        className="flex items-center justify-between p-2.5 rounded-lg hover:bg-[var(--neutral-surface-hover)] transition"
+                        onClick={() => {
+                          setSearchQuery(item.title);
+                          handleSearchSubmit();
+                        }}
+                        className="flex items-center justify-between p-2.5 rounded-lg hover:bg-[var(--neutral-surface-hover)] transition cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
                           <BookOpen className="w-4 h-4 text-[var(--primary-600)]" />
@@ -97,7 +129,7 @@ export const HeroSection: React.FC = () => {
                           </div>
                         </div>
                         <span className="text-p2-bold text-[var(--primary-600)]">{item.price}</span>
-                      </a>
+                      </div>
                     ))
                   ) : (
                     <div className="p-3 text-p2-regular text-[var(--text-muted)] text-center">
@@ -110,30 +142,32 @@ export const HeroSection: React.FC = () => {
               {/* Quick Topic Badges */}
               <div className="flex items-center gap-2 mt-3 text-caption-medium text-[var(--text-secondary)] flex-wrap">
                 <span className="text-[var(--text-muted)]">Phổ biến:</span>
-                <button onClick={() => setSearchQuery('NestJS')} className="px-2.5 py-1 rounded-md bg-[var(--neutral-surface)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--primary-600)] hover:text-[var(--primary-600)] transition">
-                  NestJS
-                </button>
-                <button onClick={() => setSearchQuery('React')} className="px-2.5 py-1 rounded-md bg-[var(--neutral-surface)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--primary-600)] hover:text-[var(--primary-600)] transition">
-                  React 18
-                </button>
-                <button onClick={() => setSearchQuery('Figma')} className="px-2.5 py-1 rounded-md bg-[var(--neutral-surface)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--primary-600)] hover:text-[var(--primary-600)] transition">
-                  UI/UX Figma
-                </button>
-                <button onClick={() => setSearchQuery('AI')} className="px-2.5 py-1 rounded-md bg-[var(--neutral-surface)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--primary-600)] hover:text-[var(--primary-600)] transition">
-                  Python AI
-                </button>
+                {['NestJS', 'React 18', 'Thiết kế UI/UX', 'AI'].map((topic) => (
+                  <button
+                    key={topic}
+                    onClick={() => {
+                      setSearchQuery(topic);
+                      if (onSearchCourse) onSearchCourse(topic);
+                      const coursesElement = document.getElementById('courses');
+                      if (coursesElement) coursesElement.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="px-2.5 py-1 rounded-md bg-[var(--neutral-surface)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--primary-600)] hover:text-[var(--primary-600)] transition text-xs font-semibold"
+                  >
+                    {topic}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Dual CTAs */}
             <div className="pt-2 flex flex-wrap items-center gap-4">
-              <a 
-                href="#courses" 
-                className="px-6 py-3 rounded-lg bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white text-p2-bold transition flex items-center gap-2"
+              <button 
+                onClick={handleExploreClick}
+                className="px-6 py-3 rounded-lg bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white text-p2-bold transition flex items-center gap-2 shadow-md active:scale-95"
               >
-                Khám phá khóa học 
+                <span>Khám phá khóa học</span>
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </button>
 
               <a 
                 href="#why-us" 
@@ -164,11 +198,14 @@ export const HeroSection: React.FC = () => {
             <div className="rounded-2xl bg-[var(--neutral-surface)] border border-[var(--border-color)] p-4">
               
               {/* Thumbnail */}
-              <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
+              <div 
+                onClick={() => { window.location.hash = '#course/course-nestjs-masterclass'; }}
+                className="relative aspect-video rounded-xl overflow-hidden mb-4 cursor-pointer group"
+              >
                 <img 
                   src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80" 
                   alt="Course Preview" 
-                  className="w-full h-full object-cover" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300" 
                 />
                 <span className="absolute top-3 left-3 bg-[var(--primary-600)] text-white text-caption-bold px-2.5 py-1 rounded-md">
                   HOT COURSE 2026
@@ -191,7 +228,10 @@ export const HeroSection: React.FC = () => {
                   </div>
                 </div>
 
-                <h3 className="text-h3-bold text-[var(--text-primary)] line-clamp-1">
+                <h3 
+                  onClick={() => { window.location.hash = '#course/course-nestjs-masterclass'; }}
+                  className="text-h3-bold text-[var(--text-primary)] hover:text-purple-600 cursor-pointer line-clamp-1"
+                >
                   Lập trình NestJS & Microservices từ Zero đến Production
                 </h3>
 
