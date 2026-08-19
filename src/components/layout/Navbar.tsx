@@ -8,6 +8,7 @@ import {
   ChevronDown, 
   Menu, 
   X,
+  Search,
   Code,
   Layout,
   Brain,
@@ -27,6 +28,7 @@ interface NavbarProps {
   onToggleDarkMode: () => void;
   onNavigateCart?: () => void;
   onSelectCategory?: (categoryName: string) => void;
+  onSearchCourse?: (query: string) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ 
@@ -34,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleDarkMode,
   onNavigateCart,
   onSelectCategory,
+  onSearchCourse,
 }) => {
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const { cartCount, cartItems, totalPrice } = useCart();
@@ -71,6 +74,19 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
+  const [navSearchQuery, setNavSearchQuery] = useState('');
+
+  const handleNavSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSearchCourse) {
+      onSearchCourse(navSearchQuery);
+    }
+    const coursesSection = document.getElementById('courses');
+    if (coursesSection) {
+      coursesSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-[var(--neutral-surface)] border-b border-[var(--border-color)] transition-colors shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -91,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </a>
 
         {/* Categories Dropdown & Nav Links */}
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-4">
           <div className="relative">
             <button
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
@@ -127,16 +143,29 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             )}
           </div>
+        </div>
 
-          <a href="#courses" className="text-p2-bold text-[var(--text-primary)] hover:text-[var(--primary-600)] py-2 px-3 rounded-lg hover:bg-[var(--neutral-surface-hover)] transition">
-            Khóa học
-          </a>
-          <a href="#why-us" className="text-p2-bold text-[var(--text-primary)] hover:text-[var(--primary-600)] py-2 px-3 rounded-lg hover:bg-[var(--neutral-surface-hover)] transition">
-            Tính năng AI
-          </a>
-          <a href="#instructors" className="text-p2-bold text-[var(--text-primary)] hover:text-[var(--primary-600)] py-2 px-3 rounded-lg hover:bg-[var(--neutral-surface-hover)] transition">
-            Giảng viên
-          </a>
+        {/* 🔍 Udemy Style Capsule Search Bar */}
+        <div className="hidden md:flex items-center flex-1 max-w-md lg:max-w-lg mx-2 relative">
+          <form onSubmit={handleNavSearchSubmit} className="w-full relative flex items-center">
+            <Search className="absolute left-4 w-4 h-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
+            <input
+              type="text"
+              value={navSearchQuery}
+              onChange={(e) => setNavSearchQuery(e.target.value)}
+              placeholder="Search for anything"
+              className="w-full h-10 pl-11 pr-9 rounded-full border border-slate-300 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-900/90 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-purple-600 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+            />
+            {navSearchQuery && (
+              <button
+                type="button"
+                onClick={() => setNavSearchQuery('')}
+                className="absolute right-3 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full transition"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </form>
         </div>
 
         {/* Action Controls */}

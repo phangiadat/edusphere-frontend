@@ -136,6 +136,7 @@ export default function App() {
               onToggleDarkMode={toggleDarkMode} 
               onNavigateCart={navigateToCart}
               onSelectCategory={handleSelectCategory}
+              onSearchCourse={handleSearchCourse}
             />
           )}
           

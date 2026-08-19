@@ -85,9 +85,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                THANH TÌM KIẾM TRUNG TÂM DUY NHẤT (PROMINENT CENTER SEARCH BAR)
                ================================================================== */}
             <div className="pt-2 max-w-xl relative">
-              <form onSubmit={handleSearchSubmit} className={`relative flex items-center bg-[var(--neutral-surface)] border-2 ${isSearchFocused ? 'border-[var(--primary-600)] shadow-sm' : 'border-[var(--border-color-strong)]'} rounded-xl p-1.5 transition-all`}>
+              <form onSubmit={handleSearchSubmit} className={`relative flex items-center bg-white dark:bg-slate-900 border ${isSearchFocused ? 'border-purple-600 ring-2 ring-purple-500/20 shadow-md' : 'border-slate-300 dark:border-slate-700 hover:border-slate-400'} rounded-full p-1.5 transition-all duration-200`}>
                 
-                <Search className="w-5 h-5 ml-3 text-[var(--primary-600)] flex-shrink-0" />
+                <Search className="w-5 h-5 ml-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
                 
                 <input 
                   type="text" 
@@ -95,11 +95,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                  placeholder="Bạn muốn học gì hôm nay? (VD: NestJS, React, AI...)"
-                  className="w-full px-3 py-2 text-p1-medium bg-transparent border-none focus:outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+                  placeholder="Search for anything"
+                  className="w-full px-3 py-2 text-sm bg-transparent border-none focus:outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
 
-                <button type="submit" className="px-6 py-2.5 rounded-lg bg-[var(--primary-600)] hover:bg-[var(--primary-700)] text-white text-p2-bold transition flex items-center gap-1.5 flex-shrink-0">
+                <button type="submit" className="px-6 py-2.5 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm transition flex items-center gap-1.5 flex-shrink-0 mr-0.5 shadow-sm active:scale-95">
                   <span>Tìm kiếm</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
