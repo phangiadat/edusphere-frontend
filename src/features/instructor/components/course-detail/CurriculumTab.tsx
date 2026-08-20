@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Plus, Layers } from 'lucide-react';
 import { ChapterItem } from './ChapterItem';
 import type { ChapterModel } from './ChapterItem';
+import { LessonModal } from './LessonModal';
+import type { LessonModel } from './LessonItem';
 import styles from './CurriculumTab.module.css';
 
 interface CurriculumTabProps {
@@ -16,9 +18,19 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
   onUpdateChapters,
   onShowToast,
 }) => {
-  const [isAdding, setIsAdding] = useState(false);
+  // Inline Add Chapter state
+  const [isAddingChapter, setIsAddingChapter] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState('');
 
+  // Single LessonModal state (Lifted State Up)
+  const [activeLessonModal, setActiveLessonModal] = useState<{
+    chapterId: string;
+    lesson: LessonModel | null;
+  } | null>(null);
+
+  // ==========================================
+  // CHAPTER HANDLERS
+  // ==========================================
   const handleAddChapter = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newChapterTitle.trim()) return;
@@ -28,12 +40,12 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
       title: newChapterTitle.trim(),
       order: chapters.length + 1,
       isPublished: true,
-      lessonCount: 0,
+      lessons: [],
     };
 
     onUpdateChapters([...chapters, newChapter]);
     setNewChapterTitle('');
-    setIsAdding(false);
+    setIsAddingChapter(false);
     onShowToast(`🎉 Đã thêm mới "${newChapter.title}" thành công!`);
   };
 
@@ -61,30 +73,155 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     }
   };
 
-  const handleMoveUp = (index: number) => {
+  const handleMoveChapterUp = (index: number) => {
     if (index === 0) return;
     const newChapters = [...chapters];
     const temp = newChapters[index - 1];
     newChapters[index - 1] = newChapters[index];
     newChapters[index] = temp;
 
-    // Recalculate order values
     const reordered = newChapters.map((ch, idx) => ({ ...ch, order: idx + 1 }));
     onUpdateChapters(reordered);
     onShowToast('⬆️ Đã di chuyển Chương lên trên.');
   };
 
-  const handleMoveDown = (index: number) => {
+  const handleMoveChapterDown = (index: number) => {
     if (index === chapters.length - 1) return;
     const newChapters = [...chapters];
     const temp = newChapters[index + 1];
     newChapters[index + 1] = newChapters[index];
     newChapters[index] = temp;
 
-    // Recalculate order values
     const reordered = newChapters.map((ch, idx) => ({ ...ch, order: idx + 1 }));
     onUpdateChapters(reordered);
     onShowToast('⬇️ Đã di chuyển Chương xuống dưới.');
+  };
+
+  // ==========================================
+  // LESSON HANDLERS (Lifted State Up)
+  // ==========================================
+  const handleOpenAddLesson = (chapterId: string) => {
+    setActiveLessonModal({ chapterId, lesson: null });
+  };
+
+  const handleOpenEditLesson = (chapterId: string, lesson: LessonModel) => {
+    setActiveLessonModal({ chapterId, lesson });
+  };
+
+  const handleSaveLesson = (lessonData: Partial<LessonModel>) => {
+    if (!activeLessonModal) return;
+
+    const { chapterId } = activeLessonModal;
+    const isEdit = !!lessonData.id;
+
+    const updatedChapters = chapters.map((chapter) => {
+      if (chapter.id !== chapterId) return chapter;
+
+      const currentLessons = chapter.lessons || [];
+
+      if (isEdit) {
+        // Edit existing lesson
+        const updatedLessons = currentLessons.map((l) =>
+          l.id === lessonData.id ? ({ ...l, ...lessonData } as LessonModel) : l
+        );
+        return { ...chapter, lessons: updatedLessons };
+      } else {
+        // Add new lesson
+        const newLesson: LessonModel = {
+          id: `l-${Date.now()}`,
+          title: lessonData.title || 'Bài học mới',
+          content: lessonData.content || '',
+          videoUrl: lessonData.videoUrl || '',
+          duration: lessonData.duration || 10,
+          order: currentLessons.length + 1,
+          isPublished: lessonData.isPublished ?? true,
+          isFreePreview: lessonData.isFreePreview ?? false,
+        };
+        return { ...chapter, lessons: [...currentLessons, newLesson] };
+      }
+    });
+
+    onUpdateChapters(updatedChapters);
+    setActiveLessonModal(null);
+    onShowToast(
+      isEdit
+        ? '✨ Đã cập nhật bài học thành công!'
+        : '🎉 Đã thêm bài học mới vào Chương thành công!'
+    );
+  };
+
+  const handleUpdateLessonItem = (
+    chapterId: string,
+    lessonId: string,
+    updatedFields: Partial<LessonModel>
+  ) => {
+    const updatedChapters = chapters.map((ch) => {
+      if (ch.id !== chapterId) return ch;
+      const updatedLessons = ch.lessons.map((l) =>
+        l.id === lessonId ? { ...l, ...updatedFields } : l
+      );
+      return { ...ch, lessons: updatedLessons };
+    });
+
+    onUpdateChapters(updatedChapters);
+    if (updatedFields.isPublished !== undefined) {
+      onShowToast(
+        updatedFields.isPublished
+          ? '✅ Đã công khai bài học.'
+          : '🔒 Đã chuyển bài học sang dạng Ẩn.'
+      );
+    }
+  };
+
+  const handleDeleteLesson = (chapterId: string, lessonId: string) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bài học này không?')) {
+      const updatedChapters = chapters.map((ch) => {
+        if (ch.id !== chapterId) return ch;
+        const filteredLessons = ch.lessons
+          .filter((l) => l.id !== lessonId)
+          .map((l, idx) => ({ ...l, order: idx + 1 }));
+        return { ...ch, lessons: filteredLessons };
+      });
+
+      onUpdateChapters(updatedChapters);
+      onShowToast('🗑️ Đã xóa bài học khỏi Chương.');
+    }
+  };
+
+  const handleMoveLessonUp = (chapterId: string, lessonIndex: number) => {
+    if (lessonIndex === 0) return;
+    const updatedChapters = chapters.map((ch) => {
+      if (ch.id !== chapterId) return ch;
+
+      const newLessons = [...ch.lessons];
+      const temp = newLessons[lessonIndex - 1];
+      newLessons[lessonIndex - 1] = newLessons[lessonIndex];
+      newLessons[lessonIndex] = temp;
+
+      const reordered = newLessons.map((l, idx) => ({ ...l, order: idx + 1 }));
+      return { ...ch, lessons: reordered };
+    });
+
+    onUpdateChapters(updatedChapters);
+    onShowToast('⬆️ Đã di chuyển bài học lên trên.');
+  };
+
+  const handleMoveLessonDown = (chapterId: string, lessonIndex: number) => {
+    const updatedChapters = chapters.map((ch) => {
+      if (ch.id !== chapterId) return ch;
+      if (lessonIndex === ch.lessons.length - 1) return ch;
+
+      const newLessons = [...ch.lessons];
+      const temp = newLessons[lessonIndex + 1];
+      newLessons[lessonIndex + 1] = newLessons[lessonIndex];
+      newLessons[lessonIndex] = temp;
+
+      const reordered = newLessons.map((l, idx) => ({ ...l, order: idx + 1 }));
+      return { ...ch, lessons: reordered };
+    });
+
+    onUpdateChapters(updatedChapters);
+    onShowToast('⬇️ Đã di chuyển bài học xuống dưới.');
   };
 
   return (
@@ -94,18 +231,18 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
         <div className={styles.titleBox}>
           <h2 className={styles.title}>Chương trình đào tạo (Curriculum)</h2>
           <p className={styles.subtitle}>
-            Quản lý và sắp xếp cấu trúc các Chương trong khóa học.
+            Quản lý, sắp xếp và biên soạn chi tiết các Chương & Bài học trong khóa học.
           </p>
         </div>
 
-        <button onClick={() => setIsAdding(true)} className={styles.addChapterBtn}>
+        <button onClick={() => setIsAddingChapter(true)} className={styles.addChapterBtn}>
           <Plus className="w-4 h-4" />
           <span>Thêm Chương mới</span>
         </button>
       </div>
 
       {/* Add New Chapter Inline Card */}
-      {isAdding && (
+      {isAddingChapter && (
         <form onSubmit={handleAddChapter} className={styles.addCard}>
           <div className={styles.addLabel}>Tên Chương mới *</div>
           <div className={styles.addInputRow}>
@@ -114,7 +251,7 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
               required
               value={newChapterTitle}
               onChange={(e) => setNewChapterTitle(e.target.value)}
-              placeholder="VD: Chương 3: Quản lý Authentication & JWT Access Token"
+              placeholder="VD: Chương 5: Deploy Production trên AWS EC2 & Docker"
               className={styles.addInput}
               autoFocus
             />
@@ -123,7 +260,7 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setIsAdding(false)}
+              onClick={() => setIsAddingChapter(false)}
               className={styles.cancelAddBtn}
             >
               Hủy
@@ -132,7 +269,7 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
         </form>
       )}
 
-      {/* Chapter Accordion Headers List */}
+      {/* Chapter Accordion List */}
       {chapters.length > 0 ? (
         <div className={styles.chapterList}>
           {chapters.map((chapter, idx) => (
@@ -144,8 +281,14 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
               isLast={idx === chapters.length - 1}
               onUpdate={(updated) => handleUpdateChapter(chapter.id, updated)}
               onDelete={handleDeleteChapter}
-              onMoveUp={handleMoveUp}
-              onMoveDown={handleMoveDown}
+              onMoveUp={handleMoveChapterUp}
+              onMoveDown={handleMoveChapterDown}
+              onOpenAddLesson={handleOpenAddLesson}
+              onOpenEditLesson={handleOpenEditLesson}
+              onUpdateLesson={handleUpdateLessonItem}
+              onDeleteLesson={handleDeleteLesson}
+              onMoveLessonUp={handleMoveLessonUp}
+              onMoveLessonDown={handleMoveLessonDown}
             />
           ))}
         </div>
@@ -162,6 +305,14 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
           </div>
         </div>
       )}
+
+      {/* Single LessonModal instance (Lifted State Up) */}
+      <LessonModal
+        isOpen={!!activeLessonModal}
+        onClose={() => setActiveLessonModal(null)}
+        onSave={handleSaveLesson}
+        initialData={activeLessonModal?.lesson}
+      />
     </div>
   );
 };

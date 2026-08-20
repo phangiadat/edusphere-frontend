@@ -8,35 +8,99 @@ import type { ChapterModel } from '../components/course-detail/ChapterItem';
 import { ToastNotification } from '../components/common/ToastNotification';
 import styles from './InstructorCourseDetailPage.module.css';
 
-// Initial Mock Chapters Data
+// Initial Mock Chapters Data with Sample Lessons
 const INITIAL_CHAPTERS: ChapterModel[] = [
   {
     id: 'ch-nest-1',
     title: 'Chương 1: Tổng quan Kiến trúc NestJS & Dependency Injection',
     order: 1,
     isPublished: true,
-    lessonCount: 4,
+    lessons: [
+      {
+        id: 'l-nest-1',
+        title: 'Overview về NestJS Architecture & DI Container',
+        content: 'Tổng quan về kiến trúc Module, Controller, Provider và Dependency Injection trong NestJS.',
+        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        duration: 12,
+        order: 1,
+        isPublished: true,
+        isFreePreview: true,
+      },
+      {
+        id: 'l-nest-2',
+        title: 'Khởi tạo Nest CLI & Cấu trúc thư mục chuẩn Enterprise',
+        content: 'Hướng dẫn sử dụng @nestjs/cli để khởi tạo project và tổ chức folder chuẩn hóa.',
+        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        duration: 15,
+        order: 2,
+        isPublished: true,
+        isFreePreview: true,
+      },
+    ],
   },
   {
     id: 'ch-nest-2',
     title: 'Chương 2: Thiết kế Database Schema chuẩn với PostgreSQL & Prisma ORM',
     order: 2,
     isPublished: true,
-    lessonCount: 6,
+    lessons: [
+      {
+        id: 'l-nest-3',
+        title: 'Thiết kế Database Schema chuẩn hóa với Prisma 6',
+        content: 'Viết Prisma schema model cho User, Course, Chapter, Lesson và Migration.',
+        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        duration: 20,
+        order: 1,
+        isPublished: true,
+        isFreePreview: false,
+      },
+      {
+        id: 'l-nest-4',
+        title: 'Viết CRUD Operations & Global Exception Filter',
+        content: 'Tạo Service, Controller và xử lý Exception Filter toàn cục.',
+        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        duration: 25,
+        order: 2,
+        isPublished: true,
+        isFreePreview: false,
+      },
+    ],
   },
   {
     id: 'ch-nest-3',
     title: 'Chương 3: Quản lý Authentication, JWT Access Token & Role Guard',
     order: 3,
     isPublished: true,
-    lessonCount: 5,
+    lessons: [
+      {
+        id: 'l-nest-5',
+        title: 'Xây dựng Auth Module với Passport JWT & Bcrypt Password Hashing',
+        content: 'Mã hóa mật khẩu bằng bcryptjs và sinh JWT access token.',
+        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        duration: 18,
+        order: 1,
+        isPublished: true,
+        isFreePreview: false,
+      },
+    ],
   },
   {
     id: 'ch-nest-4',
     title: 'Chương 4: Xây dựng Kênh Chat Realtime với Socket.io & WebSockets',
     order: 4,
     isPublished: false,
-    lessonCount: 3,
+    lessons: [
+      {
+        id: 'l-nest-6',
+        title: 'Cấu hình WebSockets Gateway & Room Subscription',
+        content: 'Tạo NestJS WebSocket Gateway kết nối Socket.io client.',
+        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        duration: 22,
+        order: 1,
+        isPublished: false,
+        isFreePreview: false,
+      },
+    ],
   },
 ];
 
