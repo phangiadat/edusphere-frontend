@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Video, VideoOff, Save, Info } from 'lucide-react';
 import type { LessonModel } from './LessonItem';
+import { RichTextEditor } from '../../../../components/common/RichTextEditor/RichTextEditor';
 import styles from './LessonModal.module.css';
 
 interface LessonModalProps {
@@ -199,15 +200,14 @@ export const LessonModal: React.FC<LessonModalProps> = ({
             </div>
           </div>
 
-          {/* Content / Lecture Notes */}
+          {/* Content / Lecture Notes RichTextEditor */}
           <div className={styles.formGroup}>
-            <label className={styles.label}>Nội dung / Ghi chú bài giảng (Ghi chú chữ)</label>
-            <textarea
-              rows={4}
+            <label className={styles.label}>Nội dung / Ghi chú bài giảng (Rich Text Editor)</label>
+            <RichTextEditor
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(val) => setContent(val)}
               placeholder="Nhập nội dung bài đọc, mã nguồn mẫu hoặc ghi chú tóm tắt bài giảng cho học viên..."
-              className={styles.textarea}
+              height={240}
             />
           </div>
         </form>

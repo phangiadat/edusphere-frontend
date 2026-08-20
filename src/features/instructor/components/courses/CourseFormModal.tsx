@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, BookOpen, Save, UploadCloud, Info, RefreshCw } from 'lucide-react';
 import type { CourseItem, CourseStatusType } from './CourseCard';
+import { RichTextEditor } from '../../../../components/common/RichTextEditor/RichTextEditor';
 import styles from './CourseFormModal.module.css';
 
 interface CourseFormModalProps {
@@ -218,15 +219,14 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
             )}
           </div>
 
-          {/* Description */}
+          {/* Description RichTextEditor */}
           <div className={styles.formGroup}>
-            <label className={styles.label}>Mô tả tóm tắt Khóa học</label>
-            <textarea
-              rows={3}
+            <label className={styles.label}>Mô tả chi tiết Khóa học (Rich Text Editor)</label>
+            <RichTextEditor
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(val: string) => setDescription(val)}
               placeholder="Nhập mô tả tóm tắt nội dung chính khóa học mang lại cho học viên..."
-              className={styles.textarea}
+              height={240}
             />
           </div>
         </form>

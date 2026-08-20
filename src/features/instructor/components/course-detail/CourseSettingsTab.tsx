@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { UploadCloud, RefreshCw } from 'lucide-react';
 import type { CourseItem, CourseStatusType } from '../courses/CourseCard';
+import { RichTextEditor } from '../../../../components/common/RichTextEditor/RichTextEditor';
 import styles from './CourseSettingsTab.module.css';
 
 interface CourseSettingsTabProps {
@@ -149,15 +150,14 @@ export const CourseSettingsTab: React.FC<CourseSettingsTabProps> = ({
         )}
       </div>
 
-      {/* Description */}
+      {/* Description RichTextEditor */}
       <div className={styles.formGroup}>
-        <label className={styles.label}>Mô tả tóm tắt Khóa học</label>
-        <textarea
-          rows={4}
+        <label className={styles.label}>Mô tả chi tiết Khóa học (Rich Text Editor)</label>
+        <RichTextEditor
           value={courseData.description || ''}
-          onChange={(e) => onChange({ description: e.target.value })}
-          placeholder="Nhập mô tả tóm tắt những giá trị khóa học mang lại..."
-          className={styles.textarea}
+          onChange={(content) => onChange({ description: content })}
+          placeholder="Soạn thảo mô tả khóa học phong phú với định dạng HTML..."
+          height={260}
         />
       </div>
     </div>
