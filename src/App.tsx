@@ -18,6 +18,7 @@ import { ShoppingCartPage } from './pages/ShoppingCartPage';
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
 import { CourseLearnPage } from './pages/CourseLearnPage';
+import { StudentChatWidget } from './components/common/chat/StudentChatWidget';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -197,6 +198,9 @@ export default function App() {
 
         {/* 🔐 Auth Modals (Login, Register, Forgot Password) */}
         <AuthModalContainer />
+
+        {/* 💬 Student Floating Realtime Chat Widget */}
+        <StudentChatWidget />
       </div>
     </CartProvider>
   );
