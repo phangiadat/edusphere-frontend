@@ -1,3 +1,5 @@
+/* External CSS Module for ChapterItem Component - Dark Mode Support & NO GRADIENTS */
+
 .accordionWrapper {
   display: flex;
   flex-direction: column;
@@ -6,7 +8,7 @@
   border: 1px solid var(--border-color, #e2e8f0);
   background-color: var(--neutral-surface, #ffffff);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .accordionWrapper:hover {
@@ -24,7 +26,7 @@
 }
 
 .accordionHeader:hover {
-  background-color: var(--neutral-bg, #f8fafc);
+  background-color: var(--neutral-surface-hover, #f8fafc);
 }
 
 .expandBtn {
@@ -46,12 +48,17 @@
 
 .accordionBody {
   padding: 0.875rem 1.125rem 1rem 1.125rem;
-  background-color: #ffffff;
+  background-color: var(--neutral-surface, #ffffff);
   border-top: 1px solid var(--border-color, #f1f5f9);
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
   animation: fadeIn 0.15s ease-out;
+}
+
+:global(.dark) .accordionBody {
+  background-color: var(--neutral-surface, #151d2a);
+  border-top-color: var(--border-color, #263346);
 }
 
 .actionButtonsRow {
@@ -83,6 +90,17 @@
   border-color: var(--primary-600, #7c3aed);
 }
 
+:global(.dark) .addLessonBtn {
+  color: #c084fc;
+  background-color: rgba(124, 58, 237, 0.15);
+  border-color: rgba(124, 58, 237, 0.4);
+}
+
+:global(.dark) .addLessonBtn:hover {
+  background-color: rgba(124, 58, 237, 0.25);
+  border-color: #a855f7;
+}
+
 .addAssignmentBtn {
   display: inline-flex;
   align-items: center;
@@ -101,6 +119,17 @@
 .addAssignmentBtn:hover {
   background-color: #fef3c7;
   border-color: #d97706;
+}
+
+:global(.dark) .addAssignmentBtn {
+  color: #fbbf24;
+  background-color: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+:global(.dark) .addAssignmentBtn:hover {
+  background-color: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
 }
 
 .emptyLessons {
@@ -149,6 +178,11 @@
   flex-shrink: 0;
 }
 
+:global(.dark) .orderBadge {
+  background-color: rgba(124, 58, 237, 0.2);
+  color: #c084fc;
+}
+
 .chapterTitle {
   font-size: 0.9375rem;
   font-weight: 700;
@@ -164,7 +198,7 @@
   padding: 0 0.75rem;
   border-radius: 0.5rem;
   border: 1px solid var(--primary-600, #7c3aed);
-  background-color: #ffffff;
+  background-color: var(--neutral-surface, #ffffff);
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--text-primary, #0f172a);
@@ -200,8 +234,12 @@
   transition: background-color 0.2s ease;
 }
 
+:global(.dark) .toggleSwitch {
+  background-color: #475569;
+}
+
 .toggleSwitchActive {
-  background-color: #10b981;
+  background-color: #10b981 !important;
 }
 
 .toggleDot {
@@ -233,10 +271,22 @@
   transition: all 0.15s ease;
 }
 
+:global(.dark) .actionBtn {
+  background-color: var(--neutral-surface-hover, #1e293b);
+  border-color: var(--border-color, #263346);
+  color: var(--text-secondary, #94a3b8);
+}
+
 .actionBtn:hover {
   background-color: var(--neutral-surface-hover, #f1f5f9);
   color: var(--primary-600, #7c3aed);
   border-color: var(--primary-400, #a78bfa);
+}
+
+:global(.dark) .actionBtn:hover {
+  background-color: #334155;
+  color: #c084fc;
+  border-color: #a855f7;
 }
 
 .deleteBtn {

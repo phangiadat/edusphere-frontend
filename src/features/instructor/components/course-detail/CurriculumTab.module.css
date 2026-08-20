@@ -1,4 +1,4 @@
-/* External CSS Module for CurriculumTab Component - NO INLINE CSS & NO GRADIENTS */
+/* External CSS Module for CurriculumTab Component - Dark Mode Support & NO GRADIENTS */
 
 .container {
   background-color: var(--neutral-surface, #ffffff);
@@ -9,6 +9,11 @@
   flex-direction: column;
   gap: 1.25rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+:global(.dark) .container {
+  background-color: var(--neutral-surface, #151d2a);
+  border-color: var(--border-color, #263346);
 }
 
 .headerRow {
@@ -78,10 +83,19 @@
   animation: fadeIn 0.15s ease-out;
 }
 
+:global(.dark) .addCard {
+  background-color: var(--neutral-surface-hover, #1e293b);
+  border-color: #a855f7;
+}
+
 .addLabel {
   font-size: 0.8125rem;
   font-weight: 700;
   color: var(--primary-600, #7c3aed);
+}
+
+:global(.dark) .addLabel {
+  color: #c084fc;
 }
 
 .addInputRow {
@@ -96,7 +110,7 @@
   padding: 0 0.875rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border-color, #cbd5e1);
-  background-color: #ffffff;
+  background-color: var(--neutral-surface, #ffffff);
   font-size: 0.875rem;
   color: var(--text-primary, #0f172a);
   transition: all 0.2s ease;
@@ -129,7 +143,7 @@
   height: 2.5rem;
   padding: 0 1rem;
   border-radius: 0.5rem;
-  background-color: #ffffff;
+  background-color: var(--neutral-surface, #ffffff);
   color: var(--text-secondary, #64748b);
   border: 1px solid var(--border-color, #cbd5e1);
   font-size: 0.8125rem;

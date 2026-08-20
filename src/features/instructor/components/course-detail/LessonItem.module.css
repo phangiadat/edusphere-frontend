@@ -1,4 +1,4 @@
-/* External CSS Module for LessonItem Component - NO INLINE CSS & NO GRADIENTS */
+/* External CSS Module for LessonItem Component - Dark Mode Support & NO GRADIENTS */
 
 .itemRow {
   background-color: var(--neutral-bg, #f8fafc);
@@ -13,10 +13,20 @@
   transition: all 0.2s ease;
 }
 
+:global(.dark) .itemRow {
+  background-color: var(--neutral-surface-hover, #1e293b);
+  border-color: var(--border-color, #263346);
+}
+
 .itemRow:hover {
   background-color: var(--neutral-surface, #ffffff);
   border-color: var(--primary-400, #a78bfa);
   box-shadow: 0 2px 8px -1px rgba(124, 58, 237, 0.08);
+}
+
+:global(.dark) .itemRow:hover {
+  background-color: #334155;
+  border-color: #a855f7;
 }
 
 .leftGroup {
@@ -37,6 +47,11 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+:global(.dark) .iconBox {
+  background-color: rgba(124, 58, 237, 0.25);
+  color: #c084fc;
 }
 
 .lessonTitle {
@@ -68,6 +83,12 @@
   flex-shrink: 0;
 }
 
+:global(.dark) .freePreviewBadge {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
 .rightGroup {
   display: flex;
   align-items: center;
@@ -96,8 +117,12 @@
   transition: background-color 0.2s ease;
 }
 
+:global(.dark) .toggleSwitch {
+  background-color: #475569;
+}
+
 .toggleSwitchActive {
-  background-color: #10b981;
+  background-color: #10b981 !important;
 }
 
 .toggleDot {
@@ -120,7 +145,7 @@
   padding: 0.3125rem;
   border-radius: 0.375rem;
   color: var(--text-secondary, #64748b);
-  background-color: #ffffff;
+  background-color: var(--neutral-surface, #ffffff);
   border: 1px solid var(--border-color, #e2e8f0);
   cursor: pointer;
   display: flex;
@@ -129,10 +154,22 @@
   transition: all 0.15s ease;
 }
 
+:global(.dark) .actionBtn {
+  background-color: var(--neutral-surface, #151d2a);
+  border-color: var(--border-color, #263346);
+  color: var(--text-secondary, #94a3b8);
+}
+
 .actionBtn:hover {
   background-color: var(--neutral-surface-hover, #f1f5f9);
   color: var(--primary-600, #7c3aed);
   border-color: var(--primary-400, #a78bfa);
+}
+
+:global(.dark) .actionBtn:hover {
+  background-color: #334155;
+  color: #c084fc;
+  border-color: #a855f7;
 }
 
 .actionBtn:disabled {
@@ -144,6 +181,12 @@
   color: #ef4444;
   background-color: rgba(239, 68, 68, 0.08);
   border-color: rgba(239, 68, 68, 0.2);
+}
+
+:global(.dark) .deleteBtn {
+  color: #fca5a5;
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .deleteBtn:hover {

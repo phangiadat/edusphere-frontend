@@ -1,4 +1,4 @@
-/* External CSS Module for RichTextEditor Component - NO INLINE CSS & NO GRADIENTS */
+/* External CSS Module for RichTextEditor Component - Dark Mode Support & NO GRADIENTS */
 
 .editorContainer {
   width: 100%;
@@ -7,8 +7,13 @@
   border-radius: 0.625rem; /* 10px */
   overflow: hidden;
   border: 1px solid var(--border-color, #cbd5e1);
-  background-color: #ffffff;
+  background-color: var(--neutral-surface, #ffffff);
   transition: all 0.2s ease;
+}
+
+:global(.dark) .editorContainer {
+  background-color: var(--neutral-surface, #151d2a);
+  border-color: var(--border-color, #263346);
 }
 
 .editorContainer:focus-within {
