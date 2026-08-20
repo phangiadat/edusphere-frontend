@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { paymentApi } from '../api/paymentApi';
@@ -43,7 +44,7 @@ export const ShoppingCartPage: React.FC<ShoppingCartPageProps> = ({
     if (cartItems.length === 0) return;
 
     if (!isAuthenticated) {
-      alert('Vui lòng đăng nhập tài khoản để tiến hành thanh toán khóa học!');
+      toast.error('Vui lòng đăng nhập tài khoản để tiến hành thanh toán khóa học!');
       openAuthModal('login');
       return;
     }

@@ -12,6 +12,7 @@ import type { SubmissionModel } from '../components/assignments/SubmissionTable'
 import { GradeSubmissionDrawer } from '../components/assignments/GradeSubmissionDrawer';
 import { ToastNotification } from '../components/common/ToastNotification';
 import { assignmentService } from '../../../services/api/assignmentService';
+import toast from 'react-hot-toast';
 import styles from './InstructorAssignmentsPage.module.css';
 
 // Initial Mock Seed Data
@@ -95,8 +96,7 @@ export const InstructorAssignmentsPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    toast.success(msg);
   };
 
   // Filter Submissions

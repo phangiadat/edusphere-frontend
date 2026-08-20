@@ -19,6 +19,7 @@ import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
 import { CourseLearnPage } from './pages/CourseLearnPage';
 import { StudentChatWidget } from './components/common/chat/StudentChatWidget';
+import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -201,6 +202,35 @@ export default function App() {
 
         {/* 💬 Student Floating Realtime Chat Widget */}
         <StudentChatWidget />
+
+        {/* 🔔 Global Toast Notifications System */}
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          toastOptions={{
+            duration: 3500,
+            style: {
+              background: '#1e293b',
+              color: '#ffffff',
+              borderRadius: '0.75rem',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)',
+            },
+            success: {
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#ffffff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#ffffff',
+              },
+            },
+          }}
+        />
       </div>
     </CartProvider>
   );

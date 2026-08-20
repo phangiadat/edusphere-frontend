@@ -77,7 +77,27 @@ const INITIAL_MESSAGES: Record<string, WidgetMessageModel[]> = {
   ],
 };
 
-export const StudentChatWidget: React.FC = () => {
+interface StudentChatWidgetProps {
+  isAuthenticated?: boolean;
+  userRole?: string;
+}
+
+export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
+  isAuthenticated,
+  userRole,
+}) => {
+  // Read token from localStorage if props not provided
+  const token = localStorage.getItem('accessToken');
+  const storedRole = localStorage.getItem('userRole') || 'STUDENT';
+
+  const isAuth = isAuthenticated ?? Boolean(token);
+  const role = userRole ?? storedRole;
+
+  // 🔒 AUTH ROLE GATE FIX: Strictly hide widget if Guest (not logged in) or Instructor/Admin
+  if (!isAuth || role !== 'STUDENT') {
+    return null;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [activeView, setActiveView] = useState<'LIST' | 'CHAT'>('LIST');
   const [instructors, setInstructors] = useState<InstructorModel[]>(INITIAL_INSTRUCTORS);

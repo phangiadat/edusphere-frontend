@@ -6,6 +6,7 @@ import type { CourseItem } from '../components/courses/CourseCard';
 import { CourseFormModal } from '../components/courses/CourseFormModal';
 import { ToastNotification } from '../components/common/ToastNotification';
 import { courseService } from '../../../services/api/courseService';
+import toast from 'react-hot-toast';
 import styles from './InstructorCoursesPage.module.css';
 
 // Initial Fallback Seed Data
@@ -61,8 +62,7 @@ export const InstructorCoursesPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showSuccessToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    toast.success(msg);
   };
 
   // Fetch Courses from NestJS Backend REST API

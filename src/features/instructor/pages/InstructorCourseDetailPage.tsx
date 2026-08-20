@@ -7,6 +7,7 @@ import type { CourseItem } from '../components/courses/CourseCard';
 import type { ChapterModel } from '../components/course-detail/ChapterItem';
 import { ToastNotification } from '../components/common/ToastNotification';
 import { courseService } from '../../../services/api/courseService';
+import toast from 'react-hot-toast';
 import styles from './InstructorCourseDetailPage.module.css';
 
 // Initial Mock Chapters Data with Sample Lessons & Assignments
@@ -154,8 +155,7 @@ export const InstructorCourseDetailPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    toast.success(msg);
   };
 
   // Fetch Course details from NestJS Backend REST API
