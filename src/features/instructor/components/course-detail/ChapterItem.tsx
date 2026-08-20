@@ -7,10 +7,13 @@ import {
   Edit3, 
   Trash2, 
   Check, 
-  Plus 
+  Plus,
+  FileCheck
 } from 'lucide-react';
 import { LessonItem } from './LessonItem';
 import type { LessonModel } from './LessonItem';
+import { AssignmentItem } from './AssignmentItem';
+import type { AssignmentModel } from './AssignmentItem';
 import styles from './ChapterItem.module.css';
 
 export interface ChapterModel {
@@ -19,6 +22,7 @@ export interface ChapterModel {
   order: number;
   isPublished: boolean;
   lessons: LessonModel[];
+  assignments: AssignmentModel[];
 }
 
 interface ChapterItemProps {
@@ -38,6 +42,13 @@ interface ChapterItemProps {
   onDeleteLesson: (chapterId: string, lessonId: string) => void;
   onMoveLessonUp: (chapterId: string, lessonIndex: number) => void;
   onMoveLessonDown: (chapterId: string, lessonIndex: number) => void;
+
+  // Handlers for Assignment CRUD
+  onOpenAddAssignment: (chapterId: string) => void;
+  onOpenEditAssignment: (chapterId: string, assignment: AssignmentModel) => void;
+  onDeleteAssignment: (chapterId: string, assignmentId: string) => void;
+  onMoveAssignmentUp: (chapterId: string, assignmentIndex: number) => void;
+  onMoveAssignmentDown: (chapterId: string, assignmentIndex: number) => void;
 }
 
 export const ChapterItem: React.FC<ChapterItemProps> = ({
@@ -55,6 +66,11 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({
   onDeleteLesson,
   onMoveLessonUp,
   onMoveLessonDown,
+  onOpenAddAssignment,
+  onOpenEditAssignment,
+  onDeleteAssignment,
+  onMoveAssignmentUp,
+  onMoveAssignmentDown,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -66,6 +82,8 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({
     }
     setIsEditing(false);
   };
+
+  const totalItemsCount = (chapter.lessons?.length || 0) + (chapter.assignments?.length || 0);
 
   return (
     <div className={styles.accordionWrapper}>
@@ -109,7 +127,7 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({
                 {chapter.title}
               </span>
               <span className="text-xs text-slate-400 font-semibold flex-shrink-0">
-                ({chapter.lessons?.length || 0} bài học)
+                ({chapter.lessons?.length || 0} bài học • {chapter.assignments?.length || 0} bài tập)
               </span>
             </div>
           )}
@@ -179,10 +197,11 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({
         </div>
       </div>
 
-      {/* Accordion Body (List of LessonItems + Add Lesson Button) */}
+      {/* Accordion Body (List of LessonItems & AssignmentItems + Action Buttons) */}
       {isExpanded && (
         <div className={styles.accordionBody}>
-          {chapter.lessons && chapter.lessons.length > 0 ? (
+          {/* Render Lessons */}
+          {chapter.lessons && chapter.lessons.length > 0 && (
             chapter.lessons.map((lesson, lessonIdx) => (
               <LessonItem
                 key={lesson.id}
@@ -197,20 +216,49 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({
                 onMoveDown={() => onMoveLessonDown(chapter.id, lessonIdx)}
               />
             ))
-          ) : (
+          )}
+
+          {/* Render Assignments */}
+          {chapter.assignments && chapter.assignments.length > 0 && (
+            chapter.assignments.map((assignment, assignIdx) => (
+              <AssignmentItem
+                key={assignment.id}
+                assignment={assignment}
+                index={assignIdx}
+                isFirst={assignIdx === 0}
+                isLast={assignIdx === chapter.assignments.length - 1}
+                onEdit={() => onOpenEditAssignment(chapter.id, assignment)}
+                onDelete={() => onDeleteAssignment(chapter.id, assignment.id)}
+                onMoveUp={() => onMoveAssignmentUp(chapter.id, assignIdx)}
+                onMoveDown={() => onMoveAssignmentDown(chapter.id, assignIdx)}
+              />
+            ))
+          )}
+
+          {totalItemsCount === 0 && (
             <div className={styles.emptyLessons}>
-              Chưa có bài học nào trong Chương này. Hãy bấm nút bên dưới để thêm bài học đầu tiên!
+              Chưa có bài học hoặc bài tập nào trong Chương này. Hãy bấm các nút bên dưới để thêm nội dung!
             </div>
           )}
 
-          {/* + Thêm Bài học CTA Button */}
-          <button
-            onClick={() => onOpenAddLesson(chapter.id)}
-            className={styles.addLessonBtn}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Thêm Bài học mới</span>
-          </button>
+          {/* Action Buttons Row: + Thêm Bài học & + Thêm Bài tập */}
+          <div className={styles.actionButtonsRow}>
+            <button
+              onClick={() => onOpenAddLesson(chapter.id)}
+              className={styles.addLessonBtn}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Thêm Bài học</span>
+            </button>
+
+            <button
+              onClick={() => onOpenAddAssignment(chapter.id)}
+              className={styles.addAssignmentBtn}
+            >
+              <FileCheck className="w-3.5 h-3.5 text-amber-600" />
+              <span>Thêm Bài tập</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

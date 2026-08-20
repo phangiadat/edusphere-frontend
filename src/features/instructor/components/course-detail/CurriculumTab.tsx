@@ -4,6 +4,8 @@ import { ChapterItem } from './ChapterItem';
 import type { ChapterModel } from './ChapterItem';
 import { LessonModal } from './LessonModal';
 import type { LessonModel } from './LessonItem';
+import { AssignmentModal } from './AssignmentModal';
+import type { AssignmentModel } from './AssignmentItem';
 import styles from './CurriculumTab.module.css';
 
 interface CurriculumTabProps {
@@ -28,6 +30,12 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     lesson: LessonModel | null;
   } | null>(null);
 
+  // Single AssignmentModal state (Lifted State Up)
+  const [activeAssignmentModal, setActiveAssignmentModal] = useState<{
+    chapterId: string;
+    assignment: AssignmentModel | null;
+  } | null>(null);
+
   // ==========================================
   // CHAPTER HANDLERS
   // ==========================================
@@ -41,6 +49,7 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
       order: chapters.length + 1,
       isPublished: true,
       lessons: [],
+      assignments: [],
     };
 
     onUpdateChapters([...chapters, newChapter]);
@@ -120,13 +129,11 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
       const currentLessons = chapter.lessons || [];
 
       if (isEdit) {
-        // Edit existing lesson
         const updatedLessons = currentLessons.map((l) =>
           l.id === lessonData.id ? ({ ...l, ...lessonData } as LessonModel) : l
         );
         return { ...chapter, lessons: updatedLessons };
       } else {
-        // Add new lesson
         const newLesson: LessonModel = {
           id: `l-${Date.now()}`,
           title: lessonData.title || 'Bài học mới',
@@ -224,6 +231,106 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     onShowToast('⬇️ Đã di chuyển bài học xuống dưới.');
   };
 
+  // ==========================================
+  // ASSIGNMENT HANDLERS (Lifted State Up)
+  // ==========================================
+  const handleOpenAddAssignment = (chapterId: string) => {
+    setActiveAssignmentModal({ chapterId, assignment: null });
+  };
+
+  const handleOpenEditAssignment = (chapterId: string, assignment: AssignmentModel) => {
+    setActiveAssignmentModal({ chapterId, assignment });
+  };
+
+  const handleSaveAssignment = (assignmentData: Partial<AssignmentModel>) => {
+    if (!activeAssignmentModal) return;
+
+    const { chapterId } = activeAssignmentModal;
+    const isEdit = !!assignmentData.id;
+
+    const updatedChapters = chapters.map((chapter) => {
+      if (chapter.id !== chapterId) return chapter;
+
+      const currentAssignments = chapter.assignments || [];
+
+      if (isEdit) {
+        const updatedAssignments = currentAssignments.map((a) =>
+          a.id === assignmentData.id ? ({ ...a, ...assignmentData } as AssignmentModel) : a
+        );
+        return { ...chapter, assignments: updatedAssignments };
+      } else {
+        const newAssignment: AssignmentModel = {
+          id: `a-${Date.now()}`,
+          title: assignmentData.title || 'Bài tập mới',
+          description: assignmentData.description || '',
+          dueDate: assignmentData.dueDate || '',
+          order: currentAssignments.length + 1,
+        };
+        return { ...chapter, assignments: [...currentAssignments, newAssignment] };
+      }
+    });
+
+    onUpdateChapters(updatedChapters);
+    setActiveAssignmentModal(null);
+    onShowToast(
+      isEdit
+        ? '✨ Đã cập nhật bài tập thành công!'
+        : '🎉 Đã thêm bài tập mới vào Chương thành công!'
+    );
+  };
+
+  const handleDeleteAssignment = (chapterId: string, assignmentId: string) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bài tập này không?')) {
+      const updatedChapters = chapters.map((ch) => {
+        if (ch.id !== chapterId) return ch;
+        const filteredAssignments = (ch.assignments || [])
+          .filter((a) => a.id !== assignmentId)
+          .map((a, idx) => ({ ...a, order: idx + 1 }));
+        return { ...ch, assignments: filteredAssignments };
+      });
+
+      onUpdateChapters(updatedChapters);
+      onShowToast('🗑️ Đã xóa bài tập khỏi Chương.');
+    }
+  };
+
+  const handleMoveAssignmentUp = (chapterId: string, assignmentIndex: number) => {
+    if (assignmentIndex === 0) return;
+    const updatedChapters = chapters.map((ch) => {
+      if (ch.id !== chapterId) return ch;
+
+      const newAssignments = [...(ch.assignments || [])];
+      const temp = newAssignments[assignmentIndex - 1];
+      newAssignments[assignmentIndex - 1] = newAssignments[assignmentIndex];
+      newAssignments[assignmentIndex] = temp;
+
+      const reordered = newAssignments.map((a, idx) => ({ ...a, order: idx + 1 }));
+      return { ...ch, assignments: reordered };
+    });
+
+    onUpdateChapters(updatedChapters);
+    onShowToast('⬆️ Đã di chuyển bài tập lên trên.');
+  };
+
+  const handleMoveAssignmentDown = (chapterId: string, assignmentIndex: number) => {
+    const updatedChapters = chapters.map((ch) => {
+      if (ch.id !== chapterId) return ch;
+      const currentAssignments = ch.assignments || [];
+      if (assignmentIndex === currentAssignments.length - 1) return ch;
+
+      const newAssignments = [...currentAssignments];
+      const temp = newAssignments[assignmentIndex + 1];
+      newAssignments[assignmentIndex + 1] = newAssignments[assignmentIndex];
+      newAssignments[assignmentIndex] = temp;
+
+      const reordered = newAssignments.map((a, idx) => ({ ...a, order: idx + 1 }));
+      return { ...ch, assignments: reordered };
+    });
+
+    onUpdateChapters(updatedChapters);
+    onShowToast('⬇️ Đã di chuyển bài tập xuống dưới.');
+  };
+
   return (
     <div className={styles.container}>
       {/* Header Row */}
@@ -231,7 +338,7 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
         <div className={styles.titleBox}>
           <h2 className={styles.title}>Chương trình đào tạo (Curriculum)</h2>
           <p className={styles.subtitle}>
-            Quản lý, sắp xếp và biên soạn chi tiết các Chương & Bài học trong khóa học.
+            Quản lý, sắp xếp và biên soạn chi tiết các Chương, Bài học & Bài tập trong khóa học.
           </p>
         </div>
 
@@ -289,6 +396,11 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
               onDeleteLesson={handleDeleteLesson}
               onMoveLessonUp={handleMoveLessonUp}
               onMoveLessonDown={handleMoveLessonDown}
+              onOpenAddAssignment={handleOpenAddAssignment}
+              onOpenEditAssignment={handleOpenEditAssignment}
+              onDeleteAssignment={handleDeleteAssignment}
+              onMoveAssignmentUp={handleMoveAssignmentUp}
+              onMoveAssignmentDown={handleMoveAssignmentDown}
             />
           ))}
         </div>
@@ -312,6 +424,14 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
         onClose={() => setActiveLessonModal(null)}
         onSave={handleSaveLesson}
         initialData={activeLessonModal?.lesson}
+      />
+
+      {/* Single AssignmentModal instance (Lifted State Up) */}
+      <AssignmentModal
+        isOpen={!!activeAssignmentModal}
+        onClose={() => setActiveAssignmentModal(null)}
+        onSave={handleSaveAssignment}
+        initialData={activeAssignmentModal?.assignment}
       />
     </div>
   );

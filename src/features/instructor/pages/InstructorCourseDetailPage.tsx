@@ -8,7 +8,7 @@ import type { ChapterModel } from '../components/course-detail/ChapterItem';
 import { ToastNotification } from '../components/common/ToastNotification';
 import styles from './InstructorCourseDetailPage.module.css';
 
-// Initial Mock Chapters Data with Sample Lessons
+// Initial Mock Chapters Data with Sample Lessons & Assignments
 const INITIAL_CHAPTERS: ChapterModel[] = [
   {
     id: 'ch-nest-1',
@@ -19,7 +19,7 @@ const INITIAL_CHAPTERS: ChapterModel[] = [
       {
         id: 'l-nest-1',
         title: 'Overview về NestJS Architecture & DI Container',
-        content: 'Tổng quan về kiến trúc Module, Controller, Provider và Dependency Injection trong NestJS.',
+        content: '<p>Tổng quan về kiến trúc Module, Controller, Provider và Dependency Injection trong NestJS.</p>',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         duration: 12,
         order: 1,
@@ -29,12 +29,21 @@ const INITIAL_CHAPTERS: ChapterModel[] = [
       {
         id: 'l-nest-2',
         title: 'Khởi tạo Nest CLI & Cấu trúc thư mục chuẩn Enterprise',
-        content: 'Hướng dẫn sử dụng @nestjs/cli để khởi tạo project và tổ chức folder chuẩn hóa.',
+        content: '<p>Hướng dẫn sử dụng @nestjs/cli để khởi tạo project và tổ chức folder chuẩn hóa.</p>',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         duration: 15,
         order: 2,
         isPublished: true,
         isFreePreview: true,
+      },
+    ],
+    assignments: [
+      {
+        id: 'a-nest-1',
+        title: 'Xây dựng Module Authentication & JWT Access Token',
+        description: '<p>Yêu cầu học viên khởi tạo <strong>AuthModule</strong>, sử dụng Passport JWT và mã hóa mật khẩu bcryptjs.</p>',
+        dueDate: '2026-08-30T23:59',
+        order: 1,
       },
     ],
   },
@@ -47,7 +56,7 @@ const INITIAL_CHAPTERS: ChapterModel[] = [
       {
         id: 'l-nest-3',
         title: 'Thiết kế Database Schema chuẩn hóa với Prisma 6',
-        content: 'Viết Prisma schema model cho User, Course, Chapter, Lesson và Migration.',
+        content: '<p>Viết Prisma schema model cho User, Course, Chapter, Lesson và Migration.</p>',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         duration: 20,
         order: 1,
@@ -57,12 +66,21 @@ const INITIAL_CHAPTERS: ChapterModel[] = [
       {
         id: 'l-nest-4',
         title: 'Viết CRUD Operations & Global Exception Filter',
-        content: 'Tạo Service, Controller và xử lý Exception Filter toàn cục.',
+        content: '<p>Tạo Service, Controller và xử lý Exception Filter toàn cục.</p>',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         duration: 25,
         order: 2,
         isPublished: true,
         isFreePreview: false,
+      },
+    ],
+    assignments: [
+      {
+        id: 'a-nest-2',
+        title: 'Thiết kế Schema Prisma cho E-learning Platform',
+        description: '<p>Yêu cầu học viên hoàn thiện các model <code>User</code>, <code>Course</code>, <code>Chapter</code>, <code>Lesson</code>, <code>Assignment</code>.</p>',
+        dueDate: '2026-09-05T23:59',
+        order: 1,
       },
     ],
   },
@@ -75,7 +93,7 @@ const INITIAL_CHAPTERS: ChapterModel[] = [
       {
         id: 'l-nest-5',
         title: 'Xây dựng Auth Module với Passport JWT & Bcrypt Password Hashing',
-        content: 'Mã hóa mật khẩu bằng bcryptjs và sinh JWT access token.',
+        content: '<p>Mã hóa mật khẩu bằng bcryptjs và sinh JWT access token.</p>',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         duration: 18,
         order: 1,
@@ -83,6 +101,7 @@ const INITIAL_CHAPTERS: ChapterModel[] = [
         isFreePreview: false,
       },
     ],
+    assignments: [],
   },
   {
     id: 'ch-nest-4',
@@ -93,7 +112,7 @@ const INITIAL_CHAPTERS: ChapterModel[] = [
       {
         id: 'l-nest-6',
         title: 'Cấu hình WebSockets Gateway & Room Subscription',
-        content: 'Tạo NestJS WebSocket Gateway kết nối Socket.io client.',
+        content: '<p>Tạo NestJS WebSocket Gateway kết nối Socket.io client.</p>',
         videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         duration: 22,
         order: 1,
@@ -101,6 +120,7 @@ const INITIAL_CHAPTERS: ChapterModel[] = [
         isFreePreview: false,
       },
     ],
+    assignments: [],
   },
 ];
 
