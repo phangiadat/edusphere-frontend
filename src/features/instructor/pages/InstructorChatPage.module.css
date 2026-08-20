@@ -1,0 +1,35 @@
+/* External CSS Module for InstructorChatPage Component - NO INLINE CSS & NO GRADIENTS */
+
+.container {
+  width: 100%;
+  height: calc(100vh - 7rem); /* Full height minus topbar padding */
+  background-color: var(--neutral-surface, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 0.875rem; /* 14px */
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+:global(.dark) .container {
+  background-color: var(--neutral-surface, #151d2a);
+  border-color: var(--border-color, #263346);
+}
+
+.leftColumn {
+  width: 22rem; /* 352px (~30% desktop) */
+  height: 100%;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .leftColumn {
+    width: 100%;
+  }
+}
+
+.rightColumn {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+}
