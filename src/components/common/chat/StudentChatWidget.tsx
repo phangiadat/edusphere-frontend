@@ -10,6 +10,7 @@ import {
   Loader2 
 } from 'lucide-react';
 import { chatService } from '../../../services/api/chatService';
+import { useAuth } from '../../../context/AuthContext';
 import styles from './StudentChatWidget.module.css';
 
 export interface InstructorModel {
@@ -83,18 +84,29 @@ interface StudentChatWidgetProps {
 }
 
 export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
-  isAuthenticated,
-  userRole,
+  isAuthenticated: propIsAuth,
+  userRole: propUserRole,
 }) => {
-  // Read token from localStorage if props not provided
-  const token = localStorage.getItem('accessToken');
-  const storedRole = localStorage.getItem('userRole') || 'STUDENT';
+  const auth = useAuth();
+  const user = auth?.user;
+  const isAuthCtx = auth?.isAuthenticated ?? false;
 
-  const isAuth = isAuthenticated ?? Boolean(token);
-  const role = userRole ?? storedRole;
+  // Read token & user_info from localStorage as fallback
+  const token = localStorage.getItem('access_token') || localStorage.getItem('accessToken');
+  const storedUserRaw = localStorage.getItem('user_info');
+  let storedRole = 'STUDENT';
+  if (storedUserRaw) {
+    try {
+      const parsed = JSON.parse(storedUserRaw);
+      if (parsed?.role) storedRole = parsed.role;
+    } catch {}
+  }
+
+  const isAuth = propIsAuth ?? (isAuthCtx || Boolean(token));
+  const role = propUserRole ?? (user?.role || storedRole);
 
   // 🔒 AUTH ROLE GATE FIX: Strictly hide widget if Guest (not logged in) or Instructor/Admin
-  if (!isAuth || role !== 'STUDENT') {
+  if (!isAuth || (role && role.toUpperCase() !== 'STUDENT')) {
     return null;
   }
 
