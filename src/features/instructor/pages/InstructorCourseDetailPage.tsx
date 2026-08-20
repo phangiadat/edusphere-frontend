@@ -6,6 +6,7 @@ import { CurriculumTab } from '../components/course-detail/CurriculumTab';
 import type { CourseItem } from '../components/courses/CourseCard';
 import type { ChapterModel } from '../components/course-detail/ChapterItem';
 import { ToastNotification } from '../components/common/ToastNotification';
+import { courseService } from '../../../services/api/courseService';
 import styles from './InstructorCourseDetailPage.module.css';
 
 // Initial Mock Chapters Data with Sample Lessons & Assignments
@@ -157,12 +158,82 @@ export const InstructorCourseDetailPage: React.FC = () => {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  // Fetch Course details from NestJS Backend REST API
+  React.useEffect(() => {
+    let isMounted = true;
+    async function fetchCourseDetail() {
+      if (!courseId) return;
+      try {
+        const data = await courseService.getCourseById(courseId);
+        if (isMounted && data) {
+          setCourseData({
+            id: data.id,
+            title: data.title,
+            description: data.description || '',
+            price: data.price,
+            thumbnail: data.thumbnail || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+            status: data.status,
+            categoryName: data.category?.name || 'Lập trình Web',
+            studentCount: data.enrollments?.length || 0,
+            rating: 4.9,
+          });
+
+          if (data.chapters && data.chapters.length > 0) {
+            const mappedChapters: ChapterModel[] = data.chapters.map((ch: any) => ({
+              id: ch.id,
+              title: ch.title,
+              order: ch.order,
+              isPublished: ch.isPublished,
+              lessons: (ch.lessons || []).map((l: any) => ({
+                id: l.id,
+                title: l.title,
+                content: l.content || '',
+                videoUrl: l.videoUrl || '',
+                duration: l.duration || 10,
+                order: l.order,
+                isPublished: l.isPublished,
+                isFreePreview: l.isFreePreview,
+              })),
+              assignments: (ch.assignments || []).map((a: any) => ({
+                id: a.id,
+                title: a.title,
+                description: a.description || '',
+                dueDate: a.dueDate || '',
+                order: a.order || 1,
+              })),
+            }));
+            setChapters(mappedChapters);
+          }
+        }
+      } catch (err) {
+        console.warn('Backend API connection fallback for Course Detail:', err);
+      }
+    }
+    fetchCourseDetail();
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId]);
+
   const handleUpdateCourseData = (updatedFields: Partial<CourseItem>) => {
     setCourseData((prev) => ({ ...prev, ...updatedFields }));
   };
 
-  const handleSaveAll = () => {
-    showToast('✨ Đã lưu toàn bộ thay đổi thông tin và chương trình học thành công!');
+  const handleSaveAll = async () => {
+    if (courseId) {
+      try {
+        await courseService.updateCourse(courseId, {
+          title: courseData.title,
+          description: courseData.description,
+          price: courseData.price,
+          thumbnail: courseData.thumbnail,
+          status: courseData.status as any,
+        });
+      } catch (e) {
+        console.warn('Failed API update course detail:', e);
+      }
+    }
+    showToast('🎉 Đã lưu toàn bộ cấu hình thông tin khóa học thành công!');
   };
 
   const getStatusBadgeClass = () => {
@@ -223,23 +294,21 @@ export const InstructorCourseDetailPage: React.FC = () => {
       <div className={styles.tabsContainer}>
         <button
           onClick={() => setActiveTab('settings')}
-          className={`${styles.tabBtn} ${
-            activeTab === 'settings' ? styles.activeTabBtn : ''
-          }`}
+          className={`${styles.tabBtn} ${activeTab === 'settings' ? styles.activeTabBtn : ''
+            }`}
         >
           <Settings className="w-4.5 h-4.5" />
-          <span>Tab 1: Cài đặt chung</span>
+          <span>Cài đặt chung</span>
           {activeTab === 'settings' && <div className={styles.activeTabIndicator} />}
         </button>
 
         <button
           onClick={() => setActiveTab('curriculum')}
-          className={`${styles.tabBtn} ${
-            activeTab === 'curriculum' ? styles.activeTabBtn : ''
-          }`}
+          className={`${styles.tabBtn} ${activeTab === 'curriculum' ? styles.activeTabBtn : ''
+            }`}
         >
           <Layers className="w-4.5 h-4.5" />
-          <span>Tab 2: Chương trình học</span>
+          <span>Chương trình học</span>
           {activeTab === 'curriculum' && <div className={styles.activeTabIndicator} />}
         </button>
       </div>

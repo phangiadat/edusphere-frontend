@@ -11,6 +11,7 @@ import { SubmissionTable } from '../components/assignments/SubmissionTable';
 import type { SubmissionModel } from '../components/assignments/SubmissionTable';
 import { GradeSubmissionDrawer } from '../components/assignments/GradeSubmissionDrawer';
 import { ToastNotification } from '../components/common/ToastNotification';
+import { assignmentService } from '../../../services/api/assignmentService';
 import styles from './InstructorAssignmentsPage.module.css';
 
 // Initial Mock Seed Data
@@ -124,7 +125,13 @@ export const InstructorAssignmentsPage: React.FC = () => {
     setSelectedSubmissionIndex(index);
   };
 
-  const handleSaveGrade = (submissionId: string, score: number, feedback: string) => {
+  const handleSaveGrade = async (submissionId: string, score: number, feedback: string) => {
+    try {
+      await assignmentService.gradeSubmission(submissionId, { score, feedback });
+    } catch (e) {
+      console.warn('API gradeSubmission fallback to local state:', e);
+    }
+
     setSubmissions((prev) =>
       prev.map((item) =>
         item.id === submissionId

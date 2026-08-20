@@ -2,7 +2,7 @@ import React from 'react';
 import { Edit3, Trash2, Users, Star } from 'lucide-react';
 import styles from './CourseCard.module.css';
 
-export type CourseStatusType = 'PUBLISHED' | 'DRAFT' | 'PENDING';
+export type CourseStatusType = 'PUBLISHED' | 'DRAFT' | 'PENDING' | 'REJECTED';
 
 export interface CourseItem {
   id: string;
