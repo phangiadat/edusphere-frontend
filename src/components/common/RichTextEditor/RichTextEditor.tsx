@@ -15,10 +15,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   placeholder = 'Nhập nội dung chi tiết bài giảng hoặc mô tả...',
   height = 280,
 }) => {
+  const apiKey = import.meta.env.VITE_TINYMCE_API_KEY || 'no-api-key';
+
   return (
     <div className={styles.editorContainer}>
       <Editor
-        apiKey="no-api-key"
+        apiKey={apiKey}
         value={value}
         onEditorChange={(newContent) => onChange(newContent)}
         init={{
