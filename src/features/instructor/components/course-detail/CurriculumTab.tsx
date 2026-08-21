@@ -6,6 +6,9 @@ import { LessonModal } from './LessonModal';
 import type { LessonModel } from './LessonItem';
 import { AssignmentModal } from './AssignmentModal';
 import type { AssignmentModel } from './AssignmentItem';
+import { chapterService } from '../../../../services/api/chapterService';
+import { lessonService } from '../../../../services/api/lessonService';
+import { assignmentService } from '../../../../services/api/assignmentService';
 import styles from './CurriculumTab.module.css';
 
 interface CurriculumTabProps {
@@ -16,6 +19,7 @@ interface CurriculumTabProps {
 }
 
 export const CurriculumTab: React.FC<CurriculumTabProps> = ({
+  courseId,
   chapters,
   onUpdateChapters,
   onShowToast,
@@ -39,12 +43,24 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
   // ==========================================
   // CHAPTER HANDLERS
   // ==========================================
-  const handleAddChapter = (e: React.FormEvent) => {
+  const handleAddChapter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newChapterTitle.trim()) return;
 
+    let createdId = `ch-${Date.now()}`;
+    try {
+      const created = await chapterService.createChapter({
+        title: newChapterTitle.trim(),
+        order: chapters.length + 1,
+        courseId,
+      });
+      if (created?.id) createdId = created.id;
+    } catch (err) {
+      console.warn('API createChapter fallback to local state:', err);
+    }
+
     const newChapter: ChapterModel = {
-      id: `ch-${Date.now()}`,
+      id: createdId,
       title: newChapterTitle.trim(),
       order: chapters.length + 1,
       isPublished: true,
@@ -58,7 +74,17 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     onShowToast(`🎉 Đã thêm mới "${newChapter.title}" thành công!`);
   };
 
-  const handleUpdateChapter = (chapterId: string, updatedFields: Partial<ChapterModel>) => {
+  const handleUpdateChapter = async (chapterId: string, updatedFields: Partial<ChapterModel>) => {
+    try {
+      await chapterService.updateChapter(chapterId, {
+        title: updatedFields.title,
+        order: updatedFields.order,
+        isPublished: updatedFields.isPublished,
+      });
+    } catch (err) {
+      console.warn('API updateChapter fallback to local state:', err);
+    }
+
     const updated = chapters.map((ch) =>
       ch.id === chapterId ? { ...ch, ...updatedFields } : ch
     );
@@ -72,8 +98,14 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     }
   };
 
-  const handleDeleteChapter = (chapterId: string) => {
+  const handleDeleteChapter = async (chapterId: string) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa Chương này không?')) {
+      try {
+        await chapterService.deleteChapter(chapterId);
+      } catch (err) {
+        console.warn('API deleteChapter fallback to local state:', err);
+      }
+
       const filtered = chapters
         .filter((ch) => ch.id !== chapterId)
         .map((ch, idx) => ({ ...ch, order: idx + 1 }));
@@ -117,11 +149,38 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     setActiveLessonModal({ chapterId, lesson });
   };
 
-  const handleSaveLesson = (lessonData: Partial<LessonModel>) => {
+  const handleSaveLesson = async (lessonData: Partial<LessonModel>) => {
     if (!activeLessonModal) return;
 
     const { chapterId } = activeLessonModal;
     const isEdit = !!lessonData.id;
+    let savedLessonId = lessonData.id || `l-${Date.now()}`;
+
+    try {
+      if (isEdit && lessonData.id) {
+        await lessonService.updateLesson(lessonData.id, {
+          title: lessonData.title,
+          content: lessonData.content,
+          videoUrl: lessonData.videoUrl,
+          duration: lessonData.duration,
+          isPublished: lessonData.isPublished,
+          isFreePreview: lessonData.isFreePreview,
+        });
+      } else {
+        const created = await lessonService.createLesson({
+          title: lessonData.title || 'Bài học mới',
+          content: lessonData.content || '',
+          videoUrl: lessonData.videoUrl || '',
+          duration: lessonData.duration || 10,
+          isPublished: lessonData.isPublished ?? true,
+          isFreePreview: lessonData.isFreePreview ?? false,
+          chapterId,
+        });
+        if (created?.id) savedLessonId = created.id;
+      }
+    } catch (err) {
+      console.warn('API lesson save fallback to local state:', err);
+    }
 
     const updatedChapters = chapters.map((chapter) => {
       if (chapter.id !== chapterId) return chapter;
@@ -135,7 +194,7 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
         return { ...chapter, lessons: updatedLessons };
       } else {
         const newLesson: LessonModel = {
-          id: `l-${Date.now()}`,
+          id: savedLessonId,
           title: lessonData.title || 'Bài học mới',
           content: lessonData.content || '',
           videoUrl: lessonData.videoUrl || '',
@@ -157,11 +216,24 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     );
   };
 
-  const handleUpdateLessonItem = (
+  const handleUpdateLessonItem = async (
     chapterId: string,
     lessonId: string,
     updatedFields: Partial<LessonModel>
   ) => {
+    try {
+      await lessonService.updateLesson(lessonId, {
+        title: updatedFields.title,
+        content: updatedFields.content,
+        videoUrl: updatedFields.videoUrl,
+        duration: updatedFields.duration,
+        isPublished: updatedFields.isPublished,
+        isFreePreview: updatedFields.isFreePreview,
+      });
+    } catch (err) {
+      console.warn('API updateLessonItem fallback to local state:', err);
+    }
+
     const updatedChapters = chapters.map((ch) => {
       if (ch.id !== chapterId) return ch;
       const updatedLessons = ch.lessons.map((l) =>
@@ -180,8 +252,14 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     }
   };
 
-  const handleDeleteLesson = (chapterId: string, lessonId: string) => {
+  const handleDeleteLesson = async (chapterId: string, lessonId: string) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa bài học này không?')) {
+      try {
+        await lessonService.deleteLesson(lessonId);
+      } catch (err) {
+        console.warn('API deleteLesson fallback to local state:', err);
+      }
+
       const updatedChapters = chapters.map((ch) => {
         if (ch.id !== chapterId) return ch;
         const filteredLessons = ch.lessons
@@ -242,11 +320,26 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     setActiveAssignmentModal({ chapterId, assignment });
   };
 
-  const handleSaveAssignment = (assignmentData: Partial<AssignmentModel>) => {
+  const handleSaveAssignment = async (assignmentData: Partial<AssignmentModel>) => {
     if (!activeAssignmentModal) return;
 
     const { chapterId } = activeAssignmentModal;
     const isEdit = !!assignmentData.id;
+    let savedAssignmentId = assignmentData.id || `a-${Date.now()}`;
+
+    try {
+      if (!isEdit) {
+        const created = await assignmentService.createAssignment({
+          title: assignmentData.title || 'Bài tập mới',
+          description: assignmentData.description || '',
+          dueDate: assignmentData.dueDate || '',
+          chapterId,
+        });
+        if (created?.id) savedAssignmentId = created.id;
+      }
+    } catch (err) {
+      console.warn('API createAssignment fallback to local state:', err);
+    }
 
     const updatedChapters = chapters.map((chapter) => {
       if (chapter.id !== chapterId) return chapter;
@@ -260,7 +353,7 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
         return { ...chapter, assignments: updatedAssignments };
       } else {
         const newAssignment: AssignmentModel = {
-          id: `a-${Date.now()}`,
+          id: savedAssignmentId,
           title: assignmentData.title || 'Bài tập mới',
           description: assignmentData.description || '',
           dueDate: assignmentData.dueDate || '',
