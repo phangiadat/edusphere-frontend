@@ -51,10 +51,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const data = await authApi.login(credentials);
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
-      localStorage.setItem('user_info', JSON.stringify(data.user));
-      setUser(data.user);
+      const accessToken = data.access_token || (data as any).accessToken;
+      const refreshToken = data.refresh_token || (data as any).refreshToken;
+
+      if (accessToken) {
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('accessToken', accessToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem('refresh_token', refreshToken);
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      if (data.user) {
+        localStorage.setItem('user_info', JSON.stringify(data.user));
+        setUser(data.user);
+      }
       setAuthModalMode(null);
     } finally {
       setIsLoading(false);
@@ -65,10 +76,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const data = await authApi.register(payload);
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
-      localStorage.setItem('user_info', JSON.stringify(data.user));
-      setUser(data.user);
+      const accessToken = data.access_token || (data as any).accessToken;
+      const refreshToken = data.refresh_token || (data as any).refreshToken;
+
+      if (accessToken) {
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('accessToken', accessToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem('refresh_token', refreshToken);
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      if (data.user) {
+        localStorage.setItem('user_info', JSON.stringify(data.user));
+        setUser(data.user);
+      }
       setAuthModalMode(null);
     } finally {
       setIsLoading(false);
