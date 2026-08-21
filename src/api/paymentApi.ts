@@ -106,4 +106,12 @@ export const paymentApi = {
     const response = await axiosClient.get(`/enrollments/courses/${courseId}/certificate`);
     return response.data;
   },
+
+  /**
+   * Xác thực phiên thanh toán Stripe & Kích hoạt khóa học (POST /enrollments/verify-session/:sessionId)
+   */
+  async verifySession(sessionId: string): Promise<{ message: string; courseId: string }> {
+    const response = await axiosClient.post(`/enrollments/verify-session/${sessionId}`);
+    return response.data;
+  },
 };

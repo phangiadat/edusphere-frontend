@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { CheckCircle2, PlayCircle, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { paymentApi } from '../api/paymentApi';
 
 interface PaymentSuccessPageProps {
   onNavigateMyCourses?: () => void;
@@ -13,13 +14,24 @@ export const PaymentSuccessPage: React.FC<PaymentSuccessPageProps> = ({
 }) => {
   const { clearCart } = useCart();
 
-  useEffect(() => {
-    // Clear cart after successful checkout
-    clearCart();
-  }, []);
-
   const queryParams = new URLSearchParams(window.location.search);
   const sessionId = queryParams.get('session_id') || 'sub_stripe_mock_2026_demo';
+
+  useEffect(() => {
+    clearCart();
+
+    const verifyEnrollment = async () => {
+      if (sessionId && sessionId.startsWith('cs_')) {
+        try {
+          await paymentApi.verifySession(sessionId);
+        } catch (err) {
+          console.warn('Silent session verification fallback:', err);
+        }
+      }
+    };
+
+    verifyEnrollment();
+  }, [sessionId]);
 
   return (
     <div className="min-h-screen bg-[var(--neutral-bg)] transition-colors py-16 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
