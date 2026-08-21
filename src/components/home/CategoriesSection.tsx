@@ -81,13 +81,12 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({ onSelectCa
       try {
         const dbCategories: CategoryItem[] = await categoryApi.getCategories();
         if (dbCategories && dbCategories.length > 0) {
-          // Merge real DB count if available
           const merged = categories.map((cat) => {
             const matched = dbCategories.find(
               (c) => c.name.toLowerCase() === cat.name.toLowerCase()
             );
-            if (matched && matched._count) {
-              return { ...cat, coursesCount: matched._count.courses || cat.coursesCount };
+            if (matched && matched._count !== undefined) {
+              return { ...cat, coursesCount: matched._count.courses };
             }
             return cat;
           });
