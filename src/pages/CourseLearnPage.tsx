@@ -9,11 +9,13 @@ import {
   Loader2, 
   AlertCircle,
   FileText,
-  BookOpen
+  BookOpen,
+  Sparkles
 } from 'lucide-react';
 import { paymentApi } from '../api/paymentApi';
 import type { LearnCourseData, LearnLesson, CertificateData } from '../api/paymentApi';
 import { CertificateModal } from '../components/course/CertificateModal';
+import { AiAssistantDrawer } from '../components/common/ai/AiAssistantDrawer';
 
 interface CourseLearnPageProps {
   courseId: string;
@@ -108,6 +110,9 @@ export const CourseLearnPage: React.FC<CourseLearnPageProps> = ({
   // Certificate Modal State
   const [isCertOpen, setIsCertOpen] = useState<boolean>(false);
   const [certData, setCertData] = useState<CertificateData | null>(null);
+
+  // AI Assistant Drawer State
+  const [isAiDrawerOpen, setIsAiDrawerOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchLearnData = async () => {
@@ -283,6 +288,16 @@ export const CourseLearnPage: React.FC<CourseLearnPageProps> = ({
               ></div>
             </div>
           </div>
+
+          {/* AI Gemini 2.0 Assistant Button */}
+          <button
+            onClick={() => setIsAiDrawerOpen(true)}
+            className="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 shadow cursor-pointer"
+            title="Mở Trợ lý AI Gemini 2.0"
+          >
+            <Sparkles className="w-4 h-4 text-purple-400" />
+            <span className="hidden sm:inline">Trợ lý AI Gemini 2.0</span>
+          </button>
 
           {/* Certificate Button (Available at 100% or previewable) */}
           <button
@@ -506,6 +521,14 @@ export const CourseLearnPage: React.FC<CourseLearnPageProps> = ({
         isOpen={isCertOpen}
         onClose={() => setIsCertOpen(false)}
         certificateData={certData}
+      />
+
+      {/* 🤖 GEMINI 2.0 AI ASSISTANT DRAWER */}
+      <AiAssistantDrawer
+        isOpen={isAiDrawerOpen}
+        onClose={() => setIsAiDrawerOpen(false)}
+        lessonId={activeLesson?.id}
+        lessonTitle={activeLesson?.title}
       />
 
     </div>
