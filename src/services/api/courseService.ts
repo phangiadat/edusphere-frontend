@@ -62,12 +62,14 @@ export const courseService = {
 
   // Create Course
   async createCourse(payload: CreateCoursePayload): Promise<CourseBackendModel> {
-    return (await axiosClient.post('/courses', payload)) as unknown as CourseBackendModel;
+    const res: any = await axiosClient.post('/courses', payload);
+    return res?.data || res;
   },
 
   // Update Course
   async updateCourse(id: string, payload: UpdateCoursePayload): Promise<CourseBackendModel> {
-    return (await axiosClient.patch(`/courses/${id}`, payload)) as unknown as CourseBackendModel;
+    const res: any = await axiosClient.patch(`/courses/${id}`, payload);
+    return res?.data || res;
   },
 
   // Delete Course

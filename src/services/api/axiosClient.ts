@@ -13,7 +13,7 @@ export const axiosClient = axios.create({
 // Request Interceptor: Attach Authorization Bearer Token
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('access_token') || localStorage.getItem('accessToken');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
