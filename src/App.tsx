@@ -18,17 +18,18 @@ import { ShoppingCartPage } from './pages/ShoppingCartPage';
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
 import { CourseLearnPage } from './pages/CourseLearnPage';
+import { SettingsPage } from './features/settings/pages/SettingsPage';
 import { StudentChatWidget } from './components/common/chat/StudentChatWidget';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const [currentView, setCurrentView] = useState<'home' | 'course-detail' | 'cart' | 'payment-success' | 'my-courses' | 'learn'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'course-detail' | 'cart' | 'payment-success' | 'my-courses' | 'learn' | 'settings'>('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string>('course-nestjs-masterclass');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Handle Hash & URL route changes (e.g., #cart, #payment-success, #my-courses, #learn/xyz, #course/xyz)
+  // Handle Hash & URL route changes (e.g., #cart, #payment-success, #my-courses, #settings, #learn/xyz, #course/xyz)
   useEffect(() => {
     const handleHashChange = () => {
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -39,6 +40,8 @@ export default function App() {
         setCurrentView('payment-success');
       } else if (hash === '#my-courses') {
         setCurrentView('my-courses');
+      } else if (hash === '#settings' || pathname.includes('/settings')) {
+        setCurrentView('settings');
       } else if (hash === '#cart') {
         setCurrentView('cart');
       } else if (hash.startsWith('#learn/')) {
@@ -185,6 +188,8 @@ export default function App() {
               courseId={selectedCourseId}
               onNavigateMyCourses={navigateToMyCourses}
             />
+          ) : currentView === 'settings' ? (
+            <SettingsPage />
           ) : (
             <CourseDetailPage 
               courseId={selectedCourseId} 
