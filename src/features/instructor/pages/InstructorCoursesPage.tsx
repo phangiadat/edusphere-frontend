@@ -72,8 +72,10 @@ export const InstructorCoursesPage: React.FC = () => {
       try {
         setLoading(true);
         const response = await courseService.getCourses(1, 20);
-        if (isMounted && response && response.data && response.data.length > 0) {
-          const mapped: CourseItem[] = response.data.map((c) => ({
+        const courseArray = (response as any)?.data || (Array.isArray(response) ? response : null);
+
+        if (isMounted && Array.isArray(courseArray) && courseArray.length > 0) {
+          const mapped: CourseItem[] = courseArray.map((c: any) => ({
             id: c.id,
             title: c.title,
             description: c.description || '',

@@ -1,4 +1,4 @@
-import { axiosClient } from './axiosClient';
+import { axiosClient } from '../services/api/axiosClient';
 
 export interface MyCourseItem {
   enrollmentId: string;
@@ -61,8 +61,8 @@ export const paymentApi = {
    * Tạo Stripe Checkout Session cho khóa học (POST /enrollments/checkout/:courseId)
    */
   async createCheckoutSession(courseId: string): Promise<{ checkoutUrl: string }> {
-    const response = await axiosClient.post(`/enrollments/checkout/${courseId}`);
-    return response.data;
+    const res: any = await axiosClient.post(`/enrollments/checkout/${courseId}`);
+    return res?.data || res;
   },
 
   /**
@@ -72,18 +72,18 @@ export const paymentApi = {
     data: MyCourseItem[];
     meta: { total: number; page: number; limit: number; totalPages: number };
   }> {
-    const response = await axiosClient.get('/enrollments/my-courses', {
+    const res: any = await axiosClient.get('/enrollments/my-courses', {
       params: { page, limit },
     });
-    return response.data;
+    return res?.data || res;
   },
 
   /**
    * Lấy dữ liệu trình học bài giảng khóa học đã mua (GET /enrollments/courses/:courseId/learn)
    */
   async getCourseLearnData(courseId: string): Promise<LearnCourseData> {
-    const response = await axiosClient.get(`/enrollments/courses/${courseId}/learn`);
-    return response.data;
+    const res: any = await axiosClient.get(`/enrollments/courses/${courseId}/learn`);
+    return res?.data || res;
   },
 
   /**
@@ -95,15 +95,15 @@ export const paymentApi = {
     progress: number;
     isCourseCompleted: boolean;
   }> {
-    const response = await axiosClient.post(`/enrollments/lessons/${lessonId}/complete`);
-    return response.data;
+    const res: any = await axiosClient.post(`/enrollments/lessons/${lessonId}/complete`);
+    return res?.data || res;
   },
 
   /**
    * Lấy thông tin chứng chỉ hoàn thành (GET /enrollments/courses/:courseId/certificate)
    */
   async getCertificateData(courseId: string): Promise<CertificateData> {
-    const response = await axiosClient.get(`/enrollments/courses/${courseId}/certificate`);
-    return response.data;
+    const res: any = await axiosClient.get(`/enrollments/courses/${courseId}/certificate`);
+    return res?.data || res;
   },
 };
