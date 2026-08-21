@@ -1,4 +1,4 @@
-import { axiosClient } from './axiosClient';
+import { axiosClient } from '../../api/axiosClient';
 
 export interface UserChatInfo {
   id: string;
@@ -44,24 +44,27 @@ export interface PaginatedMessagesResponse {
 export const chatService = {
   // Get My Conversations
   async getMyConversations(page = 1, limit = 20): Promise<ConversationBackendModel[]> {
-    const res = (await axiosClient.get('/chat/conversations', {
+    const response = await axiosClient.get('/chat/conversations', {
       params: { page, limit },
-    })) as unknown as any;
+    });
+    const res = response.data;
     return Array.isArray(res) ? res : res?.data || [];
   },
 
   // Start / Find Conversation 1-1
   async startConversation(targetUserId: string): Promise<ConversationBackendModel> {
-    return (await axiosClient.post('/chat/conversations', {
+    const response = await axiosClient.post('/chat/conversations', {
       targetUserId,
-    })) as unknown as ConversationBackendModel;
+    });
+    return response.data;
   },
 
   // Get Chat Messages History with Pagination (for Infinite Scroll)
   async getChatHistory(conversationId: string, page = 1, limit = 30): Promise<PaginatedMessagesResponse> {
-    const res = (await axiosClient.get(`/chat/conversations/${conversationId}/messages`, {
+    const response = await axiosClient.get(`/chat/conversations/${conversationId}/messages`, {
       params: { page, limit },
-    })) as unknown as any;
+    });
+    const res = response.data;
 
     if (Array.isArray(res)) {
       return {

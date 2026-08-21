@@ -1,4 +1,4 @@
-import { axiosClient } from './axiosClient';
+import { axiosClient } from '../../api/axiosClient';
 
 export interface AskAiPayload {
   question: string;
@@ -12,6 +12,7 @@ export interface AskAiResponse {
 export const aiService = {
   // Ask Gemini AI Assistant
   async askQuestion(payload: AskAiPayload): Promise<AskAiResponse> {
-    return (await axiosClient.post('/ai/ask', payload)) as unknown as AskAiResponse;
+    const response = await axiosClient.post('/ai/ask', payload);
+    return response.data;
   },
 };

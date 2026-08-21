@@ -1,4 +1,4 @@
-import { axiosClient } from './axiosClient';
+import { axiosClient } from '../../api/axiosClient';
 
 export interface CreateCoursePayload {
   title: string;
@@ -50,31 +50,34 @@ export interface PaginatedCoursesResponse {
 export const courseService = {
   // Get Instructor's courses
   async getCourses(page = 1, limit = 10): Promise<PaginatedCoursesResponse> {
-    return (await axiosClient.get('/courses', {
+    const response = await axiosClient.get('/courses', {
       params: { page, limit },
-    })) as unknown as PaginatedCoursesResponse;
+    });
+    return response.data;
   },
 
   // Get Single Course Detail (Instructor)
   async getCourseById(id: string): Promise<CourseBackendModel> {
-    return (await axiosClient.get(`/courses/${id}`)) as unknown as CourseBackendModel;
+    const response = await axiosClient.get(`/courses/${id}`);
+    return response.data;
   },
 
-  // Create Course
+  // Create Course (NestJS returns { message, data: CourseModel })
   async createCourse(payload: CreateCoursePayload): Promise<CourseBackendModel> {
-    const res: any = await axiosClient.post('/courses', payload);
-    return res?.data || res;
+    const response = await axiosClient.post('/courses', payload);
+    return response.data?.data || response.data;
   },
 
   // Update Course
   async updateCourse(id: string, payload: UpdateCoursePayload): Promise<CourseBackendModel> {
-    const res: any = await axiosClient.patch(`/courses/${id}`, payload);
-    return res?.data || res;
+    const response = await axiosClient.patch(`/courses/${id}`, payload);
+    return response.data;
   },
 
   // Delete Course
   async deleteCourse(id: string): Promise<{ message: string }> {
-    return (await axiosClient.delete(`/courses/${id}`)) as unknown as { message: string };
+    const response = await axiosClient.delete(`/courses/${id}`);
+    return response.data;
   },
 
   // Upload Thumbnail File (Multipart Form Data)
@@ -82,15 +85,17 @@ export const courseService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    return (await axiosClient.post(`/courses/${id}/thumbnail`, formData, {
+    const response = await axiosClient.post(`/courses/${id}/thumbnail`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    })) as unknown as CourseBackendModel;
+    });
+    return response.data;
   },
 
   // Submit Course for Admin Review
   async submitForReview(id: string): Promise<CourseBackendModel> {
-    return (await axiosClient.post(`/courses/${id}/submit-review`)) as unknown as CourseBackendModel;
+    const response = await axiosClient.post(`/courses/${id}/submit-review`);
+    return response.data;
   },
 };

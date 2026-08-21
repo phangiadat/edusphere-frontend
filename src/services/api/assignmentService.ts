@@ -1,4 +1,4 @@
-import { axiosClient } from './axiosClient';
+import { axiosClient } from '../../api/axiosClient';
 
 export interface CreateAssignmentPayload {
   title: string;
@@ -72,18 +72,21 @@ export interface PaginatedSubmissionsResponse {
 export const assignmentService = {
   // Create Assignment
   async createAssignment(payload: CreateAssignmentPayload): Promise<AssignmentBackendModel> {
-    return (await axiosClient.post('/assignments', payload)) as unknown as AssignmentBackendModel;
+    const response = await axiosClient.post('/assignments', payload);
+    return response.data;
   },
 
   // Get Submissions for an Assignment
   async getSubmissions(assignmentId: string, page = 1, limit = 20): Promise<PaginatedSubmissionsResponse> {
-    return (await axiosClient.get(`/assignments/${assignmentId}/submissions`, {
+    const response = await axiosClient.get(`/assignments/${assignmentId}/submissions`, {
       params: { page, limit },
-    })) as unknown as PaginatedSubmissionsResponse;
+    });
+    return response.data;
   },
 
   // Grade Submission
   async gradeSubmission(submissionId: string, payload: GradeSubmissionPayload): Promise<SubmissionBackendModel> {
-    return (await axiosClient.patch(`/assignments/submissions/${submissionId}/grade`, payload)) as unknown as SubmissionBackendModel;
+    const response = await axiosClient.patch(`/assignments/submissions/${submissionId}/grade`, payload);
+    return response.data;
   },
 };

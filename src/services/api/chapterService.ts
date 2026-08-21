@@ -1,4 +1,4 @@
-import { axiosClient } from './axiosClient';
+import { axiosClient } from '../../api/axiosClient';
 
 export interface CreateChapterPayload {
   title: string;
@@ -28,21 +28,25 @@ export interface ChapterBackendModel {
 export const chapterService = {
   // Get Chapters by Course
   async getChaptersByCourse(courseId: string): Promise<ChapterBackendModel[]> {
-    return (await axiosClient.get(`/chapters/course/${courseId}`)) as unknown as ChapterBackendModel[];
+    const response = await axiosClient.get(`/chapters/course/${courseId}`);
+    return response.data;
   },
 
   // Create Chapter
   async createChapter(payload: CreateChapterPayload): Promise<ChapterBackendModel> {
-    return (await axiosClient.post('/chapters', payload)) as unknown as ChapterBackendModel;
+    const response = await axiosClient.post('/chapters', payload);
+    return response.data;
   },
 
   // Update Chapter
   async updateChapter(id: string, payload: UpdateChapterPayload): Promise<ChapterBackendModel> {
-    return (await axiosClient.patch(`/chapters/${id}`, payload)) as unknown as ChapterBackendModel;
+    const response = await axiosClient.patch(`/chapters/${id}`, payload);
+    return response.data;
   },
 
   // Delete Chapter
   async deleteChapter(id: string): Promise<{ message: string }> {
-    return (await axiosClient.delete(`/chapters/${id}`)) as unknown as { message: string };
+    const response = await axiosClient.delete(`/chapters/${id}`);
+    return response.data;
   },
 };
