@@ -284,6 +284,24 @@ export const FeaturedCourses: React.FC<FeaturedCoursesProps> = ({
 
   const totalPages = Math.ceil(totalCourses / limit) || 1;
 
+  const getPaginationRange = (currentPage: number, total: number): (number | string)[] => {
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    const pages: (number | string)[] = [];
+
+    if (currentPage <= 3) {
+      pages.push(1, 2, 3, 4, '...', total);
+    } else if (currentPage >= total - 2) {
+      pages.push(1, '...', total - 3, total - 2, total - 1, total);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', total);
+    }
+
+    return pages;
+  };
+
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
@@ -565,19 +583,29 @@ export const FeaturedCourses: React.FC<FeaturedCoursesProps> = ({
 
             {/* Page Number Pills */}
             <div className="flex items-center gap-1">
-              {[...Array(totalPages)].map((_, idx) => {
-                const pageNum = idx + 1;
+              {getPaginationRange(page, totalPages).map((item, idx) => {
+                if (typeof item === 'string') {
+                  return (
+                    <span
+                      key={`dots-${idx}`}
+                      className="w-8 h-10 flex items-center justify-center text-p2-bold text-[var(--text-muted)] select-none"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+
                 return (
                   <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
+                    key={item}
+                    onClick={() => handlePageChange(item)}
                     className={`w-10 h-10 rounded-xl text-p2-bold transition ${
-                      page === pageNum
+                      page === item
                         ? 'bg-purple-600 text-white shadow-md'
                         : 'border border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--neutral-surface-hover)]'
                     }`}
                   >
-                    {pageNum}
+                    {item}
                   </button>
                 );
               })}
