@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CartProvider } from './context/CartContext';
+import { useAuth } from './context/AuthContext';
 import { AuthModalContainer } from './components/auth/AuthModalContainer';
 import { Navbar } from './components/layout/Navbar';
 import { HeroSection } from './components/home/HeroSection';
@@ -23,6 +24,7 @@ import { StudentChatWidget } from './components/common/chat/StudentChatWidget';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
+  const { isAuthenticated, openAuthModal } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [currentView, setCurrentView] = useState<'home' | 'course-detail' | 'cart' | 'payment-success' | 'my-courses' | 'learn' | 'settings'>('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string>('course-nestjs-masterclass');
@@ -70,6 +72,16 @@ export default function App() {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+
+  // Route Protection Effect: Redirect unauthenticated users trying to access protected views
+  useEffect(() => {
+    const protectedViews = ['settings', 'my-courses', 'learn'];
+    if (!isAuthenticated && protectedViews.includes(currentView)) {
+      window.location.hash = '#home';
+      setCurrentView('home');
+      openAuthModal('login');
+    }
+  }, [isAuthenticated, currentView, openAuthModal]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);

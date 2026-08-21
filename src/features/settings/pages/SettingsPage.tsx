@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   User as UserIcon, 
   Mail, 
@@ -20,7 +20,18 @@ import { authApi } from '../../../api/authApi';
 import styles from './SettingsPage.module.css';
 
 export const SettingsPage: React.FC = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, isAuthenticated, openAuthModal } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      window.location.hash = '#home';
+      openAuthModal('login');
+    }
+  }, [isAuthenticated, openAuthModal]);
+
+  if (!isAuthenticated || !user) {
+    return null;
+  }
 
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
 
