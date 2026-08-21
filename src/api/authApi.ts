@@ -35,10 +35,10 @@ export const authApi = {
   },
 
   /**
-   * Đổi mật khẩu (POST /auth/change-password)
+   * Đổi mật khẩu (PATCH /auth/change-password)
    */
   async changePassword(payload: ChangePasswordDto): Promise<{ message: string }> {
-    const response = await axiosClient.post<{ message: string }>('/auth/change-password', payload);
+    const response = await axiosClient.patch<{ message: string }>('/auth/change-password', payload);
     return response.data;
   },
 
