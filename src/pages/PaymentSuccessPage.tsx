@@ -14,8 +14,10 @@ export const PaymentSuccessPage: React.FC<PaymentSuccessPageProps> = ({
 }) => {
   const { clearCart } = useCart();
 
-  const queryParams = new URLSearchParams(window.location.search);
-  const sessionId = queryParams.get('session_id') || 'sub_stripe_mock_2026_demo';
+  const searchParams = new URLSearchParams(window.location.search);
+  const hashQuery = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '';
+  const hashParams = new URLSearchParams(hashQuery);
+  const sessionId = searchParams.get('session_id') || hashParams.get('session_id') || 'sub_stripe_mock_2026_demo';
 
   useEffect(() => {
     clearCart();
@@ -25,7 +27,7 @@ export const PaymentSuccessPage: React.FC<PaymentSuccessPageProps> = ({
         try {
           await paymentApi.verifySession(sessionId);
         } catch (err) {
-          console.warn('Silent session verification fallback:', err);
+          console.warn('Session verification error:', err);
         }
       }
     };

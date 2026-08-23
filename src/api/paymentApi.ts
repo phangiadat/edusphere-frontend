@@ -108,6 +108,14 @@ export const paymentApi = {
   },
 
   /**
+   * Kích hoạt khóa học trực tiếp vào PostgreSQL Database (POST /enrollments/direct-enroll/:courseId)
+   */
+  async directEnroll(courseId: string): Promise<{ message: string; courseId: string }> {
+    const response = await axiosClient.post(`/enrollments/direct-enroll/${courseId}`);
+    return response.data;
+  },
+
+  /**
    * Xác thực phiên thanh toán Stripe & Kích hoạt khóa học (POST /enrollments/verify-session/:sessionId)
    */
   async verifySession(sessionId: string): Promise<{ message: string; courseId: string }> {
