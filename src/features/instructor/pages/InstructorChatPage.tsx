@@ -8,82 +8,18 @@ import { StudentInfoDrawer } from '../components/chat/StudentInfoDrawer';
 import { chatService } from '../../../services/api/chatService';
 import styles from './InstructorChatPage.module.css';
 
-// Initial Mock Seed Data
-const INITIAL_CONVERSATIONS: ConversationItemModel[] = [
-  {
-    id: 'conv-1',
-    studentId: 'student-1',
-    studentName: 'Nguyễn Văn Hải',
-    studentEmail: 'hai.nguyen@edusphere.vn',
-    studentAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-    courseTitle: 'NestJS & Microservices Masterclass',
-    lastMessage: 'Em vừa nộp link GitHub bài tập auth ạ!',
-    lastMessageTime: '14:30',
-    unreadCount: 1,
-    isOnline: true,
-  },
-  {
-    id: 'conv-2',
-    studentId: 'student-2',
-    studentName: 'Trần Thị Thu Hà',
-    studentEmail: 'ha.tran@edusphere.vn',
-    studentAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-    courseTitle: 'NestJS & Microservices Masterclass',
-    lastMessage: 'Cảm ơn thầy đã chấm bài 9.5 điểm cho em ạ!',
-    lastMessageTime: 'Hôm qua',
-    unreadCount: 0,
-    isOnline: false,
-  },
-  {
-    id: 'conv-3',
-    studentId: 'student-3',
-    studentName: 'Lê Hoàng Minh',
-    studentEmail: 'minh.le@edusphere.vn',
-    studentAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-    courseTitle: 'React 18 & Next.js 14 Masterclass',
-    lastMessage: 'Thầy cho em hỏi phần Server Components với ạ.',
-    lastMessageTime: '18/08',
-    unreadCount: 0,
-    isOnline: true,
-  },
-];
-
-const INITIAL_MESSAGES: Record<string, MessageModel[]> = {
-  'conv-1': [
-    {
-      id: 'm-1',
-      conversationId: 'conv-1',
-      senderId: 'student-1',
-      content: 'Chào thầy, em đang làm bài tập AuthModule trong Chương 1 ạ.',
-      createdAt: '2026-08-19T14:20:00Z',
-    },
-    {
-      id: 'm-2',
-      conversationId: 'conv-1',
-      senderId: 'instructor-1',
-      content: 'Chào Hải, em gặp vướng mắc ở phần Passport JWT Strategy hay Bcrypt password?',
-      createdAt: '2026-08-19T14:25:00Z',
-    },
-    {
-      id: 'm-3',
-      conversationId: 'conv-1',
-      senderId: 'student-1',
-      content: 'Em vừa nộp link GitHub bài tập auth ạ! Thầy giúp em xem qua nhé.',
-      createdAt: '2026-08-19T14:30:00Z',
-    },
-  ],
-};
+import { MessageSquare } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
 
 export const InstructorChatPage: React.FC = () => {
-  const [conversations, setConversations] = useState<ConversationItemModel[]>(INITIAL_CONVERSATIONS);
-  const [selectedConversation, setSelectedConversation] = useState<ConversationItemModel | null>(
-    INITIAL_CONVERSATIONS[0]
-  );
-  const [messagesMap, setMessagesMap] = useState<Record<string, MessageModel[]>>(INITIAL_MESSAGES);
+  const { user } = useAuth();
+  const currentUserId = user?.id || '';
+
+  const [conversations, setConversations] = useState<ConversationItemModel[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<ConversationItemModel | null>(null);
+  const [messagesMap, setMessagesMap] = useState<Record<string, MessageModel[]>>({});
   const [socket, setSocket] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  const currentUserId = 'instructor-1'; // Instructor User ID
 
   // WebSockets Setup with NestJS ChatGateway
   useEffect(() => {
@@ -106,8 +42,8 @@ export const InstructorChatPage: React.FC = () => {
     async function fetchConversations() {
       try {
         const backendConvs = await chatService.getMyConversations();
-        if (isMounted && backendConvs && backendConvs.length > 0) {
-          const mapped: ConversationItemModel[] = backendConvs.map((c) => {
+        if (isMounted && Array.isArray(backendConvs)) {
+          const mapped: ConversationItemModel[] = backendConvs.map((c: any) => {
             const student = c.user1Id === currentUserId ? c.user2 : c.user1;
             return {
               id: c.id,
@@ -118,18 +54,24 @@ export const InstructorChatPage: React.FC = () => {
                 student?.avatarUrl ||
                 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
               lastMessage: c.lastMessage?.content || 'Chưa có tin nhắn nào',
-              lastMessageTime: 'Mới xong',
+              lastMessageTime: 'Vừa xong',
               unreadCount: c.unreadCount || 0,
               isOnline: true,
             };
           });
           setConversations(mapped);
-          if (mapped.length > 0 && !selectedConversation) {
+          if (mapped.length > 0) {
             setSelectedConversation(mapped[0]);
+          } else {
+            setSelectedConversation(null);
           }
         }
       } catch (err) {
-        console.warn('Backend REST API Chat fallback to seed conversations:', err);
+        console.warn('Lỗi khi nạp danh sách trò chuyện từ Backend:', err);
+        if (isMounted) {
+          setConversations([]);
+          setSelectedConversation(null);
+        }
       }
     }
 
@@ -137,7 +79,7 @@ export const InstructorChatPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [currentUserId]);
 
   // Handle Fetching History with Pagination (Infinite Scroll support)
   const handleFetchOlderMessages = async (page: number) => {
@@ -213,6 +155,22 @@ export const InstructorChatPage: React.FC = () => {
   const currentMessages = selectedConversation
     ? messagesMap[selectedConversation.id] || []
     : [];
+
+  if (conversations.length === 0) {
+    return (
+      <div className={styles.container} style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl p-12 text-center space-y-4 max-w-lg mx-auto my-12 shadow-sm">
+          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center mx-auto">
+            <MessageSquare className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-extrabold text-[var(--text-primary)]">Chưa có cuộc trò chuyện nào</h3>
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+            Kênh Chat WebSockets đã sẵn sàng! Khi học viên gửi tin nhắn hoặc câu hỏi, cuộc hội thoại sẽ tự động xuất hiện tại đây.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
