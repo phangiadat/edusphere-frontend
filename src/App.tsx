@@ -38,14 +38,14 @@ export default function App() {
       const hash = window.location.hash;
       const pathname = window.location.pathname;
 
-      if (hash === '#payment-success' || pathname.includes('/payment/success')) {
-        setCurrentView('payment-success');
-      } else if (hash === '#my-courses') {
+      if (hash === '#my-courses') {
         setCurrentView('my-courses');
-      } else if (hash === '#settings' || pathname.includes('/settings')) {
+      } else if (hash === '#settings' || (pathname.includes('/settings') && !hash)) {
         setCurrentView('settings');
       } else if (hash === '#cart') {
         setCurrentView('cart');
+      } else if (hash === '#payment-success' || (pathname.includes('/payment/success') && !hash)) {
+        setCurrentView('payment-success');
       } else if (hash.startsWith('#learn/')) {
         const id = hash.replace('#learn/', '');
         setSelectedCourseId(id);

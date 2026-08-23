@@ -290,28 +290,31 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
     // Scroll to top immediately when course detail mounts or courseId changes
     window.scrollTo({ top: 0, behavior: 'instant' });
 
+    let currentCourseTitle = '';
+
     const fetchCourse = async () => {
       setIsLoading(true);
       setError(null);
       try {
         const data = await courseApi.getCourseDetailPublic(courseId);
         if (data && data.title) {
+          currentCourseTitle = data.title;
           setCourse(data);
         } else {
-          setCourse(ALL_DEMO_COURSES_DETAIL[courseId] || ALL_DEMO_COURSES_DETAIL['course-nestjs-masterclass']);
+          const fallback = ALL_DEMO_COURSES_DETAIL[courseId] || ALL_DEMO_COURSES_DETAIL['course-nestjs-masterclass'];
+          currentCourseTitle = fallback.title;
+          setCourse(fallback);
         }
       } catch (err) {
         console.warn(`Lỗi/Dùng dữ liệu demo khóa học (${courseId}):`, err);
-        setCourse(ALL_DEMO_COURSES_DETAIL[courseId] || ALL_DEMO_COURSES_DETAIL['course-nestjs-masterclass']);
+        const fallback = ALL_DEMO_COURSES_DETAIL[courseId] || ALL_DEMO_COURSES_DETAIL['course-nestjs-masterclass'];
+        currentCourseTitle = fallback.title;
+        setCourse(fallback);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchCourse();
-    fetchReviewsAndStats();
-
-    // Check enrollment status
     const checkEnrollment = async () => {
       if (!user) {
         setIsEnrolled(false);
@@ -320,14 +323,24 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
       try {
         const res: any = await paymentApi.getMyCourses();
         const list = Array.isArray(res) ? res : (res?.data || []);
-        const found = list.some((c: any) => c.id === courseId || c.courseId === courseId);
+        const found = list.some((c: any) => {
+          const matchId = c.course?.id === courseId || c.courseId === courseId || c.id === courseId;
+          const matchTitle = currentCourseTitle && c.course?.title?.toLowerCase() === currentCourseTitle.toLowerCase();
+          return matchId || matchTitle;
+        });
         setIsEnrolled(!!found);
       } catch {
         setIsEnrolled(false);
       }
     };
 
-    checkEnrollment();
+    const loadAllData = async () => {
+      await fetchCourse();
+      await fetchReviewsAndStats();
+      await checkEnrollment();
+    };
+
+    loadAllData();
   }, [courseId, user]);
 
   // Open Preview Modal for specific lesson

@@ -86,6 +86,7 @@ export const PaymentSuccessPage: React.FC<PaymentSuccessPageProps> = ({
         <div className="space-y-3 pt-2">
           <button
             onClick={() => {
+              window.history.pushState({}, '', '/#my-courses');
               if (onNavigateMyCourses) onNavigateMyCourses();
               else window.location.hash = '#my-courses';
             }}
@@ -98,6 +99,7 @@ export const PaymentSuccessPage: React.FC<PaymentSuccessPageProps> = ({
 
           <button
             onClick={() => {
+              window.history.pushState({}, '', '/#home');
               if (onNavigateHome) onNavigateHome();
               else window.location.hash = '#home';
             }}
