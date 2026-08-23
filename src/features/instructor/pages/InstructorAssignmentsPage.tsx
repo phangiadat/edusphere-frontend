@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  FileCheck2, 
-  Search, 
-  Users, 
-  Clock, 
-  CheckCircle2, 
-  Award 
+import {
+  FileCheck2,
+  Search,
+  Users,
+  Clock,
+  CheckCircle2,
+  Award
 } from 'lucide-react';
 import { SubmissionTable } from '../components/assignments/SubmissionTable';
 import type { SubmissionModel } from '../components/assignments/SubmissionTable';
@@ -113,7 +113,7 @@ export const InstructorAssignmentsPage: React.FC = () => {
   const totalCount = submissions.length;
   const submittedCount = submissions.filter((s) => s.status === 'SUBMITTED').length;
   const gradedCount = submissions.filter((s) => s.status === 'GRADED').length;
-  
+
   const gradedItems = submissions.filter((s) => s.score !== undefined && s.score !== null);
   const avgScore =
     gradedItems.length > 0
@@ -236,9 +236,9 @@ export const InstructorAssignmentsPage: React.FC = () => {
             onChange={(e) => setSelectedStatus(e.target.value)}
             className={styles.selectInput}
           >
-            <option value="ALL">📌 Tất cả trạng thái</option>
-            <option value="SUBMITTED">⏳ Chờ chấm điểm (SUBMITTED)</option>
-            <option value="GRADED">✅ Đã chấm điểm (GRADED)</option>
+            <option value="ALL"> Tất cả trạng thái</option>
+            <option value="SUBMITTED"> Chờ chấm điểm (SUBMITTED)</option>
+            <option value="GRADED"> Đã chấm điểm (GRADED)</option>
           </select>
 
           <select
@@ -246,7 +246,7 @@ export const InstructorAssignmentsPage: React.FC = () => {
             onChange={(e) => setSelectedCourse(e.target.value)}
             className={styles.selectInput}
           >
-            <option value="ALL">📚 Tất cả khóa học</option>
+            <option value="ALL"> Tất cả khóa học</option>
             <option value="Lập trình NestJS & Microservices từ Zero đến Production">
               NestJS & Microservices
             </option>
