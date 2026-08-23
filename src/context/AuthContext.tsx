@@ -65,6 +65,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user) {
         localStorage.setItem('user_info', JSON.stringify(data.user));
         setUser(data.user);
+
+        if (data.user.role === 'INSTRUCTOR') {
+          window.location.href = '/instructor/dashboard';
+        }
       }
       setAuthModalMode(null);
     } finally {
@@ -90,6 +94,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user) {
         localStorage.setItem('user_info', JSON.stringify(data.user));
         setUser(data.user);
+
+        if (data.user.role === 'INSTRUCTOR') {
+          window.location.href = '/instructor/dashboard';
+        }
       }
       setAuthModalMode(null);
     } finally {

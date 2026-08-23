@@ -275,6 +275,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </span>
                   </div>
 
+                  {user.role === 'INSTRUCTOR' && (
+                    <a href="/instructor/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-p2-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 border border-purple-200 dark:border-purple-800 my-1">
+                      <Layout className="w-4 h-4" /> Kênh Giảng viên
+                    </a>
+                  )}
+
                   <a href="#cart" onClick={handleCartClick} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-p2-medium text-[var(--text-primary)] hover:bg-[var(--neutral-surface-hover)]">
                     <ShoppingCart className="w-4 h-4 text-purple-600" /> Giỏ hàng ({cartCount})
                   </a>
