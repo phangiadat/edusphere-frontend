@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Moon, Sun, Settings } from 'lucide-react';
+import { Search, Moon, Sun, Settings } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import styles from './InstructorTopbar.module.css';
 
@@ -8,6 +8,8 @@ interface InstructorTopbarProps {
   darkMode?: boolean;
   onToggleDarkMode?: () => void;
 }
+
+import { NotificationDropdown } from '../../../components/common/NotificationDropdown/NotificationDropdown';
 
 export const InstructorTopbar: React.FC<InstructorTopbarProps> = ({
   darkMode = false,
@@ -42,11 +44,8 @@ export const InstructorTopbar: React.FC<InstructorTopbarProps> = ({
           {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
         </button>
 
-        {/* Notifications Icon */}
-        <button className={styles.iconBtn} title="Thông báo hệ thống">
-          <Bell className="w-5 h-5" />
-          <span className={styles.notificationBadge} />
-        </button>
+        {/* Notifications Icon Dropdown */}
+        <NotificationDropdown />
 
         {/* Settings Shortcut Button */}
         <button 

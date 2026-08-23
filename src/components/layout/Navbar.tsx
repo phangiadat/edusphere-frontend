@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { NotificationDropdown } from '../common/NotificationDropdown/NotificationDropdown';
 
 interface NavbarProps {
   darkMode: boolean;
@@ -179,6 +180,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
           </button>
+
+          {/* 🔔 Notifications Dropdown */}
+          <NotificationDropdown />
 
           {/* 🛒 Shopping Cart Icon with Badge */}
           <div 
