@@ -97,36 +97,68 @@ export const InstructorCoursesPage: React.FC = () => {
     }
   };
 
-  const handleSaveCourse = async (courseData: Partial<CourseItem>) => {
+  const handleSaveCourse = async (courseData: Partial<CourseItem>, file?: File | null) => {
     if (courseData.id) {
       // Update existing course
+      let updatedThumbnail = courseData.thumbnail;
+      if (file) {
+        toast.loading('Đang tải ảnh bìa mới lên Cloudinary CDN...', { id: 'upload-cloud' });
+        try {
+          const uploadRes = await courseService.uploadThumbnail(courseData.id, file);
+          toast.dismiss('upload-cloud');
+          if (uploadRes && uploadRes.data?.thumbnail) {
+            updatedThumbnail = uploadRes.data.thumbnail;
+            toast.success('🎉 Ảnh bìa đã được lưu trữ trực tiếp trên Cloudinary CDN!');
+          }
+        } catch (e) {
+          toast.dismiss('upload-cloud');
+          console.warn('Failed Cloudinary upload:', e);
+        }
+      }
+
       try {
         await courseService.updateCourse(courseData.id, {
           title: courseData.title,
           description: courseData.description,
           price: courseData.price,
-          thumbnail: courseData.thumbnail,
+          thumbnail: updatedThumbnail,
           status: courseData.status as any,
         });
       } catch (e) {
         console.warn('Failed API update course:', e);
       }
       setCourses((prev) =>
-        prev.map((c) => (c.id === courseData.id ? ({ ...c, ...courseData } as CourseItem) : c))
+        prev.map((c) => (c.id === courseData.id ? ({ ...c, ...courseData, thumbnail: updatedThumbnail } as CourseItem) : c))
       );
       showSuccessToast('✨ Đã cập nhật thông tin khóa học thành công!');
     } else {
       // Create new course via REST API
       let newId = `course-${Date.now()}`;
+      let finalThumbnail = courseData.thumbnail;
+
       try {
         const created = await courseService.createCourse({
           title: courseData.title || 'Khóa học mới',
           description: courseData.description || '',
           price: courseData.price ?? 499000,
-          thumbnail: courseData.thumbnail,
+          thumbnail: courseData.thumbnail?.startsWith('data:') ? undefined : courseData.thumbnail,
         });
         if (created && created.id) {
           newId = created.id;
+          if (file) {
+            toast.loading('Đang tải ảnh bìa lên Cloudinary CDN...', { id: 'upload-cloud' });
+            try {
+              const uploadRes = await courseService.uploadThumbnail(newId, file);
+              toast.dismiss('upload-cloud');
+              if (uploadRes && uploadRes.data?.thumbnail) {
+                finalThumbnail = uploadRes.data.thumbnail;
+                toast.success('🎉 Ảnh bìa đã được lưu trữ trực tiếp trên Cloudinary CDN!');
+              }
+            } catch (e) {
+              toast.dismiss('upload-cloud');
+              console.warn('Failed Cloudinary upload:', e);
+            }
+          }
         }
       } catch (e) {
         console.warn('Failed API create course:', e);
@@ -138,7 +170,7 @@ export const InstructorCoursesPage: React.FC = () => {
         description: courseData.description || '',
         price: courseData.price ?? 499000,
         thumbnail:
-          courseData.thumbnail ||
+          finalThumbnail ||
           'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
         status: courseData.status || 'DRAFT',
         categoryName: courseData.categoryName || 'Lập trình Web',

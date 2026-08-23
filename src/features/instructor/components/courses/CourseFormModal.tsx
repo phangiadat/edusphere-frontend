@@ -7,7 +7,7 @@ import styles from './CourseFormModal.module.css';
 interface CourseFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (courseData: Partial<CourseItem>) => void;
+  onSave: (courseData: Partial<CourseItem>, file?: File | null) => void;
   initialData?: CourseItem | null;
 }
 
@@ -34,6 +34,7 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
   const [status, setStatus] = useState<CourseStatusType>('DRAFT');
   const [thumbnail, setThumbnail] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -45,6 +46,7 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
       setStatus(initialData.status || 'DRAFT');
       setThumbnail(initialData.thumbnail || '');
       setDescription(initialData.description || '');
+      setSelectedFile(null);
     } else {
       // Reset form for create new (Default to DRAFT)
       setTitle('');
@@ -53,6 +55,7 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
       setStatus('DRAFT');
       setThumbnail('');
       setDescription('');
+      setSelectedFile(null);
     }
   }, [initialData, isOpen]);
 
@@ -61,6 +64,7 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         if (reader.result) {
@@ -79,17 +83,20 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      id: initialData?.id,
-      title,
-      categoryName,
-      price: Number(price),
-      status,
-      thumbnail:
-        thumbnail ||
-        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
-      description,
-    });
+    onSave(
+      {
+        id: initialData?.id,
+        title,
+        categoryName,
+        price: Number(price),
+        status,
+        thumbnail:
+          thumbnail ||
+          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+        description,
+      },
+      selectedFile
+    );
     onClose();
   };
 

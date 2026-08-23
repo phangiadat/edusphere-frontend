@@ -81,7 +81,7 @@ export const courseService = {
   },
 
   // Upload Thumbnail File (Multipart Form Data)
-  async uploadThumbnail(id: string, file: File): Promise<CourseBackendModel> {
+  async uploadThumbnail(id: string, file: File): Promise<{ message: string; data: { thumbnail: string } }> {
     const formData = new FormData();
     formData.append('file', file);
 

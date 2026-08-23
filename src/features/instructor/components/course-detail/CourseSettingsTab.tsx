@@ -2,6 +2,8 @@ import React, { useRef } from 'react';
 import { UploadCloud, RefreshCw } from 'lucide-react';
 import type { CourseItem, CourseStatusType } from '../courses/CourseCard';
 import { RichTextEditor } from '../../../../components/common/RichTextEditor/RichTextEditor';
+import { courseService } from '../../../../services/api/courseService';
+import toast from 'react-hot-toast';
 import styles from './CourseSettingsTab.module.css';
 
 interface CourseSettingsTabProps {
@@ -26,16 +28,26 @@ export const CourseSettingsTab: React.FC<CourseSettingsTabProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.result) {
-          onChange({ thumbnail: reader.result as string });
+      const previewUrl = URL.createObjectURL(file);
+      onChange({ thumbnail: previewUrl });
+
+      if (courseData.id) {
+        toast.loading('Đang tải ảnh bìa lên Cloudinary CDN...', { id: 'upload-cloud-tab' });
+        try {
+          const res = await courseService.uploadThumbnail(courseData.id, file);
+          toast.dismiss('upload-cloud-tab');
+          if (res && res.data?.thumbnail) {
+            onChange({ thumbnail: res.data.thumbnail });
+            toast.success('🎉 Đã tải và lưu trữ ảnh bìa thành công trên Cloudinary CDN!');
+          }
+        } catch (err) {
+          toast.dismiss('upload-cloud-tab');
+          console.warn('Lỗi Cloudinary upload:', err);
         }
-      };
-      reader.readAsDataURL(file);
+      }
     }
   };
 
