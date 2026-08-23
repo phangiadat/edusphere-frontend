@@ -9,46 +9,9 @@ import { courseService } from '../../../services/api/courseService';
 import toast from 'react-hot-toast';
 import styles from './InstructorCoursesPage.module.css';
 
-// Initial Fallback Seed Data
-const FALLBACK_COURSES: CourseItem[] = [
-  {
-    id: 'course-nestjs-masterclass',
-    title: 'Lập trình NestJS & Microservices từ Zero đến Production',
-    description: 'Khóa học thiết kế hệ thống Backend chuẩn Enterprise sử dụng NestJS, PostgreSQL, Prisma ORM, Redis Caching, Websocket Chat 1-1 và tích hợp Trợ lý AI Gemini 2.0.',
-    price: 1490000,
-    thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-    status: 'PUBLISHED',
-    categoryName: 'Lập trình Web',
-    studentCount: 450,
-    rating: 4.9,
-  },
-  {
-    id: 'course-react-18-masterclass',
-    title: 'React 18 & Next.js 14 Masterclass (App Router, TailwindCSS)',
-    description: 'Xây dựng Web Application chuẩn Production với React 18, Next.js 14 App Router, Server Components, State Management với Zustand và TailwindCSS.',
-    price: 1290000,
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80',
-    status: 'PUBLISHED',
-    categoryName: 'Lập trình Web',
-    studentCount: 380,
-    rating: 4.8,
-  },
-  {
-    id: 'course-figma-uiux-2026',
-    title: 'Thiết kế UI/UX Chuyên Nghiệp với Figma 2026',
-    description: 'Nắm vững quy trình thiết kế UI/UX chuẩn B2B SaaS, Design System, Auto Layout 5.0, Component Variants và Prototype tương tác cao.',
-    price: 990000,
-    thumbnail: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=800&q=80',
-    status: 'DRAFT',
-    categoryName: 'Thiết kế UI/UX',
-    studentCount: 0,
-    rating: 0,
-  },
-];
-
 export const InstructorCoursesPage: React.FC = () => {
   const navigate = useNavigate();
-  const [courses, setCourses] = useState<CourseItem[]>(FALLBACK_COURSES);
+  const [courses, setCourses] = useState<CourseItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -71,10 +34,10 @@ export const InstructorCoursesPage: React.FC = () => {
     async function fetchBackendCourses() {
       try {
         setLoading(true);
-        const response = await courseService.getCourses(1, 20);
-        const courseArray = (response as any)?.data || (Array.isArray(response) ? response : null);
+        const response = await courseService.getCourses(1, 50);
+        const courseArray = (response as any)?.data || (Array.isArray(response) ? response : []);
 
-        if (isMounted && Array.isArray(courseArray) && courseArray.length > 0) {
+        if (isMounted && Array.isArray(courseArray)) {
           const mapped: CourseItem[] = courseArray.map((c: any) => ({
             id: c.id,
             title: c.title,
@@ -84,12 +47,15 @@ export const InstructorCoursesPage: React.FC = () => {
             status: c.status,
             categoryName: c.category?.name || 'Lập trình Web',
             studentCount: c.enrollments?.length || 0,
-            rating: 4.9,
+            rating: 5.0,
           }));
           setCourses(mapped);
+        } else if (isMounted) {
+          setCourses([]);
         }
       } catch (err) {
-        console.warn('Chưa đăng nhập JWT hoặc Backend API chưa mở, đang chuyển chế độ hiển thị linh hoạt:', err);
+        console.warn('Lỗi khi nạp danh sách khóa học của Giảng viên:', err);
+        if (isMounted) setCourses([]);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -260,6 +226,22 @@ export const InstructorCoursesPage: React.FC = () => {
               onDelete={handleDeleteCourse}
             />
           ))}
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl p-12 text-center space-y-4 max-w-lg mx-auto my-8 shadow-sm">
+          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center mx-auto">
+            <BookOpen className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-extrabold text-[var(--text-primary)]">Bạn chưa tạo khóa học nào</h3>
+          <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+            Chào mừng bạn đến với Instructor Studio! Kết nối NestJS Backend đã sẵn sàng. Bấm nút "Tạo khóa học mới" để đăng bài giảng đầu tiên của bạn.
+          </p>
+          <button
+            onClick={handleOpenCreateModal}
+            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition shadow-md inline-flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Tạo khóa học đầu tiên
+          </button>
         </div>
       ) : (
         <div className={styles.emptyState}>
