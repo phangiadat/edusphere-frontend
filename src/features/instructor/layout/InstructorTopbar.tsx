@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Bell, Moon, Sun } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Bell, Moon, Sun, Settings } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import styles from './InstructorTopbar.module.css';
 
@@ -13,6 +14,7 @@ export const InstructorTopbar: React.FC<InstructorTopbarProps> = ({
   onToggleDarkMode,
 }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
@@ -46,8 +48,21 @@ export const InstructorTopbar: React.FC<InstructorTopbarProps> = ({
           <span className={styles.notificationBadge} />
         </button>
 
+        {/* Settings Shortcut Button */}
+        <button 
+          onClick={() => navigate('/instructor/settings')}
+          className={styles.iconBtn} 
+          title="Cài đặt tài khoản Giảng viên"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
+
         {/* Instructor Profile Badge */}
-        <div className={styles.profileBox}>
+        <div 
+          onClick={() => navigate('/instructor/settings')} 
+          className={`${styles.profileBox} cursor-pointer hover:opacity-80 transition`}
+          title="Xem thông tin tài khoản Giảng viên"
+        >
           <img
             src={
               user?.avatarUrl ||

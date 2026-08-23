@@ -8,6 +8,7 @@ import { InstructorCoursesPage } from '../features/instructor/pages/InstructorCo
 import { InstructorCourseDetailPage } from '../features/instructor/pages/InstructorCourseDetailPage';
 import { InstructorAssignmentsPage } from '../features/instructor/pages/InstructorAssignmentsPage';
 import { InstructorChatPage } from '../features/instructor/pages/InstructorChatPage';
+import { SettingsPage } from '../features/settings/pages/SettingsPage';
 import App from '../App';
 
 export const AppRoutes: React.FC = () => {
@@ -31,6 +32,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="courses/:courseId" element={<InstructorCourseDetailPage />} />
         <Route path="assignments" element={<InstructorAssignmentsPage />} />
         <Route path="chat" element={<InstructorChatPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
 
       {/* 3. Student Application Root (Fallback) */}

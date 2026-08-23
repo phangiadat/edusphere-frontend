@@ -6,6 +6,7 @@ import {
   GraduationCap, 
   FileCheck2, 
   MessageSquare, 
+  Settings,
   LogOut 
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
@@ -25,6 +26,7 @@ export const InstructorSidebar: React.FC = () => {
     { label: 'Khóa học của tôi', path: '/instructor/courses', icon: GraduationCap },
     { label: 'Bài tập', path: '/instructor/assignments', icon: FileCheck2 },
     { label: 'Kênh Chat', path: '/instructor/chat', icon: MessageSquare },
+    { label: 'Cài đặt tài khoản', path: '/instructor/settings', icon: Settings },
   ];
 
   return (
