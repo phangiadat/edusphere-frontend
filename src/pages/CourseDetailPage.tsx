@@ -8,6 +8,11 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { courseApi } from '../api/courseApi';
+import { reviewApi } from '../api/reviewApi';
+import type { ReviewItem, ReviewStatsResponse } from '../api/reviewApi';
+import { CourseReviewForm } from '../components/course/CourseReviewForm';
+import { paymentApi } from '../api/paymentApi';
+import { useAuth } from '../context/AuthContext';
 import { CourseDetailHero } from '../components/course/CourseDetailHero';
 import { SyllabusAccordion } from '../components/course/SyllabusAccordion';
 import type { ChapterData, LessonData } from '../components/course/SyllabusAccordion';
@@ -248,15 +253,38 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
   onNavigateCart,
   onNavigateHome,
 }) => {
+  const { user } = useAuth();
   const [course, setCourse] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Reviews & Rating State
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [reviewStats, setReviewStats] = useState<ReviewStatsResponse | null>(null);
+  const [isEnrolled, setIsEnrolled] = useState<boolean>(false);
 
   const { addToCart, isInCart } = useCart();
 
   // Video Preview Modal State
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [activePreviewLesson, setActivePreviewLesson] = useState<LessonData | null>(null);
+
+  const fetchReviewsAndStats = async () => {
+    try {
+      const [revRes, statsRes] = await Promise.all([
+        reviewApi.getCourseReviews(courseId),
+        reviewApi.getCourseStats(courseId),
+      ]);
+      if (revRes && revRes.data) {
+        setReviews(revRes.data);
+      }
+      if (statsRes) {
+        setReviewStats(statsRes);
+      }
+    } catch (err) {
+      console.warn('Lỗi khi nạp đánh giá từ Backend:', err);
+    }
+  };
 
   useEffect(() => {
     // Scroll to top immediately when course detail mounts or courseId changes
@@ -281,7 +309,26 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
     };
 
     fetchCourse();
-  }, [courseId]);
+    fetchReviewsAndStats();
+
+    // Check enrollment status
+    const checkEnrollment = async () => {
+      if (!user) {
+        setIsEnrolled(false);
+        return;
+      }
+      try {
+        const res: any = await paymentApi.getMyCourses();
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        const found = list.some((c: any) => c.id === courseId || c.courseId === courseId);
+        setIsEnrolled(!!found);
+      } catch {
+        setIsEnrolled(false);
+      }
+    };
+
+    checkEnrollment();
+  }, [courseId, user]);
 
   // Open Preview Modal for specific lesson
   const handleOpenLessonPreview = (lesson: LessonData) => {
@@ -357,7 +404,6 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
 
   const chapters: ChapterData[] = course.chapters || [];
   const instructor = course.instructor || { fullName: 'Phan Gia Đạt' };
-  const reviews = course.reviews || [];
   const isAlreadyInCart = isInCart(course.id);
 
   return (
@@ -460,12 +506,41 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
               </div>
             </div>
 
-            {/* Student Reviews Section */}
-            <div className="space-y-4">
-              <h3 className="text-h2-bold text-[var(--text-primary)]">
-                Đánh giá từ Học viên ({reviews.length})
-              </h3>
-              
+            {/* Student Reviews & Rating Form Section */}
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[var(--border-color)]">
+                <div>
+                  <h3 className="text-h2-bold text-[var(--text-primary)]">
+                    Đánh giá từ Học viên ({reviewStats?.totalReviews ?? reviews.length})
+                  </h3>
+                  {reviewStats && reviewStats.totalReviews > 0 ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-2xl font-black text-amber-500">{reviewStats.averageRating}</span>
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`w-4 h-4 ${i < Math.round(reviewStats.averageRating) ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-300 dark:fill-slate-700 dark:text-slate-600'}`} 
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs font-medium text-[var(--text-secondary)]">({reviewStats.totalReviews} lượt đánh giá)</span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[var(--text-muted)] mt-1">Khóa học chưa có lượt đánh giá nào.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Review Submission Form Component */}
+              <CourseReviewForm
+                courseId={courseId}
+                isEnrolled={isEnrolled}
+                existingReview={reviews.find((r) => r.userId === user?.id)}
+                onReviewSubmitted={fetchReviewsAndStats}
+              />
+
+              {/* Reviews List */}
               <div className="space-y-3">
                 {reviews.length > 0 ? (
                   reviews.map((rev: any) => (
@@ -475,10 +550,10 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
                           <img
                             src={rev.user?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'}
                             alt="Student Avatar"
-                            className="w-10 h-10 rounded-full object-cover border"
+                            className="w-10 h-10 rounded-full object-cover border border-purple-500"
                           />
                           <div>
-                            <p className="text-p2-bold text-[var(--text-primary)]">{rev.user?.fullName || 'Học viên ẩn danh'}</p>
+                            <p className="text-p2-bold text-[var(--text-primary)]">{rev.user?.fullName || 'Học viên EduSphere'}</p>
                             <div className="flex text-amber-400">
                               {[...Array(rev.rating || 5)].map((_, i) => (
                                 <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -500,7 +575,7 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
                 ) : (
                   <div className="p-6 text-center text-p2-regular text-[var(--text-muted)] bg-[var(--neutral-surface)] rounded-xl border border-[var(--border-color)]">
                     <MessageSquare className="w-8 h-8 text-[var(--text-muted)] mx-auto mb-2" />
-                    Chưa có đánh giá nào cho khóa học này. Hãy là người đầu tiên tham gia và đánh giá!
+                    Chưa có đánh giá nào cho khóa học này. Hãy tham gia học và là người đầu tiên chia sẻ nhận xét!
                   </div>
                 )}
               </div>
