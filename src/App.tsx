@@ -26,11 +26,30 @@ import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   const { isAuthenticated, openAuthModal } = useAuth();
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('edusphere_theme');
+    if (saved) return saved === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('edusphere_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('edusphere_theme', 'light');
+    }
+  }, [darkMode]);
+
   const [currentView, setCurrentView] = useState<'home' | 'course-detail' | 'cart' | 'payment-success' | 'my-courses' | 'learn' | 'settings' | '404'>('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string>('course-nestjs-masterclass');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+  };
 
   // Handle Hash & URL route changes (e.g., #cart, #payment-success, #my-courses, #settings, #learn/xyz, #course/xyz, /abcxyz -> 404)
   useEffect(() => {
@@ -117,11 +136,6 @@ export default function App() {
       openAuthModal('login');
     }
   }, [isAuthenticated, currentView, openAuthModal]);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const navigateToCart = () => {
     window.location.hash = '#cart';
