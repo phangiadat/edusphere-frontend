@@ -23,7 +23,9 @@ export const LoginPage: React.FC = () => {
       const storedUser = localStorage.getItem('user_info');
       const user = storedUser ? JSON.parse(storedUser) : null;
 
-      if (user && user.role === 'INSTRUCTOR') {
+      if (user && user.role === 'ADMIN') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (user && user.role === 'INSTRUCTOR') {
         navigate('/instructor/dashboard', { replace: true });
       } else {
         navigate('/', { replace: true });
@@ -44,7 +46,9 @@ export const LoginPage: React.FC = () => {
       const storedUser = localStorage.getItem('user_info');
       const user = storedUser ? JSON.parse(storedUser) : null;
 
-      if (user && user.role === 'INSTRUCTOR') {
+      if (user && user.role === 'ADMIN') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (user && user.role === 'INSTRUCTOR') {
         navigate('/instructor/dashboard', { replace: true });
       } else {
         navigate('/', { replace: true });
