@@ -10,6 +10,11 @@ import { InstructorAssignmentsPage } from '../features/instructor/pages/Instruct
 import { InstructorChatPage } from '../features/instructor/pages/InstructorChatPage';
 import { SettingsPage } from '../features/settings/pages/SettingsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { AdminLayout } from '../features/admin/layout/AdminLayout';
+import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage';
+import { AdminUsersPage } from '../features/admin/pages/AdminUsersPage';
+import { AdminCoursesPage } from '../features/admin/pages/AdminCoursesPage';
+import { AdminCategoriesPage } from '../features/admin/pages/AdminCategoriesPage';
 import App from '../App';
 
 export const AppRoutes: React.FC = () => {
@@ -37,7 +42,23 @@ export const AppRoutes: React.FC = () => {
         <Route path="settings" element={<SettingsPage />} />
       </Route>
 
-      {/* 3. Student Application Root (Fallback) */}
+      {/* 3. Protected Admin Routes */}
+      <Route
+        path="/admin"
+        element={
+          <RoleGuard allowedRole="ADMIN">
+            <AdminLayout />
+          </RoleGuard>
+        }
+      >
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route path="users" element={<AdminUsersPage />} />
+        <Route path="courses" element={<AdminCoursesPage />} />
+        <Route path="categories" element={<AdminCategoriesPage />} />
+      </Route>
+
+      {/* 4. Student Application Root (Fallback) */}
       <Route path="/*" element={<App />} />
     </Routes>
   );
