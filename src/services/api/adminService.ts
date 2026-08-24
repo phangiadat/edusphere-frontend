@@ -45,6 +45,30 @@ export interface AdminPendingCourseItem {
   };
 }
 
+export interface AdminTransactionItem {
+  id: string;
+  pricePaid: number;
+  progress: number;
+  status: string;
+  paymentIntentId?: string | null;
+  createdAt: string;
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
+  course: {
+    id: string;
+    title: string;
+    price: number;
+    instructor: {
+      id: string;
+      fullName: string;
+      email: string;
+    };
+  };
+}
+
 export const adminService = {
   // 1. Fetch all users for Admin with filters (GET /users)
   async getUsers(params?: { search?: string; role?: string; page?: number; limit?: number }): Promise<AdminUsersResponse> {
@@ -106,6 +130,23 @@ export const adminService = {
   // 9. Review course approve/reject (PATCH /courses/admin/:id/review)
   async reviewCourse(courseId: string, status: 'PUBLISHED' | 'REJECTED', feedback?: string): Promise<any> {
     const response = await axiosClient.patch(`/courses/admin/${courseId}/review`, { status, feedback });
+    return response.data;
+  },
+
+  // 10. Fetch financial transactions for Admin (GET /enrollments/admin/transactions)
+  async getTransactions(page = 1, limit = 20): Promise<{
+    data: AdminTransactionItem[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      grossRevenue: number;
+    };
+  }> {
+    const response = await axiosClient.get('/enrollments/admin/transactions', {
+      params: { page, limit },
+    });
     return response.data;
   },
 };

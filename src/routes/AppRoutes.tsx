@@ -15,6 +15,7 @@ import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage';
 import { AdminUsersPage } from '../features/admin/pages/AdminUsersPage';
 import { AdminCoursesPage } from '../features/admin/pages/AdminCoursesPage';
 import { AdminCategoriesPage } from '../features/admin/pages/AdminCategoriesPage';
+import { AdminFinancePage } from '../features/admin/pages/AdminFinancePage';
 import App from '../App';
 
 export const AppRoutes: React.FC = () => {
@@ -56,6 +57,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="users" element={<AdminUsersPage />} />
         <Route path="courses" element={<AdminCoursesPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
+        <Route path="finance" element={<AdminFinancePage />} />
       </Route>
 
       {/* 4. Student Application Root (Fallback) */}

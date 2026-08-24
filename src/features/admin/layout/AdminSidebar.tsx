@@ -6,6 +6,7 @@ import {
   Users, 
   BookOpenCheck, 
   FolderTree, 
+  DollarSign,
   LogOut,
   ArrowLeft
 } from 'lucide-react';
@@ -25,6 +26,7 @@ export const AdminSidebar: React.FC = () => {
     { label: 'Quản lý Người dùng', path: '/admin/users', icon: Users },
     { label: 'Duyệt Khóa học', path: '/admin/courses', icon: BookOpenCheck },
     { label: 'Quản lý Danh mục', path: '/admin/categories', icon: FolderTree },
+    { label: 'Tài chính & Doanh thu', path: '/admin/finance', icon: DollarSign },
   ];
 
   return (
