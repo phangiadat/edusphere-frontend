@@ -204,18 +204,18 @@ export const FeaturedCourses: React.FC<FeaturedCoursesProps> = ({
     const loadCourses = async () => {
       setIsLoading(true);
       try {
-        const searchTerm = selectedCategory || searchQuery || '';
+        const searchTerm = searchQuery || selectedCategory || '';
         const res = await courseApi.getPublicCourses({
           page,
           limit,
           search: searchTerm || undefined,
         });
 
-        if (res && res.data && res.data.length > 0) {
+        if (res && Array.isArray(res.data)) {
           const mappedCourses: Course[] = res.data.map((c: any) => ({
             id: c.id,
             title: c.title,
-            category: c.category?.name || selectedCategory || 'Lập trình Backend',
+            category: c.category?.name || selectedCategory || 'Lập trình Web',
             instructor: {
               name: c.instructor?.fullName || 'Phan Gia Đạt',
               avatar: c.instructor?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
@@ -229,46 +229,23 @@ export const FeaturedCourses: React.FC<FeaturedCoursesProps> = ({
             lessonsCount: 45,
             duration: '25h 00m',
           }));
-          setCourses(mappedCourses);
-          setTotalCourses(res.meta?.total || mappedCourses.length);
-        } else {
-          // Filter demo courses if DB returns empty
-          let filtered = [...DEMO_COURSES];
-          if (selectedCategory) {
-            filtered = filtered.filter(c => c.category.toLowerCase().includes(selectedCategory.toLowerCase()));
-          } else if (searchQuery) {
-            filtered = filtered.filter(c => 
-              c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-              c.category.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-          }
 
           if (activeTab === 'popular') {
-            filtered.sort((a, b) => b.studentsCount - a.studentsCount);
+            mappedCourses.sort((a, b) => b.studentsCount - a.studentsCount);
           } else if (activeTab === 'rated') {
-            filtered.sort((a, b) => b.rating - a.rating);
-          } else if (activeTab === 'new') {
-            filtered.reverse();
+            mappedCourses.sort((a, b) => b.rating - a.rating);
           }
 
-          setTotalCourses(filtered.length);
-          const startIndex = (page - 1) * limit;
-          setCourses(filtered.slice(startIndex, startIndex + limit));
+          setCourses(mappedCourses);
+          setTotalCourses(res.meta?.total ?? mappedCourses.length);
+        } else {
+          setCourses([]);
+          setTotalCourses(0);
         }
       } catch (err) {
-        console.warn('Lỗi khi tải khóa học từ API, sử dụng dữ liệu demo:', err);
-        let filtered = [...DEMO_COURSES];
-        if (selectedCategory) {
-          filtered = filtered.filter(c => c.category.toLowerCase().includes(selectedCategory.toLowerCase()));
-        } else if (searchQuery) {
-          filtered = filtered.filter(c => 
-            c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-            c.category.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        }
-        setTotalCourses(filtered.length);
-        const startIndex = (page - 1) * limit;
-        setCourses(filtered.slice(startIndex, startIndex + limit));
+        console.warn('Lỗi khi nạp khóa học từ API Backend:', err);
+        setCourses([]);
+        setTotalCourses(0);
       } finally {
         setIsLoading(false);
       }
@@ -416,14 +393,20 @@ export const FeaturedCourses: React.FC<FeaturedCoursesProps> = ({
           <p className="text-p2-medium text-[var(--text-secondary)]">Đang tải danh sách khóa học...</p>
         </div>
       ) : courses.length === 0 ? (
-        /* Empty Filter Result State */
-        <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl p-12 text-center space-y-4 max-w-lg mx-auto my-8">
+        /* Empty Filter / Search Result State */
+        <div className="bg-[var(--neutral-surface)] border border-[var(--border-color)] rounded-2xl p-12 text-center space-y-4 max-w-lg mx-auto my-8 shadow-sm">
           <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
-          <h3 className="text-h3-bold text-[var(--text-primary)]">Không tìm thấy khóa học phù hợp</h3>
+          <h3 className="text-h3-bold text-[var(--text-primary)]">
+            Không tìm thấy khóa học phù hợp trong Cơ sở dữ liệu
+          </h3>
           <p className="text-p2-regular text-[var(--text-secondary)]">
-            Không có khóa học nào khớp với bộ lọc danh mục "{selectedCategory}". Vui lòng thử danh mục khác.
+            {searchQuery
+              ? `Không có kết quả nào khớp với từ khóa tìm kiếm "${searchQuery}" từ Database.`
+              : selectedCategory
+              ? `Chưa có khóa học nào thuộc danh mục "${selectedCategory}".`
+              : 'Hiện chưa có khóa học nào trên hệ thống.'}
           </p>
-          {onClearCategoryFilter && (
+          {(selectedCategory || searchQuery) && onClearCategoryFilter && (
             <button
               onClick={onClearCategoryFilter}
               className="px-5 py-2.5 bg-purple-600 text-white text-p2-bold rounded-xl hover:bg-purple-700 transition"
