@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, ShoppingCart, ShieldCheck, Smartphone, Award, Infinity, FileText, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Play, ShoppingCart, ShieldCheck, Smartphone, Award, Infinity, FileText, CheckCircle2, ArrowRight, Loader2, CreditCard } from 'lucide-react';
 
 interface CoursePurchaseSidebarProps {
   thumbnail?: string | null;
@@ -9,6 +9,7 @@ interface CoursePurchaseSidebarProps {
   onAddToCart: () => void;
   isInCart?: boolean;
   onGoToCart?: () => void;
+  isBuyingNow?: boolean;
 }
 
 export const CoursePurchaseSidebar: React.FC<CoursePurchaseSidebarProps> = ({
@@ -19,6 +20,7 @@ export const CoursePurchaseSidebar: React.FC<CoursePurchaseSidebarProps> = ({
   onAddToCart,
   isInCart = false,
   onGoToCart,
+  isBuyingNow = false,
 }) => {
   const formattedPrice = price.toLocaleString('vi-VN') + ' đ';
 
@@ -75,9 +77,20 @@ export const CoursePurchaseSidebar: React.FC<CoursePurchaseSidebarProps> = ({
 
         <button
           onClick={onBuyNow}
-          className="w-full py-3.5 rounded-xl border-2 border-[var(--primary-600)] text-[var(--primary-600)] dark:text-white hover:bg-[var(--primary-50)] dark:hover:bg-slate-800 text-p2-bold transition active:scale-[0.99]"
+          disabled={isBuyingNow}
+          className="w-full py-3.5 rounded-xl border-2 border-[var(--primary-600)] text-[var(--primary-600)] dark:text-white hover:bg-[var(--primary-50)] dark:hover:bg-slate-800 text-p2-bold transition active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
         >
-          Thanh toán ngay
+          {isBuyingNow ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin text-[var(--primary-600)]" />
+              <span>Đang kết nối Stripe...</span>
+            </>
+          ) : (
+            <>
+              <CreditCard className="w-5 h-5" />
+              <span>Thanh toán ngay với Stripe</span>
+            </>
+          )}
         </button>
       </div>
 

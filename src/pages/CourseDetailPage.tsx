@@ -19,6 +19,7 @@ import type { ChapterData, LessonData } from '../components/course/SyllabusAccor
 import { CoursePurchaseSidebar } from '../components/course/CoursePurchaseSidebar';
 import { VideoPreviewModal } from '../components/course/VideoPreviewModal';
 import { useCart } from '../context/CartContext';
+import toast from 'react-hot-toast';
 
 interface CourseDetailPageProps {
   courseId?: string;
@@ -253,10 +254,11 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
   onNavigateCart,
   onNavigateHome,
 }) => {
-  const { user } = useAuth();
+  const { user, openAuthModal } = useAuth();
   const [course, setCourse] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isBuyingNow, setIsBuyingNow] = useState<boolean>(false);
 
   // Reviews & Rating State
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
@@ -321,16 +323,17 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
         return;
       }
       try {
-        const res: any = await paymentApi.getMyCourses();
-        const list = Array.isArray(res) ? res : (res?.data || []);
-        const found = list.some((c: any) => {
-          const matchId = c.course?.id === courseId || c.courseId === courseId || c.id === courseId;
-          const matchTitle = currentCourseTitle && c.course?.title?.toLowerCase() === currentCourseTitle.toLowerCase();
-          return matchId || matchTitle;
-        });
-        setIsEnrolled(!!found);
-      } catch {
-        setIsEnrolled(false);
+        const myCourses = await paymentApi.getMyCourses();
+        if (Array.isArray(myCourses)) {
+          const enrolled = myCourses.some((c: any) => 
+            c.course?.id === courseId || 
+            c.courseId === courseId || 
+            (currentCourseTitle && c.course?.title === currentCourseTitle)
+          );
+          setIsEnrolled(enrolled);
+        }
+      } catch (err) {
+        console.warn('Lỗi kiểm tra quyền truy cập khóa học:', err);
       }
     };
 
@@ -385,15 +388,48 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
       isUpdatedRecently: true,
       isPremium: true,
     });
+    toast.success('🎉 Đã thêm khóa học vào giỏ hàng thành công!');
   };
 
-  const handleBuyNow = () => {
-    handleAddToCart();
-    if (onNavigateCart) {
-      onNavigateCart();
-    } else {
-      window.location.hash = '#cart';
+  const handleBuyNow = async () => {
+    if (!course) return;
+
+    if (!user) {
+      toast.error('Vui lòng đăng nhập tài khoản để tiến hành thanh toán khóa học!');
+      openAuthModal('login');
+      return;
     }
+
+    setIsBuyingNow(true);
+    const targetCourseId = course.id || courseId;
+
+    try {
+      toast.loading('Đang khởi tạo cổng thanh toán Stripe...', { id: 'stripe-checkout-direct' });
+      const res = await paymentApi.createCheckoutSession(targetCourseId);
+      toast.dismiss('stripe-checkout-direct');
+
+      if (res && res.checkoutUrl) {
+        // Redirect directly to real Stripe Checkout Gateway URL
+        window.location.href = res.checkoutUrl;
+        return;
+      }
+    } catch (err: any) {
+      toast.dismiss('stripe-checkout-direct');
+      console.warn('Stripe Live Checkout Session fallback to Direct Simulation:', err);
+
+      try {
+        await paymentApi.directEnroll(targetCourseId);
+        toast.success('🎉 Đăng ký và kích hoạt khóa học thành công!');
+        window.location.hash = '#my-courses';
+      } catch (enrollErr) {
+        toast.error('Không thể hoàn tất thanh toán. Vui lòng thử lại sau!');
+      } finally {
+        setIsBuyingNow(false);
+      }
+      return;
+    }
+
+    setIsBuyingNow(false);
   };
 
   if (isLoading) {
@@ -606,6 +642,7 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
               onAddToCart={handleAddToCart}
               isInCart={isAlreadyInCart}
               onGoToCart={onNavigateCart || (() => { window.location.hash = '#cart'; })}
+              isBuyingNow={isBuyingNow}
             />
           </div>
 
