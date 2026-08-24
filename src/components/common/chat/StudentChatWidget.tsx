@@ -61,11 +61,6 @@ export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
   const isAuth = propIsAuth ?? (isAuthCtx || Boolean(token));
   const role = propUserRole ?? (user?.role || storedRole);
 
-  // 🔒 AUTH ROLE GATE FIX: Strictly hide widget if Guest (not logged in) or Instructor/Admin
-  if (!isAuth || (role && role.toUpperCase() !== 'STUDENT')) {
-    return null;
-  }
-
   const [isOpen, setIsOpen] = useState(false);
   const [activeView, setActiveView] = useState<'LIST' | 'CHAT'>('LIST');
   const [instructors, setInstructors] = useState<InstructorModel[]>([]);
@@ -367,6 +362,11 @@ export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
   const filteredInstructors = instructors.filter((inst) =>
     inst.instructorName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // 🔒 AUTH ROLE GATE FIX: Strictly hide widget if Guest (not logged in) or Instructor/Admin
+  if (!isAuth || (role && role.toUpperCase() !== 'STUDENT')) {
+    return null;
+  }
 
   return (
     <div className={styles.widgetWrapper}>

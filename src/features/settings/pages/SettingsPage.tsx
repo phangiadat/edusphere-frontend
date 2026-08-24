@@ -22,17 +22,6 @@ import styles from './SettingsPage.module.css';
 export const SettingsPage: React.FC = () => {
   const { user, updateUser, isAuthenticated, openAuthModal } = useAuth();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      window.location.hash = '#home';
-      openAuthModal('login');
-    }
-  }, [isAuthenticated, openAuthModal]);
-
-  if (!isAuthenticated || !user) {
-    return null;
-  }
-
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
 
   // Profile Form State
@@ -51,6 +40,17 @@ export const SettingsPage: React.FC = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      window.location.hash = '#home';
+      openAuthModal('login');
+    }
+  }, [isAuthenticated, openAuthModal]);
+
+  if (!isAuthenticated || !user) {
+    return null;
+  }
 
   // Handle Avatar Change & Upload
   const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
