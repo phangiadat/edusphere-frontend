@@ -9,6 +9,7 @@ import { InstructorCourseDetailPage } from '../features/instructor/pages/Instruc
 import { InstructorAssignmentsPage } from '../features/instructor/pages/InstructorAssignmentsPage';
 import { InstructorChatPage } from '../features/instructor/pages/InstructorChatPage';
 import { SettingsPage } from '../features/settings/pages/SettingsPage';
+import { NotFoundPage } from '../pages/NotFoundPage';
 import App from '../App';
 
 export const AppRoutes: React.FC = () => {
@@ -16,6 +17,7 @@ export const AppRoutes: React.FC = () => {
     <Routes>
       {/* 1. Public Auth Route */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/404" element={<NotFoundPage />} />
 
       {/* 2. Protected Instructor Routes */}
       <Route

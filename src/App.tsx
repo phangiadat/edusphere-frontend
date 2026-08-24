@@ -20,25 +20,28 @@ import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
 import { CourseLearnPage } from './pages/CourseLearnPage';
 import { SettingsPage } from './features/settings/pages/SettingsPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { StudentChatWidget } from './components/common/chat/StudentChatWidget';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
   const { isAuthenticated, openAuthModal } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
-  const [currentView, setCurrentView] = useState<'home' | 'course-detail' | 'cart' | 'payment-success' | 'my-courses' | 'learn' | 'settings'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'course-detail' | 'cart' | 'payment-success' | 'my-courses' | 'learn' | 'settings' | '404'>('home');
   const [selectedCourseId, setSelectedCourseId] = useState<string>('course-nestjs-masterclass');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Handle Hash & URL route changes (e.g., #cart, #payment-success, #my-courses, #settings, #learn/xyz, #course/xyz)
+  // Handle Hash & URL route changes (e.g., #cart, #payment-success, #my-courses, #settings, #learn/xyz, #course/xyz, #404)
   useEffect(() => {
     const handleHashChange = () => {
       window.scrollTo({ top: 0, behavior: 'instant' });
       const hash = window.location.hash;
       const pathname = window.location.pathname;
 
-      if (hash === '#my-courses') {
+      if (hash === '#404') {
+        setCurrentView('404');
+      } else if (hash === '#my-courses') {
         setCurrentView('my-courses');
       } else if (hash === '#settings' || (pathname.includes('/settings') && !hash)) {
         setCurrentView('settings');
@@ -202,6 +205,11 @@ export default function App() {
             />
           ) : currentView === 'settings' ? (
             <SettingsPage />
+          ) : currentView === '404' ? (
+            <NotFoundPage 
+              onNavigateHome={navigateHome}
+              onSearchCourse={handleSearchCourse}
+            />
           ) : (
             <CourseDetailPage 
               courseId={selectedCourseId} 
