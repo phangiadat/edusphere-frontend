@@ -10,6 +10,7 @@ import {
   Loader2 
 } from 'lucide-react';
 import { chatService } from '../../../services/api/chatService';
+import { paymentApi } from '../../../api/paymentApi';
 import { useAuth } from '../../../context/AuthContext';
 import styles from './StudentChatWidget.module.css';
 
@@ -32,51 +33,6 @@ export interface WidgetMessageModel {
   content: string;
   createdAt: string;
 }
-
-// Initial Mock Seed Instructors for Enrolled Courses
-const INITIAL_INSTRUCTORS: InstructorModel[] = [
-  {
-    id: 'instructor-1',
-    conversationId: 'conv-1',
-    instructorName: 'Nguyễn Văn Giảng Viên',
-    instructorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    courseTitle: 'NestJS & Microservices Masterclass',
-    lastMessage: 'Chào em, thầy đã nhận được bài tập AuthModule của em rồi!',
-    lastMessageTime: '14:25',
-    unreadCount: 1,
-    isOnline: true,
-  },
-  {
-    id: 'instructor-2',
-    conversationId: 'conv-figma',
-    instructorName: 'Trần Thị Mỹ Linh',
-    instructorAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-    courseTitle: 'Thiết kế UI/UX Figma 2026',
-    lastMessage: 'Em nhớ nộp Prototype phiên bản Dark Mode trước thứ 6 nhé.',
-    lastMessageTime: 'Hôm qua',
-    unreadCount: 0,
-    isOnline: true,
-  },
-];
-
-const INITIAL_MESSAGES: Record<string, WidgetMessageModel[]> = {
-  'conv-1': [
-    {
-      id: 'wm-1',
-      conversationId: 'conv-1',
-      senderId: 'student-1',
-      content: 'Chào thầy, em vừa nộp link GitHub bài tập AuthModule ạ!',
-      createdAt: '2026-08-19T14:20:00Z',
-    },
-    {
-      id: 'wm-2',
-      conversationId: 'conv-1',
-      senderId: 'instructor-1',
-      content: 'Chào em, thầy đã nhận được bài tập AuthModule của em rồi!',
-      createdAt: '2026-08-19T14:25:00Z',
-    },
-  ],
-};
 
 interface StudentChatWidgetProps {
   isAuthenticated?: boolean;
@@ -112,22 +68,96 @@ export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeView, setActiveView] = useState<'LIST' | 'CHAT'>('LIST');
-  const [instructors, setInstructors] = useState<InstructorModel[]>(INITIAL_INSTRUCTORS);
+  const [instructors, setInstructors] = useState<InstructorModel[]>([]);
   const [selectedInstructor, setSelectedInstructor] = useState<InstructorModel | null>(null);
-  const [messagesMap, setMessagesMap] = useState<Record<string, WidgetMessageModel[]>>(INITIAL_MESSAGES);
+  const [messagesMap, setMessagesMap] = useState<Record<string, WidgetMessageModel[]>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [inputText, setInputText] = useState('');
   const [isInstructorTyping, setIsInstructorTyping] = useState(false);
+  const [isLoadingList, setIsLoadingList] = useState(false);
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [socket, setSocket] = useState<any>(null);
 
-  const currentStudentId = 'student-1'; // Mock Student User ID
+  const currentStudentId = user?.id || '';
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Total Unread Messages for Floating Button Badge
   const totalUnreadCount = instructors.reduce((sum, inst) => sum + (inst.unreadCount || 0), 0);
+
+  // 1. Load enrolled instructors dynamically from PostgreSQL DB (Enrolled courses ONLY)
+  useEffect(() => {
+    if (!isAuth) {
+      setInstructors([]);
+      return;
+    }
+
+    let isMounted = true;
+    async function loadEnrolledInstructors() {
+      setIsLoadingList(true);
+      try {
+        const myCoursesRes = await paymentApi.getMyCourses(1, 50);
+        const courseList = Array.isArray(myCoursesRes) ? myCoursesRes : (myCoursesRes?.data || []);
+
+        if (!isMounted) return;
+
+        if (courseList.length === 0) {
+          setInstructors([]);
+          setIsLoadingList(false);
+          return;
+        }
+
+        // Filter distinct instructors from student's enrolled courses
+        const instructorMap = new Map<string, { instructor: any; courseTitle: string }>();
+        courseList.forEach((enrollment: any) => {
+          const inst = enrollment.course?.instructor;
+          if (inst && inst.id && !instructorMap.has(inst.id)) {
+            instructorMap.set(inst.id, {
+              instructor: inst,
+              courseTitle: enrollment.course.title,
+            });
+          }
+        });
+
+        // Find or create conversation with each enrolled instructor
+        const fetchedList: InstructorModel[] = [];
+        for (const [instructorId, info] of instructorMap.entries()) {
+          try {
+            const conv = await chatService.startConversation(instructorId);
+            if (conv && conv.id) {
+              fetchedList.push({
+                id: instructorId,
+                conversationId: conv.id,
+                instructorName: info.instructor.fullName || 'Giảng viên',
+                instructorAvatar:
+                  info.instructor.avatarUrl ||
+                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+                courseTitle: info.courseTitle,
+                lastMessage: conv.lastMessage?.content || 'Chưa có tin nhắn nào',
+                lastMessageTime: 'Vừa xong',
+                unreadCount: conv.unreadCount || 0,
+                isOnline: true,
+              });
+            }
+          } catch (err) {
+            console.warn(`Lỗi nạp cuộc hội thoại với giảng viên (${instructorId}):`, err);
+          }
+        }
+
+        if (isMounted) {
+          setInstructors(fetchedList);
+        }
+      } catch (err) {
+        console.warn('Lỗi nạp danh sách giảng viên đã mua khóa học:', err);
+        if (isMounted) setInstructors([]);
+      } finally {
+        if (isMounted) setIsLoadingList(false);
+      }
+    }
+
+    loadEnrolledInstructors();
+  }, [isAuth]);
 
   // Initialize WebSockets
   useEffect(() => {
@@ -204,15 +234,39 @@ export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
   }, [socket, selectedInstructor?.id, selectedInstructor?.conversationId, isOpen, activeView]);
 
   // Handle Clicking an Instructor from View 1
-  const handleSelectInstructor = (inst: InstructorModel) => {
+  const handleSelectInstructor = async (inst: InstructorModel) => {
     setSelectedInstructor(inst);
     setActiveView('CHAT');
     setIsInstructorTyping(false);
+    setCurrentPage(1);
 
     // Mark as read when opening chat
     setInstructors((prev) =>
       prev.map((i) => (i.id === inst.id ? { ...i, unreadCount: 0 } : i))
     );
+
+    // Fetch initial chat history from NestJS Backend API
+    try {
+      const response = await chatService.getChatHistory(inst.conversationId, 1, 30);
+      if (response && response.data) {
+        const historyMapped: WidgetMessageModel[] = response.data
+          .map((m: any) => ({
+            id: m.id,
+            conversationId: m.conversationId,
+            senderId: m.senderId,
+            content: m.content,
+            createdAt: m.createdAt,
+          }))
+          .reverse();
+
+        setMessagesMap((prev) => ({
+          ...prev,
+          [inst.conversationId]: historyMapped,
+        }));
+      }
+    } catch (err) {
+      console.warn('Lỗi nạp lịch sử tin nhắn:', err);
+    }
 
     scrollToBottom();
   };
@@ -370,33 +424,48 @@ export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
                 />
               </div>
 
-              {filteredInstructors.map((inst) => (
-                <div
-                  key={inst.id}
-                  onClick={() => handleSelectInstructor(inst)}
-                  className={styles.instructorRow}
-                >
-                  <div className={styles.avatarWrapper}>
-                    <img
-                      src={inst.instructorAvatar}
-                      alt={inst.instructorName}
-                      className={styles.rowAvatar}
-                    />
-                    {inst.isOnline && <div className={styles.onlineDot} />}
-                  </div>
-
-                  <div className={styles.rowInfo}>
-                    <div className={styles.rowNameRow}>
-                      <span className={styles.rowName}>{inst.instructorName}</span>
-                      {inst.unreadCount ? (
-                        <span className={styles.unreadBadge}>{inst.unreadCount}</span>
-                      ) : null}
-                    </div>
-                    <span className={styles.rowCourse}>{inst.courseTitle}</span>
-                    <span className={styles.rowLastMsg}>{inst.lastMessage || 'Chưa có tin nhắn'}</span>
-                  </div>
+              {isLoadingList ? (
+                <div className="p-8 text-center space-y-2 my-auto">
+                  <Loader2 className="w-6 h-6 animate-spin text-purple-600 mx-auto" />
+                  <p className="text-xs text-[var(--text-secondary)] font-medium">Đang nạp Giảng viên từ khóa học đã mua...</p>
                 </div>
-              ))}
+              ) : filteredInstructors.length === 0 ? (
+                <div className="p-6 text-center space-y-3 my-auto">
+                  <MessageSquare className="w-10 h-10 text-purple-400 mx-auto opacity-60" />
+                  <h4 className="font-extrabold text-sm text-[var(--text-primary)]">Chưa có Giảng viên nào</h4>
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                    Bạn chỉ có thể trò chuyện với Giảng viên sau khi đăng ký khóa học của họ. Hãy chọn khóa học yêu thích và bắt đầu học ngay!
+                  </p>
+                </div>
+              ) : (
+                filteredInstructors.map((inst) => (
+                  <div
+                    key={inst.id}
+                    onClick={() => handleSelectInstructor(inst)}
+                    className={styles.instructorRow}
+                  >
+                    <div className={styles.avatarWrapper}>
+                      <img
+                        src={inst.instructorAvatar}
+                        alt={inst.instructorName}
+                        className={styles.rowAvatar}
+                      />
+                      {inst.isOnline && <div className={styles.onlineDot} />}
+                    </div>
+
+                    <div className={styles.rowInfo}>
+                      <div className={styles.rowNameRow}>
+                        <span className={styles.rowName}>{inst.instructorName}</span>
+                        {inst.unreadCount ? (
+                          <span className={styles.unreadBadge}>{inst.unreadCount}</span>
+                        ) : null}
+                      </div>
+                      <span className={styles.rowCourse}>{inst.courseTitle}</span>
+                      <span className={styles.rowLastMsg}>{inst.lastMessage || 'Chưa có tin nhắn'}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
 
