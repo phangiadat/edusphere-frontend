@@ -32,22 +32,48 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Handle Hash & URL route changes (e.g., #cart, #payment-success, #my-courses, #settings, #learn/xyz, #course/xyz, #404)
+  // Handle Hash & URL route changes (e.g., #cart, #payment-success, #my-courses, #settings, #learn/xyz, #course/xyz, /abcxyz -> 404)
   useEffect(() => {
     const handleHashChange = () => {
       window.scrollTo({ top: 0, behavior: 'instant' });
       const hash = window.location.hash;
       const pathname = window.location.pathname;
 
+      // Check direct pathname URL if user types direct path (e.g., /abcxyz, /settings, /cart)
+      if (pathname !== '/' && pathname !== '' && pathname !== '/index.html') {
+        if (pathname.includes('/settings')) {
+          setCurrentView('settings');
+        } else if (pathname.includes('/payment/success')) {
+          setCurrentView('payment-success');
+        } else if (pathname.includes('/cart')) {
+          setCurrentView('cart');
+        } else if (pathname.includes('/my-courses')) {
+          setCurrentView('my-courses');
+        } else if (pathname.includes('/course/')) {
+          const id = pathname.split('/course/')[1]?.split('/')[0];
+          if (id) setSelectedCourseId(id);
+          setCurrentView('course-detail');
+        } else if (pathname.includes('/learn')) {
+          const id = pathname.split('/learn')[0]?.replace('/course/', '').replace('/', '');
+          if (id) setSelectedCourseId(id);
+          setCurrentView('learn');
+        } else {
+          // Unrecognized pathname direct URL (e.g., /abcxyz) -> Render 404 Page!
+          setCurrentView('404');
+        }
+        return;
+      }
+
+      // Check Hash route
       if (hash === '#404') {
         setCurrentView('404');
       } else if (hash === '#my-courses') {
         setCurrentView('my-courses');
-      } else if (hash === '#settings' || (pathname.includes('/settings') && !hash)) {
+      } else if (hash === '#settings') {
         setCurrentView('settings');
       } else if (hash === '#cart') {
         setCurrentView('cart');
-      } else if (hash === '#payment-success' || (pathname.includes('/payment/success') && !hash)) {
+      } else if (hash === '#payment-success') {
         setCurrentView('payment-success');
       } else if (hash.startsWith('#learn/')) {
         const id = hash.replace('#learn/', '');
@@ -63,9 +89,11 @@ export default function App() {
         setCurrentView('course-detail');
       } else if (hash === '#course-detail') {
         setCurrentView('course-detail');
-      } else {
-        // Default to home view if hash is empty (""), #, #home, or #courses
+      } else if (hash === '' || hash === '#' || hash === '#home' || hash === '#courses') {
         setCurrentView('home');
+      } else {
+        // Unrecognized hash (e.g., #abcxyz) -> Render 404 Page!
+        setCurrentView('404');
       }
     };
 
@@ -73,7 +101,11 @@ export default function App() {
     handleHashChange();
 
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
   }, []);
 
   // Route Protection Effect: Redirect unauthenticated users trying to access protected views
