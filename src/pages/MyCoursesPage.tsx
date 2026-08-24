@@ -9,60 +9,29 @@ interface MyCoursesPageProps {
   onNavigateHome?: () => void;
 }
 
-// Fallback demo enrolled courses if student has demo items
-const DEMO_ENROLLED_COURSES: MyCourseItem[] = [
-  {
-    enrollmentId: 'enr-demo-1',
-    progress: 35,
-    purchaseAt: '2026-08-15T10:00:00Z',
-    course: {
-      id: 'course-nestjs-masterclass',
-      title: 'Lập trình NestJS & Microservices từ Zero đến Production',
-      thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80',
-      instructor: {
-        fullName: 'Phan Gia Đạt',
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-      },
-    },
-  },
-  {
-    enrollmentId: 'enr-demo-2',
-    progress: 70,
-    purchaseAt: '2026-08-10T14:30:00Z',
-    course: {
-      id: 'course-react-18-masterclass',
-      title: 'React 18 & Next.js 14 Ultimate Masterclass 2026',
-      thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=600&q=80',
-      instructor: {
-        fullName: 'EduSphere Team',
-        avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-      },
-    },
-  },
-];
-
 export const MyCoursesPage: React.FC<MyCoursesPageProps> = ({
   onNavigateToCourse,
   onNavigateHome,
 }) => {
   const { isAuthenticated, openAuthModal } = useAuth();
-  const [courses, setCourses] = useState<MyCourseItem[]>(DEMO_ENROLLED_COURSES);
+  const [courses, setCourses] = useState<MyCourseItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchMyCourses = async () => {
       if (!isAuthenticated) {
         setIsLoading(false);
+        setCourses([]);
         return;
       }
       setIsLoading(true);
       try {
-        const res = await paymentApi.getMyCourses();
-        if (res.data && res.data.length > 0) {
-          setCourses(res.data);
-        }
+        const res: any = await paymentApi.getMyCourses();
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        setCourses(list);
       } catch (err) {
-        console.warn('Sử dụng dữ liệu demo cho Khóa học của tôi:', err);
+        console.warn('Lỗi nạp danh sách Khóa học của tôi:', err);
+        setCourses([]);
       } finally {
         setIsLoading(false);
       }
