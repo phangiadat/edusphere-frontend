@@ -199,6 +199,10 @@
     -webkit-font-smoothing: antialiased;
     transition: background-color 0.15s ease, color 0.15s ease;
   }
+
+  button, a, [role="button"], input[type="button"], input[type="submit"] {
+    cursor: pointer;
+  }
 }
 
 /* Custom Scrollbar */
