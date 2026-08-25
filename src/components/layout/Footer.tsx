@@ -3,39 +3,39 @@ import { BookOpen, Send, Globe, Share2, MessageCircle, Code } from 'lucide-react
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-white dark:bg-dark-surface border-t border-slate-200 dark:border-dark-border pt-16 pb-12">
+    <footer className="bg-[var(--neutral-surface)] border-t border-[var(--border-color)] pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-100 dark:border-dark-border">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-[var(--border-color)]">
           
           {/* Column 1: Brand & Bio */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-cyan flex items-center justify-center text-white shadow">
+              <div className="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center text-white shadow">
                 <BookOpen className="w-5 h-5" />
               </div>
-              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-brand-600 to-accent-cyan bg-clip-text text-transparent">
+              <span className="font-extrabold text-xl tracking-tight text-[var(--text-primary)]">
                 EduSphere
               </span>
             </div>
 
-            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
-              Nền tảng đào tạo công nghệ & bán khóa học trực tuyến tích hợp Trợ lý AI Gemini, Chat 1-1 Realtime và thanh toán tự động Stripe.
+            <p className="text-sm text-[var(--text-secondary)] max-w-sm leading-relaxed">
+              Nền tảng đào tạo công nghệ & bán khóa học trực tuyến tích hợp Trợ lý AI Gemini 2.0, Chat 1-1 Realtime và thanh toán tự động Stripe.
             </p>
 
             {/* Social Icons */}
             <div className="flex items-center gap-3 pt-2">
-              <a href="#" className="w-9 h-9 rounded-full bg-slate-100 dark:bg-dark-card flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-brand-600 hover:text-white transition" title="Website">
+              <a href="#" className="w-9 h-9 rounded-full bg-[var(--neutral-bg)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:bg-purple-600 hover:text-white transition" title="Website">
                 <Globe className="w-4 h-4" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-full bg-slate-100 dark:bg-dark-card flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-brand-600 hover:text-white transition" title="Cộng đồng">
+              <a href="#" className="w-9 h-9 rounded-full bg-[var(--neutral-bg)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:bg-purple-600 hover:text-white transition" title="Cộng đồng">
                 <MessageCircle className="w-4 h-4" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-full bg-slate-100 dark:bg-dark-card flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-brand-600 hover:text-white transition" title="Mã nguồn">
+              <a href="#" className="w-9 h-9 rounded-full bg-[var(--neutral-bg)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:bg-purple-600 hover:text-white transition" title="Mã nguồn">
                 <Code className="w-4 h-4" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-full bg-slate-100 dark:bg-dark-card flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-brand-600 hover:text-white transition" title="Chia sẻ">
+              <a href="#" className="w-9 h-9 rounded-full bg-[var(--neutral-bg)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:bg-purple-600 hover:text-white transition" title="Chia sẻ">
                 <Share2 className="w-4 h-4" />
               </a>
             </div>
