@@ -18,7 +18,8 @@ import {
   LogOut,
   Settings,
   GraduationCap,
-  ShoppingCart
+  ShoppingCart,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -279,6 +280,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </span>
                   </div>
 
+                  {user.role === 'ADMIN' && (
+                    <a href="/admin/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-p2-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 border border-purple-200 dark:border-purple-800 my-1">
+                      <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" /> Trang Quản trị Admin
+                    </a>
+                  )}
+
                   {user.role === 'INSTRUCTOR' && (
                     <a href="/instructor/dashboard" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-p2-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 border border-purple-200 dark:border-purple-800 my-1">
                       <Layout className="w-4 h-4" /> Kênh Giảng viên
@@ -341,6 +348,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-[var(--neutral-surface)] border-b border-[var(--border-color)] px-4 py-4 space-y-3">
+          {user?.role === 'ADMIN' && (
+            <a href="/admin/dashboard" className="flex items-center gap-2 text-p2-bold py-2 text-purple-600 dark:text-purple-400">
+              <ShieldCheck className="w-4 h-4" /> Trang Quản trị Admin
+            </a>
+          )}
+          {user?.role === 'INSTRUCTOR' && (
+            <a href="/instructor/dashboard" className="flex items-center gap-2 text-p2-bold py-2 text-purple-600 dark:text-purple-400">
+              <Layout className="w-4 h-4" /> Kênh Giảng viên
+            </a>
+          )}
           <a href="#cart" onClick={() => { setIsMobileMenuOpen(false); handleCartClick(); }} className="flex items-center justify-between text-p2-bold py-2 text-[var(--text-primary)]">
             <span>Giỏ hàng</span>
             <span className="bg-purple-600 text-white font-bold text-xs px-2 py-0.5 rounded-full">{cartCount}</span>
