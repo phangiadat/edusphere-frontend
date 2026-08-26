@@ -1,0 +1,15 @@
+{
+  "name": "checklist-design",
+  "owner": {
+    "name": "Checklist Design",
+    "url": "https://checklist.design"
+  },
+  "plugins": [
+    {
+      "name": "checklist-design",
+      "source": "./",
+      "description": "Design review grounded in Checklist Design's published checklists — /checklist-design audit for a systematic check, critique for quick feedback.",
+      "version": "3.2.1"
+    }
+  ]
+}
