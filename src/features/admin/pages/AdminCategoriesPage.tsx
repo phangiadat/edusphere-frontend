@@ -39,6 +39,17 @@ export const AdminCategoriesPage: React.FC = () => {
     fetchCategories();
   }, []);
 
+  // Handle ESC key press to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        setIsModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
+
   const handleOpenCreateModal = () => {
     setEditingCategory(null);
     setCategoryName('');

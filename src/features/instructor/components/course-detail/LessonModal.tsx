@@ -43,6 +43,17 @@ export const LessonModal: React.FC<LessonModalProps> = ({
     }
   }, [initialData, isOpen]);
 
+  // Handle ESC key press to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   // Helper to parse and convert Youtube URL to Embed iframe URL

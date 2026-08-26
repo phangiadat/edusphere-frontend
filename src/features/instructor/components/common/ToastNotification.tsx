@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 import styles from './ToastNotification.module.css';
 
@@ -8,13 +8,25 @@ interface ToastNotificationProps {
   message: string | null;
   type?: ToastType;
   onClose: () => void;
+  duration?: number;
 }
 
 export const ToastNotification: React.FC<ToastNotificationProps> = ({
   message,
   type = 'success',
   onClose,
+  duration = 3000,
 }) => {
+  // Auto dismiss toast after duration (default 3000ms = 3s)
+  useEffect(() => {
+    if (!message) return;
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+
+    return () => clearTimeout(timer);
+  }, [message, duration, onClose]);
+
   if (!message) return null;
 
   const getToastClass = () => {

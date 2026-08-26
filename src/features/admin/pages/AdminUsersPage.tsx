@@ -49,6 +49,17 @@ export const AdminUsersPage: React.FC = () => {
     fetchUsers();
   }, [page, selectedRole]);
 
+  // Handle ESC key press to close role modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedUserForRole) {
+        setSelectedUserForRole(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedUserForRole]);
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
@@ -138,8 +149,14 @@ export const AdminUsersPage: React.FC = () => {
             <Users className="w-12 h-12 text-[var(--text-muted)] mx-auto opacity-50" />
             <h3 className="font-extrabold text-base text-[var(--text-primary)]">Không tìm thấy người dùng</h3>
             <p className="text-xs text-[var(--text-secondary)]">
-              Không tìm thấy người dùng nào phù hợp với bộ lọc hiện tại.
+              Không tìm thấy người dùng nào phù hợp với từ khóa hoặc bộ lọc hiện tại.
             </p>
+            <button
+              onClick={() => { setSearchQuery(''); setSelectedRole('ALL'); setPage(1); fetchUsers(); }}
+              className="mt-2 px-4 py-2 text-xs font-bold rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 hover:bg-purple-200 transition cursor-pointer"
+            >
+              Xóa bộ lọc & Thử lại
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">

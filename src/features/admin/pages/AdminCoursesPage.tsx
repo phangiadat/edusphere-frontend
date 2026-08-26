@@ -35,6 +35,17 @@ export const AdminCoursesPage: React.FC = () => {
     fetchPendingCourses();
   }, []);
 
+  // Handle ESC key press to close reject modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedCourseForReject) {
+        setSelectedCourseForReject(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedCourseForReject]);
+
   const handleApproveCourse = async (course: AdminPendingCourseItem) => {
     try {
       await adminService.reviewCourse(course.id, 'PUBLISHED');
