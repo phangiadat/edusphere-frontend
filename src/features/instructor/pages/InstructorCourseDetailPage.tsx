@@ -101,20 +101,36 @@ export const InstructorCourseDetailPage: React.FC = () => {
   };
 
   const handleSaveAll = async () => {
-    if (courseId) {
-      try {
-        await courseService.updateCourse(courseId, {
-          title: courseData.title,
-          description: courseData.description,
-          price: courseData.price,
-          thumbnail: courseData.thumbnail,
-          status: courseData.status as any,
-        });
-      } catch (e) {
-        console.warn('Failed API update course detail:', e);
+    if (!courseId) return;
+
+    try {
+      // 1. Update basic information
+      await courseService.updateCourse(courseId, {
+        title: courseData.title,
+        description: courseData.description,
+        price: courseData.price,
+        thumbnail: courseData.thumbnail,
+        status: courseData.status as any,
+      });
+
+      // 2. If status is set to PENDING, trigger submitForReview endpoint
+      if (courseData.status === 'PENDING') {
+        try {
+          await courseService.submitForReview(courseId);
+        } catch (subErr: any) {
+          const message =
+            subErr?.response?.data?.message ||
+            'Không thể gửi duyệt khóa học. Lưu ý khóa học phải có ít nhất 1 bài giảng!';
+          toast.error(message);
+          return;
+        }
       }
+
+      toast.success('🎉 Đã lưu toàn bộ cấu hình và cập nhật trạng thái khóa học!');
+    } catch (e: any) {
+      const message = e?.response?.data?.message || 'Không thể lưu thay đổi thông tin khóa học';
+      toast.error(message);
     }
-    showToast('🎉 Đã lưu toàn bộ cấu hình thông tin khóa học thành công!');
   };
 
   const getStatusBadgeClass = () => {
