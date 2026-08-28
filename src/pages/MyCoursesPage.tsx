@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { PlayCircle, BookOpen, Award, Loader2 } from 'lucide-react';
 import { paymentApi } from '../api/paymentApi';
 import type { MyCourseItem } from '../api/paymentApi';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 interface MyCoursesPageProps {
   onNavigateToCourse?: (courseId: string) => void;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, X, Loader2, AlertCircle } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 export const LoginModal: React.FC = () => {
   const { login, closeAuthModal, openAuthModal } = useAuth();

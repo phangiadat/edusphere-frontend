@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { CartProvider } from './context/CartContext';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
+import { useAppDispatch } from './app/hooks';
+import { initAuthThunk, logout } from './features/auth/authSlice';
 import { AuthModalContainer } from './components/auth/AuthModalContainer';
 import { Navbar } from './components/layout/Navbar';
 import { HeroSection } from './components/home/HeroSection';
@@ -25,7 +27,21 @@ import { StudentChatWidget } from './components/common/chat/StudentChatWidget';
 import { Toaster } from 'react-hot-toast';
 
 export default function App() {
+  const dispatch = useAppDispatch();
   const { isAuthenticated, openAuthModal } = useAuth();
+
+  // Revalidate session profile and listen to 401 unauthorized events
+  useEffect(() => {
+    dispatch(initAuthThunk());
+
+    const handleUnauthorized = () => {
+      dispatch(logout());
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, [dispatch]);
+
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('edusphere_theme');
     if (saved) return saved === 'dark';

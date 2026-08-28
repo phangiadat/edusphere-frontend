@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, X, Loader2, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { authApi } from '../../api/authApi';
 
 export const ForgotPasswordModal: React.FC = () => {

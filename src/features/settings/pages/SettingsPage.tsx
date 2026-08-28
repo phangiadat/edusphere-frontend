@@ -14,7 +14,7 @@ import {
   KeyRound
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import { userApi } from '../../../api/userApi';
 import { authApi } from '../../../api/authApi';
 import styles from './SettingsPage.module.css';

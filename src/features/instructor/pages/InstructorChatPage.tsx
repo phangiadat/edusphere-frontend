@@ -9,7 +9,7 @@ import { chatService } from '../../../services/api/chatService';
 import styles from './InstructorChatPage.module.css';
 
 import { MessageSquare } from 'lucide-react';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 
 export const InstructorChatPage: React.FC = () => {
   const { user } = useAuth();

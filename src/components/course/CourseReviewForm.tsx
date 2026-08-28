@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Star, Send, Loader2, MessageSquarePlus, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { reviewApi } from '../../api/reviewApi';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import styles from './CourseReviewForm.module.css';
 
 interface CourseReviewFormProps {

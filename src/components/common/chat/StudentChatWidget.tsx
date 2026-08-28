@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 import { chatService } from '../../../services/api/chatService';
 import { paymentApi } from '../../../api/paymentApi';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
+import { tokenStorage } from '../../../utils/tokenStorage';
 import styles from './StudentChatWidget.module.css';
 
 export interface InstructorModel {
@@ -47,16 +48,10 @@ export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
   const user = auth?.user;
   const isAuthCtx = auth?.isAuthenticated ?? false;
 
-  // Read token & user_info from localStorage as fallback
-  const token = localStorage.getItem('access_token') || localStorage.getItem('accessToken');
-  const storedUserRaw = localStorage.getItem('user_info');
-  let storedRole = 'STUDENT';
-  if (storedUserRaw) {
-    try {
-      const parsed = JSON.parse(storedUserRaw);
-      if (parsed?.role) storedRole = parsed.role;
-    } catch {}
-  }
+  // Read token & user_info from tokenStorage
+  const token = tokenStorage.getAccessToken();
+  const storedUser = tokenStorage.getUserInfo();
+  const storedRole = storedUser?.role || 'STUDENT';
 
   const isAuth = propIsAuth ?? (isAuthCtx || Boolean(token));
   const role = propUserRole ?? (user?.role || storedRole);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import { BookOpen, LogIn, Loader2, ArrowLeft, Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
 import styles from './LoginPage.module.css';
 

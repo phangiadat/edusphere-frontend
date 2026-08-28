@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { tokenStorage } from '../utils/tokenStorage';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
@@ -10,10 +11,10 @@ export const axiosClient = axios.create({
   timeout: 10000,
 });
 
-// Request Interceptor: Attach Access Token
+// Request Interceptor: Attach Access Token via tokenStorage
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = tokenStorage.getAccessToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -22,7 +23,7 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle Token Refresh Rotation & 401 Unauthorized
+// Response Interceptor: Handle Token Refresh Rotation & 401 Unauthorized Event
 let isRefreshing = false;
 let failedQueue: Array<{ resolve: (value?: unknown) => void; reject: (reason?: unknown) => void }> = [];
 
@@ -44,13 +45,11 @@ axiosClient.interceptors.response.use(
 
     // If 401 Unauthorized and not already retried
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const refreshToken = localStorage.getItem('refresh_token');
+      const refreshToken = tokenStorage.getRefreshToken();
 
       if (!refreshToken) {
-        // Clear local storage and redirect to login if needed
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user_info');
+        tokenStorage.clearAuthStorage();
+        window.dispatchEvent(new Event('auth:unauthorized'));
         return Promise.reject(error);
       }
 
@@ -76,14 +75,7 @@ axiosClient.interceptors.response.use(
         const newAccessToken = data.access_token || data.accessToken;
         const newRefreshToken = data.refresh_token || data.refreshToken || refreshToken;
 
-        if (newAccessToken) {
-          localStorage.setItem('access_token', newAccessToken);
-          localStorage.setItem('accessToken', newAccessToken);
-        }
-        if (newRefreshToken) {
-          localStorage.setItem('refresh_token', newRefreshToken);
-          localStorage.setItem('refreshToken', newRefreshToken);
-        }
+        tokenStorage.setTokens(newAccessToken, newRefreshToken);
 
         axiosClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -92,9 +84,8 @@ axiosClient.interceptors.response.use(
         return axiosClient(originalRequest);
       } catch (refreshErr) {
         processQueue(refreshErr, null);
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user_info');
+        tokenStorage.clearAuthStorage();
+        window.dispatchEvent(new Event('auth:unauthorized'));
         return Promise.reject(refreshErr);
       } finally {
         isRefreshing = false;

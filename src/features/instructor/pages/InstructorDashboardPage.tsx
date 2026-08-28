@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, Users, BookOpen, Star, Sparkles } from 'lucide-react';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import { courseService } from '../../../services/api/courseService';
 import { StatCard } from '../components/dashboard/StatCard';
 import { RevenueChart } from '../components/dashboard/RevenueChart';

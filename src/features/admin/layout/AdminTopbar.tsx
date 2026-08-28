@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Moon, Sun, Shield } from 'lucide-react';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import { NotificationDropdown } from '../../../components/common/NotificationDropdown/NotificationDropdown';
 
 interface AdminTopbarProps {

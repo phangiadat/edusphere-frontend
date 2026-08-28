@@ -12,7 +12,7 @@ import { reviewApi } from '../api/reviewApi';
 import type { ReviewItem, ReviewStatsResponse } from '../api/reviewApi';
 import { CourseReviewForm } from '../components/course/CourseReviewForm';
 import { paymentApi } from '../api/paymentApi';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { CourseDetailHero } from '../components/course/CourseDetailHero';
 import { SyllabusAccordion } from '../components/course/SyllabusAccordion';
 import type { ChapterData, LessonData } from '../components/course/SyllabusAccordion';
