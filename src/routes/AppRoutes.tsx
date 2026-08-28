@@ -29,7 +29,7 @@ export const AppRoutes: React.FC = () => {
       <Route
         path="/instructor"
         element={
-          <RoleGuard allowedRole="INSTRUCTOR">
+          <RoleGuard allowedRoles={['INSTRUCTOR']}>
             <InstructorLayout />
           </RoleGuard>
         }
@@ -47,7 +47,7 @@ export const AppRoutes: React.FC = () => {
       <Route
         path="/admin"
         element={
-          <RoleGuard allowedRole="ADMIN">
+          <RoleGuard allowedRoles={['ADMIN']}>
             <AdminLayout />
           </RoleGuard>
         }
