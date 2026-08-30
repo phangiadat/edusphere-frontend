@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Sparkles, 
   Search, 
@@ -55,36 +56,65 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section className="py-12 lg:py-20 bg-[var(--neutral-bg)] border-b border-[var(--border-color)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+    <section className="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-24 bg-gradient-to-b from-purple-50/60 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border-b border-[var(--border-color)]">
+      
+      {/* Background Decorative Blurs */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-purple-500/10 dark:bg-purple-600/15 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
-          {/* Left Column: Headline, Subtitle, PROMINENT CENTER SEARCH BOX & CTAs */}
-          <div className="lg:col-span-7 text-left space-y-6">
+          {/* Left Column: Hero Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-7 space-y-6 text-left"
+          >
             
             {/* Top AI Highlight Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[var(--primary-50)] dark:bg-slate-800/80 border border-[var(--primary-200)] dark:border-slate-700 text-[var(--primary-600)] dark:text-[var(--primary-300)] text-caption-bold">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[var(--primary-50)] dark:bg-slate-800/80 border border-[var(--primary-200)] dark:border-slate-700 text-[var(--primary-600)] dark:text-[var(--primary-300)] text-caption-bold"
+            >
               <Sparkles className="w-4 h-4 text-[var(--primary-600)]" />
               <span>Nền tảng E-Learning Tích hợp AI Gemini & Chat Realtime 2026</span>
-            </div>
+            </motion.div>
 
             {/* Main Headline */}
-            <h1 className="text-h1-bold text-[var(--text-primary)]">
+            <motion.h1
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.45 }}
+              className="text-h1-bold text-[var(--text-primary)]"
+            >
               Học Kỹ Năng Thực Chiến. <br />
               <span className="text-[var(--primary-600)]">
                 Xây Dựng Tương Lai
               </span> Cùng EduSphere
-            </h1>
+            </motion.h1>
 
             {/* Subtitle */}
-            <p className="text-p1-regular text-[var(--text-secondary)] max-w-xl">
+            <motion.p
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.45 }}
+              className="text-p1-regular text-[var(--text-secondary)] max-w-xl"
+            >
               Trải nghiệm học lập trình & công nghệ chuẩn quốc tế. Tích hợp Trợ lý AI giải đáp 24/7, Chat 1-1 với Giảng viên và nộp bài tập chấm điểm tự động.
-            </p>
+            </motion.p>
 
             {/* ==================================================================
                THANH TÌM KIẾM TRUNG TÂM DUY NHẤT (PROMINENT CENTER SEARCH BAR)
                ================================================================== */}
-            <div className="pt-2 max-w-xl relative">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="pt-2 max-w-xl relative"
+            >
               <form onSubmit={handleSearchSubmit} className={`relative flex items-center bg-white dark:bg-slate-900 border ${isSearchFocused ? 'border-purple-600 ring-2 ring-purple-500/20 shadow-md' : 'border-slate-300 dark:border-slate-700 hover:border-slate-400'} rounded-full p-1.5 transition-all duration-200`}>
                 
                 <Search className="w-5 h-5 ml-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
@@ -157,7 +187,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   </button>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Dual CTAs */}
             <div className="pt-2 flex flex-wrap items-center gap-4">
@@ -187,14 +217,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <CheckCircle2 className="w-4 h-4 text-[var(--semantic-success)]" /> Thanh toán Stripe
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-[var(--semantic-success)]" /> Nộp bài & Cấp chứng chỉ
               </span>
             </div>
 
-          </div>
+          </motion.div>
 
           {/* Right Column: Clean Solid Course Preview Card */}
-          <div className="lg:col-span-5">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.35, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-5"
+          >
             <div className="rounded-2xl bg-[var(--neutral-surface)] border border-[var(--border-color)] p-4">
               
               {/* Thumbnail */}
@@ -270,7 +304,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
 
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>

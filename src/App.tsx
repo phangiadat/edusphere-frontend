@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CartProvider } from './context/CartContext';
 import { useAuth } from './hooks/useAuth';
 import { useAppDispatch } from './app/hooks';
@@ -220,65 +221,75 @@ export default function App() {
           />
         )}
         
-        {/* 🚀 Main Content Switching */}
+        {/* 🚀 Main Content Switching với Hiệu ứng Chuyển Trang Framer Motion */}
         <main>
-          {currentView === 'home' ? (
-            <>
-              <HeroSection 
-                onExploreCourses={handleClearCategoryFilter}
-                onSearchCourse={handleSearchCourse}
-              />
-              <StatsBar />
-              <CategoriesSection 
-                onSelectCategory={handleSelectCategory}
-              />
-              <FeaturedCourses 
-                selectedCategory={selectedCategory}
-                onClearCategoryFilter={handleClearCategoryFilter}
-                searchQuery={searchQuery}
-              />
-              <WhyChooseUs />
-              <TopInstructors />
-              <SpecialOffer />
-              <Testimonials />
-              <FaqSection />
-              <CtaBanner />
-            </>
-          ) : currentView === 'cart' ? (
-            <ShoppingCartPage 
-              onNavigateToCourse={navigateToCourse}
-              onNavigateHome={navigateHome}
-              onNavigateSuccess={navigateToPaymentSuccess}
-            />
-          ) : currentView === 'payment-success' ? (
-            <PaymentSuccessPage 
-              onNavigateMyCourses={navigateToMyCourses}
-              onNavigateHome={navigateHome}
-            />
-          ) : currentView === 'my-courses' ? (
-            <MyCoursesPage 
-              onNavigateToCourse={navigateToLearn}
-              onNavigateHome={navigateHome}
-            />
-          ) : currentView === 'learn' ? (
-            <CourseLearnPage 
-              courseId={selectedCourseId}
-              onNavigateMyCourses={navigateToMyCourses}
-            />
-          ) : currentView === 'settings' ? (
-            <SettingsPage />
-          ) : currentView === '404' ? (
-            <NotFoundPage 
-              onNavigateHome={navigateHome}
-              onSearchCourse={handleSearchCourse}
-            />
-          ) : (
-            <CourseDetailPage 
-              courseId={selectedCourseId} 
-              onNavigateCart={navigateToCart}
-              onNavigateHome={navigateHome}
-            />
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentView === 'course-detail' || currentView === 'learn' ? `${currentView}-${selectedCourseId}` : currentView}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {currentView === 'home' ? (
+                <>
+                  <HeroSection 
+                    onExploreCourses={handleClearCategoryFilter}
+                    onSearchCourse={handleSearchCourse}
+                  />
+                  <StatsBar />
+                  <CategoriesSection 
+                    onSelectCategory={handleSelectCategory}
+                  />
+                  <FeaturedCourses 
+                    selectedCategory={selectedCategory}
+                    onClearCategoryFilter={handleClearCategoryFilter}
+                    searchQuery={searchQuery}
+                  />
+                  <WhyChooseUs />
+                  <TopInstructors />
+                  <SpecialOffer />
+                  <Testimonials />
+                  <FaqSection />
+                  <CtaBanner />
+                </>
+              ) : currentView === 'cart' ? (
+                <ShoppingCartPage 
+                  onNavigateToCourse={navigateToCourse}
+                  onNavigateHome={navigateHome}
+                  onNavigateSuccess={navigateToPaymentSuccess}
+                />
+              ) : currentView === 'payment-success' ? (
+                <PaymentSuccessPage 
+                  onNavigateMyCourses={navigateToMyCourses}
+                  onNavigateHome={navigateHome}
+                />
+              ) : currentView === 'my-courses' ? (
+                <MyCoursesPage 
+                  onNavigateToCourse={navigateToLearn}
+                  onNavigateHome={navigateHome}
+                />
+              ) : currentView === 'learn' ? (
+                <CourseLearnPage 
+                  courseId={selectedCourseId}
+                  onNavigateMyCourses={navigateToMyCourses}
+                />
+              ) : currentView === 'settings' ? (
+                <SettingsPage />
+              ) : currentView === '404' ? (
+                <NotFoundPage 
+                  onNavigateHome={navigateHome}
+                  onSearchCourse={handleSearchCourse}
+                />
+              ) : (
+                <CourseDetailPage 
+                  courseId={selectedCourseId} 
+                  onNavigateCart={navigateToCart}
+                  onNavigateHome={navigateHome}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* 🏁 Footer (Hidden when in CourseLearn workspace) */}

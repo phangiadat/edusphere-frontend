@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Code2, 
   Layout, 
@@ -39,23 +40,23 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({ onSelectCa
       name: 'AI & Machine Learning',
       coursesCount: 25,
       icon: BrainCircuit,
-      description: 'Python, Prompt Engineering, Gemini AI, LangChain',
-      badgeColor: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+      description: 'Python, Gemini API, LangChain, OpenAI, Deep Learning',
+      badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
     },
     {
       id: 'cat-mobile',
       name: 'Lập trình Mobile',
       coursesCount: 18,
       icon: Smartphone,
-      description: 'React Native, Flutter, iOS Swift, Android Kotlin',
-      badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+      description: 'Flutter, React Native, iOS Swift, Android Kotlin',
+      badgeColor: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
     },
     {
       id: 'cat-devops',
       name: 'DevOps & Cloud',
       coursesCount: 15,
       icon: Server,
-      description: 'Docker, Kubernetes, AWS, CI/CD Pipelines, Nginx',
+      description: 'Docker, Kubernetes, AWS, CI/CD, Nginx, Linux',
       badgeColor: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300',
     },
     {
@@ -63,7 +64,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({ onSelectCa
       name: 'Data Science & SQL',
       coursesCount: 20,
       icon: BarChart3,
-      description: 'PostgreSQL, Prisma, MongoDB, Data Analytics',
+      description: 'PostgreSQL, Prisma ORM, Data Analytics, Pandas',
       badgeColor: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300',
     },
     {
@@ -129,14 +130,19 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({ onSelectCa
       </div>
 
       {/* Grid Categories */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {categories.map((cat) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categories.map((cat, idx) => {
           const Icon = cat.icon;
           return (
-            <div
+            <motion.div
               key={cat.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.08, duration: 0.4 }}
+              whileHover={{ y: -6, scale: 1.02 }}
               onClick={() => handleCategoryClick(cat.name)}
-              className="group relative p-6 rounded-2xl bg-[var(--neutral-surface)] border border-[var(--border-color)] hover:border-purple-500 hover:shadow-xl hover:-translate-y-1 transition duration-300 flex flex-col justify-between cursor-pointer"
+              className="group relative p-6 rounded-2xl bg-[var(--neutral-surface)] border border-[var(--border-color)] hover:border-purple-500 hover:shadow-xl transition duration-300 flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -157,7 +163,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({ onSelectCa
                   {cat.description}
                 </p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

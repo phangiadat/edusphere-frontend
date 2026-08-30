@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Edit3, Trash2, Users, Star } from 'lucide-react';
 import styles from './CourseCard.module.css';
 
@@ -50,7 +51,11 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   };
 
   return (
-    <div className={styles.card}>
+    <motion.div
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      className={styles.card}
+    >
       {/* Thumbnail Container */}
       <div className={styles.thumbContainer}>
         <img
@@ -116,6 +121,6 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           <span>Xóa</span>
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 };
