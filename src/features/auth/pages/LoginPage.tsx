@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { BookOpen, LogIn, Loader2, ArrowLeft, Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 import styles from './LoginPage.module.css';
 
 export const LoginPage: React.FC = () => {
@@ -106,7 +107,7 @@ export const LoginPage: React.FC = () => {
               <label className={styles.label}>Mật khẩu</label>
               <button
                 type="button"
-                onClick={() => alert('Vui lòng liên hệ Quản trị viên EduSphere để khôi phục mật khẩu hoặc dùng tài khoản thử nghiệm bên dưới!')}
+                onClick={() => toast('Vui lòng liên hệ Quản trị viên EduSphere để hỗ trợ khôi phục mật khẩu!', { icon: 'ℹ️' })}
                 className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline cursor-pointer"
               >
                 Quên mật khẩu?

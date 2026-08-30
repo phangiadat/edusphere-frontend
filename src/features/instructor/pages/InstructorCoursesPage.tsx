@@ -5,6 +5,7 @@ import { CourseCard } from '../components/courses/CourseCard';
 import type { CourseItem } from '../components/courses/CourseCard';
 import { CourseFormModal } from '../components/courses/CourseFormModal';
 import { ToastNotification } from '../components/common/ToastNotification';
+import { ConfirmModal } from '../../../components/common/confirm-modal/ConfirmModal';
 import { courseService } from '../../../services/api/courseService';
 import toast from 'react-hot-toast';
 import styles from './InstructorCoursesPage.module.css';
@@ -20,6 +21,10 @@ export const InstructorCoursesPage: React.FC = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseItem | null>(null);
+
+  // Confirm Modal Delete State
+  const [deletingCourseId, setDeletingCourseId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Toast Notification State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -85,14 +90,22 @@ export const InstructorCoursesPage: React.FC = () => {
     navigate(`/instructor/courses/${course.id}`);
   };
 
-  const handleDeleteCourse = async (courseId: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa khóa học này không?')) {
-      try {
-        await courseService.deleteCourse(courseId);
-      } catch {
-        // Fallback local deletion if API fails or unauth
-      }
-      setCourses((prev) => prev.filter((c) => c.id !== courseId));
+  const handleDeleteCourse = (courseId: string) => {
+    setDeletingCourseId(courseId);
+  };
+
+  const handleConfirmDeleteCourse = async () => {
+    if (!deletingCourseId) return;
+
+    setIsDeleting(true);
+    try {
+      await courseService.deleteCourse(deletingCourseId);
+    } catch {
+      // Fallback local deletion if API fails
+    } finally {
+      setCourses((prev) => prev.filter((c) => c.id !== deletingCourseId));
+      setDeletingCourseId(null);
+      setIsDeleting(false);
       showSuccessToast('🗑️ Đã xóa khóa học khỏi hệ thống thành công.');
     }
   };
@@ -299,6 +312,19 @@ export const InstructorCoursesPage: React.FC = () => {
       <ToastNotification
         message={toastMessage}
         onClose={() => setToastMessage(null)}
+      />
+
+      {/* Confirm Delete Course Modal */}
+      <ConfirmModal
+        isOpen={!!deletingCourseId}
+        onClose={() => setDeletingCourseId(null)}
+        onConfirm={handleConfirmDeleteCourse}
+        title="Xác nhận xóa Khóa học"
+        message="Bạn có chắc chắn muốn xóa khóa học này khỏi hệ thống không? Toàn bộ chương và bài giảng liên quan cũng sẽ bị loại bỏ."
+        confirmText="Xóa khóa học"
+        cancelText="Hủy bỏ"
+        variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );

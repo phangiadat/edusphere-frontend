@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, Save, UploadCloud, Info, RefreshCw } from 'lucide-react';
 import type { CourseItem, CourseStatusType } from './CourseCard';
 import { RichTextEditor } from '../../../../components/common/RichTextEditor/RichTextEditor';
+import toast from 'react-hot-toast';
 import styles from './CourseFormModal.module.css';
 
 interface CourseFormModalProps {
@@ -76,7 +77,7 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
     if (file) {
       // Validate file size (max 5MB = 5 * 1024 * 1024 bytes)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Kích thước file ảnh vượt quá 5MB. Vui lòng chọn file ảnh dung lượng nhỏ hơn!');
+        toast.error('Kích thước file ảnh vượt quá 5MB. Vui lòng chọn file ảnh dung lượng nhỏ hơn!');
         return;
       }
 

@@ -9,6 +9,7 @@ import {
 import { adminService } from '../../../services/api/adminService';
 import type { AdminCategoryItem } from '../../../services/api/adminService';
 import toast from 'react-hot-toast';
+import { ConfirmModal } from '../../../components/common/confirm-modal/ConfirmModal';
 
 export const AdminCategoriesPage: React.FC = () => {
   const [categories, setCategories] = useState<AdminCategoryItem[]>([]);
@@ -21,6 +22,10 @@ export const AdminCategoriesPage: React.FC = () => {
   const [categoryDesc, setCategoryDesc] = useState('');
   const [categoryIcon, setCategoryIcon] = useState('Code');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Delete State
+  const [deletingCategory, setDeletingCategory] = useState<AdminCategoryItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchCategories = async () => {
     setIsLoading(true);
@@ -100,15 +105,22 @@ export const AdminCategoriesPage: React.FC = () => {
     }
   };
 
-  const handleDeleteCategory = async (cat: AdminCategoryItem) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa danh mục "${cat.name}"?`)) return;
+  const handleDeleteCategory = (cat: AdminCategoryItem) => {
+    setDeletingCategory(cat);
+  };
 
+  const handleConfirmDelete = async () => {
+    if (!deletingCategory) return;
+    setIsDeleting(true);
     try {
-      await adminService.deleteCategory(cat.id);
-      toast.success(`Đã xóa danh mục: ${cat.name}`);
+      await adminService.deleteCategory(deletingCategory.id);
+      toast.success(`Đã xóa danh mục: ${deletingCategory.name}`);
+      setDeletingCategory(null);
       fetchCategories();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Không thể xóa danh mục');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -258,6 +270,18 @@ export const AdminCategoriesPage: React.FC = () => {
         </div>
       )}
 
+      {/* Confirm Modal Delete Category */}
+      <ConfirmModal
+        isOpen={!!deletingCategory}
+        onClose={() => setDeletingCategory(null)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa Danh mục"
+        message={`Bạn có chắc chắn muốn xóa danh mục "${deletingCategory?.name}" không? Thao tác này không thể hoàn tác.`}
+        confirmText="Xóa danh mục"
+        cancelText="Hủy bỏ"
+        variant="danger"
+        isLoading={isDeleting}
+      />
     </div>
   );
 };

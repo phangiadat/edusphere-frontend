@@ -7,6 +7,7 @@ import { LessonModal } from './LessonModal';
 import type { LessonModel } from './LessonItem';
 import { AssignmentModal } from './AssignmentModal';
 import type { AssignmentModel } from './AssignmentItem';
+import { ConfirmModal } from '../../../../components/common/confirm-modal/ConfirmModal';
 import { chapterService } from '../../../../services/api/chapterService';
 import { lessonService } from '../../../../services/api/lessonService';
 import { assignmentService } from '../../../../services/api/assignmentService';
@@ -39,17 +40,26 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
   const [isAddingChapter, setIsAddingChapter] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState('');
 
-  // Single LessonModal state (Lifted State Up)
+  // Single LessonModal state
   const [activeLessonModal, setActiveLessonModal] = useState<{
     chapterId: string;
     lesson: LessonModel | null;
   } | null>(null);
 
-  // Single AssignmentModal state (Lifted State Up)
+  // Single AssignmentModal state
   const [activeAssignmentModal, setActiveAssignmentModal] = useState<{
     chapterId: string;
     assignment: AssignmentModel | null;
   } | null>(null);
+
+  // Confirm Modal Delete Target State
+  const [confirmDeleteTarget, setConfirmDeleteTarget] = useState<{
+    type: 'CHAPTER' | 'LESSON' | 'ASSIGNMENT';
+    chapterId: string;
+    itemId?: string;
+    title?: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // ==========================================
   // CHAPTER HANDLERS
@@ -109,20 +119,8 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     }
   };
 
-  const handleDeleteChapter = async (chapterId: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa Chương này không?')) {
-      try {
-        await chapterService.deleteChapter(chapterId);
-      } catch (err) {
-        console.warn('API deleteChapter fallback to local state:', err);
-      }
-
-      const filtered = chapters
-        .filter((ch) => ch.id !== chapterId)
-        .map((ch, idx) => ({ ...ch, order: idx + 1 }));
-      onUpdateChapters(filtered);
-      onShowToast('🗑️ Đã xóa Chương khỏi danh sách.');
-    }
+  const handleDeleteChapter = (chapterId: string) => {
+    setConfirmDeleteTarget({ type: 'CHAPTER', chapterId, title: 'Chương học' });
   };
 
   const handleMoveChapterUp = (index: number) => {
@@ -263,25 +261,8 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
     }
   };
 
-  const handleDeleteLesson = async (chapterId: string, lessonId: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bài học này không?')) {
-      try {
-        await lessonService.deleteLesson(lessonId);
-      } catch (err) {
-        console.warn('API deleteLesson fallback to local state:', err);
-      }
-
-      const updatedChapters = chapters.map((ch) => {
-        if (ch.id !== chapterId) return ch;
-        const filteredLessons = ch.lessons
-          .filter((l) => l.id !== lessonId)
-          .map((l, idx) => ({ ...l, order: idx + 1 }));
-        return { ...ch, lessons: filteredLessons };
-      });
-
-      onUpdateChapters(updatedChapters);
-      onShowToast('🗑️ Đã xóa bài học khỏi Chương.');
-    }
+  const handleDeleteLesson = (chapterId: string, lessonId: string) => {
+    setConfirmDeleteTarget({ type: 'LESSON', chapterId, itemId: lessonId, title: 'Bài học' });
   };
 
   const handleMoveLessonUp = (chapterId: string, lessonIndex: number) => {
@@ -384,17 +365,55 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
   };
 
   const handleDeleteAssignment = (chapterId: string, assignmentId: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bài tập này không?')) {
-      const updatedChapters = chapters.map((ch) => {
-        if (ch.id !== chapterId) return ch;
-        const filteredAssignments = (ch.assignments || [])
-          .filter((a) => a.id !== assignmentId)
-          .map((a, idx) => ({ ...a, order: idx + 1 }));
-        return { ...ch, assignments: filteredAssignments };
-      });
+    setConfirmDeleteTarget({ type: 'ASSIGNMENT', chapterId, itemId: assignmentId, title: 'Bài tập' });
+  };
 
-      onUpdateChapters(updatedChapters);
-      onShowToast('🗑️ Đã xóa bài tập khỏi Chương.');
+  const handleConfirmDeleteTarget = async () => {
+    if (!confirmDeleteTarget) return;
+    const { type, chapterId, itemId } = confirmDeleteTarget;
+
+    setIsDeleting(true);
+    try {
+      if (type === 'CHAPTER') {
+        try {
+          await chapterService.deleteChapter(chapterId);
+        } catch (err) {
+          console.warn('API deleteChapter fallback:', err);
+        }
+        const filtered = chapters
+          .filter((ch) => ch.id !== chapterId)
+          .map((ch, idx) => ({ ...ch, order: idx + 1 }));
+        onUpdateChapters(filtered);
+        onShowToast('🗑️ Đã xóa Chương khỏi danh sách.');
+      } else if (type === 'LESSON' && itemId) {
+        try {
+          await lessonService.deleteLesson(itemId);
+        } catch (err) {
+          console.warn('API deleteLesson fallback:', err);
+        }
+        const updatedChapters = chapters.map((ch) => {
+          if (ch.id !== chapterId) return ch;
+          const filteredLessons = ch.lessons
+            .filter((l) => l.id !== itemId)
+            .map((l, idx) => ({ ...l, order: idx + 1 }));
+          return { ...ch, lessons: filteredLessons };
+        });
+        onUpdateChapters(updatedChapters);
+        onShowToast('🗑️ Đã xóa bài học khỏi Chương.');
+      } else if (type === 'ASSIGNMENT' && itemId) {
+        const updatedChapters = chapters.map((ch) => {
+          if (ch.id !== chapterId) return ch;
+          const filteredAssignments = (ch.assignments || [])
+            .filter((a) => a.id !== itemId)
+            .map((a, idx) => ({ ...a, order: idx + 1 }));
+          return { ...ch, assignments: filteredAssignments };
+        });
+        onUpdateChapters(updatedChapters);
+        onShowToast('🗑️ Đã xóa bài tập khỏi Chương.');
+      }
+    } finally {
+      setIsDeleting(false);
+      setConfirmDeleteTarget(null);
     }
   };
 
@@ -541,6 +560,19 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
         onClose={() => setActiveAssignmentModal(null)}
         onSave={handleSaveAssignment}
         initialData={activeAssignmentModal?.assignment}
+      />
+
+      {/* Confirm Delete Chapter / Lesson / Assignment Modal */}
+      <ConfirmModal
+        isOpen={!!confirmDeleteTarget}
+        onClose={() => setConfirmDeleteTarget(null)}
+        onConfirm={handleConfirmDeleteTarget}
+        title={`Xác nhận xóa ${confirmDeleteTarget?.title || 'mục'}`}
+        message={`Bạn có chắc chắn muốn xóa ${confirmDeleteTarget?.title?.toLowerCase() || 'mục này'} khỏi chương trình học không? Thao tác này không thể hoàn tác.`}
+        confirmText="Xóa ngay"
+        cancelText="Hủy bỏ"
+        variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );
