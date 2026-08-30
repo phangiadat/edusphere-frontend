@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageSquare, 
   X, 
@@ -365,174 +366,188 @@ export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
 
   return (
     <div className={styles.widgetWrapper}>
-      {/* 1. POPUP CHAT WINDOW (Shown when isOpen === true) */}
-      {isOpen && (
-        <div className={styles.popupCard}>
-          {/* HEADER */}
-          <div className={styles.header}>
-            <div className={styles.headerLeft}>
-              {activeView === 'CHAT' ? (
-                <>
-                  <button onClick={handleBackToList} className={styles.backBtn} title="Quay lại danh sách Giảng viên">
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <img
-                    src={selectedInstructor?.instructorAvatar}
-                    alt={selectedInstructor?.instructorName}
-                    className={styles.instructorAvatar}
-                  />
-                  <div className={styles.headerTitleBox}>
-                    <h4 className={styles.headerTitle}>{selectedInstructor?.instructorName}</h4>
-                    <span className={styles.statusText}>● Đang trực tuyến</span>
-                  </div>
-                </>
-              ) : (
-                <div className={styles.headerTitleBox}>
-                  <h4 className={styles.headerTitle}>Hỏi đáp với Giảng viên</h4>
-                  <span className="text-xs text-slate-500 font-medium">Chọn giảng viên để nhắn tin</span>
-                </div>
-              )}
-            </div>
-
-            {/* Header Window Actions (Minimize & Close) */}
-            <div className={styles.headerActions}>
-              <button onClick={() => setIsOpen(false)} className={styles.actionIconBtn} title="Thu nhỏ">
-                <Minus className="w-4 h-4" />
-              </button>
-              <button onClick={() => setIsOpen(false)} className={styles.actionIconBtn} title="Đóng">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* VIEW 1: INSTRUCTORS LIST */}
-          {activeView === 'LIST' && (
-            <div className={styles.viewListBody}>
-              <div className={styles.searchBox}>
-                <Search className={styles.searchIcon} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm kiếm giảng viên..."
-                  className={styles.searchInput}
-                />
-              </div>
-
-              {isLoadingList ? (
-                <div className="p-8 text-center space-y-2 my-auto">
-                  <Loader2 className="w-6 h-6 animate-spin text-purple-600 mx-auto" />
-                  <p className="text-xs text-[var(--text-secondary)] font-medium">Đang nạp Giảng viên từ khóa học đã mua...</p>
-                </div>
-              ) : filteredInstructors.length === 0 ? (
-                <div className="p-6 text-center space-y-3 my-auto">
-                  <MessageSquare className="w-10 h-10 text-purple-400 mx-auto opacity-60" />
-                  <h4 className="font-extrabold text-sm text-[var(--text-primary)]">Chưa có Giảng viên nào</h4>
-                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                    Bạn chỉ có thể trò chuyện với Giảng viên sau khi đăng ký khóa học của họ. Hãy chọn khóa học yêu thích và bắt đầu học ngay!
-                  </p>
-                </div>
-              ) : (
-                filteredInstructors.map((inst) => (
-                  <div
-                    key={inst.id}
-                    onClick={() => handleSelectInstructor(inst)}
-                    className={styles.instructorRow}
-                  >
-                    <div className={styles.avatarWrapper}>
-                      <img
-                        src={inst.instructorAvatar}
-                        alt={inst.instructorName}
-                        className={styles.rowAvatar}
-                      />
-                      {inst.isOnline && <div className={styles.onlineDot} />}
-                    </div>
-
-                    <div className={styles.rowInfo}>
-                      <div className={styles.rowNameRow}>
-                        <span className={styles.rowName}>{inst.instructorName}</span>
-                        {inst.unreadCount ? (
-                          <span className={styles.unreadBadge}>{inst.unreadCount}</span>
-                        ) : null}
-                      </div>
-                      <span className={styles.rowCourse}>{inst.courseTitle}</span>
-                      <span className={styles.rowLastMsg}>{inst.lastMessage || 'Chưa có tin nhắn'}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* VIEW 2: CHAT DETAIL VIEW */}
-          {activeView === 'CHAT' && (
-            <>
-              {/* Messages Scroll Box */}
-              <div
-                ref={messagesScrollRef}
-                onScroll={handleScrollMessages}
-                className={styles.messagesScroll}
-              >
-                {isLoadingOlder && (
-                  <div className={styles.loadingOlder}>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin inline mr-1" />
-                    Đang tải thêm tin nhắn cũ...
-                  </div>
-                )}
-
-                {currentMessages.map((msg) => {
-                  const isSentByStudent = msg.senderId === currentStudentId;
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`${styles.msgRow} ${
-                        isSentByStudent ? styles.msgSent : styles.msgReceived
-                      }`}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className={styles.chatCard}
+          >
+            {/* Window Header */}
+            <div className={styles.header}>
+              <div className={styles.headerLeft}>
+                {activeView === 'CHAT' ? (
+                  <>
+                    <button
+                      onClick={handleBackToList}
+                      className={styles.backBtn}
+                      title="Quay lại danh sách"
                     >
-                      <div
-                        className={`${styles.bubble} ${
-                          isSentByStudent ? styles.bubbleSent : styles.bubbleReceived
-                        }`}
-                      >
-                        {msg.content}
-                      </div>
-                      <span className={styles.msgTime}>14:30</span>
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <img
+                      src={selectedInstructor?.instructorAvatar}
+                      alt={selectedInstructor?.instructorName}
+                      className={styles.instructorAvatar}
+                    />
+                    <div className={styles.headerTitleBox}>
+                      <h4 className={styles.headerTitle}>{selectedInstructor?.instructorName}</h4>
+                      <span className={styles.statusText}>● Đang trực tuyến</span>
                     </div>
-                  );
-                })}
-
-                {/* Animated Typing Indicator */}
-                {isInstructorTyping && (
-                  <div className={styles.typingBubble} title="Giảng viên đang gõ...">
-                    <div className={styles.typingDot} />
-                    <div className={styles.typingDot} />
-                    <div className={styles.typingDot} />
+                  </>
+                ) : (
+                  <div className={styles.headerTitleBox}>
+                    <h4 className={styles.headerTitle}>Hỏi đáp với Giảng viên</h4>
+                    <span className="text-xs text-slate-500 font-medium">Chọn giảng viên để nhắn tin</span>
                   </div>
                 )}
               </div>
 
-              {/* Input Footer */}
-              <div className={styles.footer}>
-                <form onSubmit={handleSendMessage} className={styles.inputForm}>
+              {/* Header Window Actions (Minimize & Close) */}
+              <div className={styles.headerActions}>
+                <button onClick={() => setIsOpen(false)} className={styles.actionIconBtn} title="Thu nhỏ">
+                  <Minus className="w-4 h-4" />
+                </button>
+                <button onClick={() => setIsOpen(false)} className={styles.actionIconBtn} title="Đóng">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* VIEW 1: INSTRUCTORS LIST */}
+            {activeView === 'LIST' && (
+              <div className={styles.viewListBody}>
+                <div className={styles.searchBox}>
+                  <Search className={styles.searchIcon} />
                   <input
                     type="text"
-                    value={inputText}
-                    onChange={handleInputChange}
-                    placeholder="Nhập nội dung nhắn tin hỏi bài..."
-                    className={styles.input}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Tìm kiếm giảng viên..."
+                    className={styles.searchInput}
                   />
-                  <button type="submit" className={styles.sendBtn} title="Gửi tin nhắn">
-                    <Send className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+                </div>
 
-      {/* 2. FLOATING BUBBLE BUTTON (Always Fixed at Bottom-Right) */}
-      <button
+                {isLoadingList ? (
+                  <div className="p-8 text-center space-y-2 my-auto">
+                    <Loader2 className="w-6 h-6 animate-spin text-purple-600 mx-auto" />
+                    <p className="text-xs text-[var(--text-secondary)] font-medium">Đang nạp Giảng viên từ khóa học đã mua...</p>
+                  </div>
+                ) : filteredInstructors.length === 0 ? (
+                  <div className="p-6 text-center space-y-3 my-auto">
+                    <MessageSquare className="w-10 h-10 text-purple-400 mx-auto opacity-60" />
+                    <h4 className="font-extrabold text-sm text-[var(--text-primary)]">Chưa có Giảng viên nào</h4>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      Bạn chỉ có thể trò chuyện với Giảng viên sau khi đăng ký khóa học của họ. Hãy chọn khóa học yêu thích và bắt đầu học ngay!
+                    </p>
+                  </div>
+                ) : (
+                  filteredInstructors.map((inst) => (
+                    <div
+                      key={inst.id}
+                      onClick={() => handleSelectInstructor(inst)}
+                      className={styles.instructorRow}
+                    >
+                      <div className={styles.avatarWrapper}>
+                        <img
+                          src={inst.instructorAvatar}
+                          alt={inst.instructorName}
+                          className={styles.rowAvatar}
+                        />
+                        {inst.isOnline && <div className={styles.onlineDot} />}
+                      </div>
+
+                      <div className={styles.rowInfo}>
+                        <div className={styles.rowNameRow}>
+                          <span className={styles.rowName}>{inst.instructorName}</span>
+                          {inst.unreadCount ? (
+                            <span className={styles.unreadBadge}>{inst.unreadCount}</span>
+                          ) : null}
+                        </div>
+                        <span className={styles.rowCourse}>{inst.courseTitle}</span>
+                        <span className={styles.rowLastMsg}>{inst.lastMessage || 'Chưa có tin nhắn'}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* VIEW 2: CHAT DETAIL VIEW */}
+            {activeView === 'CHAT' && (
+              <>
+                {/* Messages Scroll Box */}
+                <div
+                  ref={messagesScrollRef}
+                  onScroll={handleScrollMessages}
+                  className={styles.messagesScroll}
+                >
+                  {isLoadingOlder && (
+                    <div className={styles.loadingOlder}>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin inline mr-1" />
+                      Đang tải thêm tin nhắn cũ...
+                    </div>
+                  )}
+
+                  {currentMessages.map((msg) => {
+                    const isSentByStudent = msg.senderId === currentStudentId;
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`${styles.msgRow} ${
+                          isSentByStudent ? styles.msgSent : styles.msgReceived
+                        }`}
+                      >
+                        <div
+                          className={`${styles.bubble} ${
+                            isSentByStudent ? styles.bubbleSent : styles.bubbleReceived
+                          }`}
+                        >
+                          {msg.content}
+                        </div>
+                        <span className={styles.msgTime}>14:30</span>
+                      </div>
+                    );
+                  })}
+
+                  {/* Animated Typing Indicator */}
+                  {isInstructorTyping && (
+                    <div className={styles.typingBubble} title="Giảng viên đang gõ...">
+                      <div className={styles.typingDot} />
+                      <div className={styles.typingDot} />
+                      <div className={styles.typingDot} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Input Footer */}
+                <div className={styles.footer}>
+                  <form onSubmit={handleSendMessage} className={styles.inputForm}>
+                    <input
+                      type="text"
+                      value={inputText}
+                      onChange={handleInputChange}
+                      placeholder="Nhập nội dung nhắn tin hỏi bài..."
+                      className={styles.input}
+                    />
+                    <button type="submit" className={styles.sendBtn} title="Gửi tin nhắn">
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
+                  </form>
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 2. FLOATING BUBBLE BUTTON (Always Fixed at Bottom-Right with Spring animation) */}
+      <motion.button
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         onClick={() => setIsOpen(!isOpen)}
         className={`${styles.floatingBtn} ${isOpen ? styles.floatingBtnActive : ''}`}
         title="Trò chuyện với Giảng viên"
@@ -542,7 +557,7 @@ export const StudentChatWidget: React.FC<StudentChatWidgetProps> = ({
         {!isOpen && totalUnreadCount > 0 && (
           <span className={styles.totalUnreadBadge}>{totalUnreadCount}</span>
         )}
-      </button>
+      </motion.button>
     </div>
   );
 };

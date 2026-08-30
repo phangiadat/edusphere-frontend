@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
   ChevronLeft, 
@@ -50,8 +51,6 @@ export const GradeSubmissionDrawer: React.FC<GradeSubmissionDrawerProps> = ({
     }
   }, [submission, isOpen]);
 
-  if (!isOpen || !submission) return null;
-
   const handleScoreChange = (val: string) => {
     setScoreInput(val);
     const num = parseFloat(val);
@@ -64,6 +63,7 @@ export const GradeSubmissionDrawer: React.FC<GradeSubmissionDrawerProps> = ({
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!submission) return;
     const scoreVal = parseFloat(scoreInput);
     if (isNaN(scoreVal) || scoreVal < 0 || scoreVal > 10) {
       setErrorMsg('Vui lòng nhập điểm số hợp lệ từ 0.0 đến 10.0');
@@ -81,8 +81,24 @@ export const GradeSubmissionDrawer: React.FC<GradeSubmissionDrawerProps> = ({
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.drawerCard}>
+    <AnimatePresence>
+      {isOpen && submission && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className={styles.overlay}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className={styles.drawerCard}
+            onClick={(e) => e.stopPropagation()}
+          >
         {/* Header with Continuous Navigation */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -241,7 +257,9 @@ export const GradeSubmissionDrawer: React.FC<GradeSubmissionDrawerProps> = ({
             </button>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 };

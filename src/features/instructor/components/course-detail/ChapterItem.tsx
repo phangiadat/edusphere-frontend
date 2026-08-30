@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   GripVertical, 
   ChevronUp, 
@@ -86,7 +87,12 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({
   const totalItemsCount = (chapter.lessons?.length || 0) + (chapter.assignments?.length || 0);
 
   return (
-    <div className={styles.accordionWrapper}>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className={styles.accordionWrapper}
+    >
       {/* Header Row */}
       <div className={styles.accordionHeader}>
         {/* Left Group */}
@@ -197,70 +203,79 @@ export const ChapterItem: React.FC<ChapterItemProps> = ({
         </div>
       </div>
 
-      {/* Accordion Body (List of LessonItems & AssignmentItems + Action Buttons) */}
-      {isExpanded && (
-        <div className={styles.accordionBody}>
-          {/* Render Lessons */}
-          {chapter.lessons && chapter.lessons.length > 0 && (
-            chapter.lessons.map((lesson, lessonIdx) => (
-              <LessonItem
-                key={lesson.id}
-                lesson={lesson}
-                index={lessonIdx}
-                isFirst={lessonIdx === 0}
-                isLast={lessonIdx === chapter.lessons.length - 1}
-                onUpdate={(updated) => onUpdateLesson(chapter.id, lesson.id, updated)}
-                onEdit={() => onOpenEditLesson(chapter.id, lesson)}
-                onDelete={() => onDeleteLesson(chapter.id, lesson.id)}
-                onMoveUp={() => onMoveLessonUp(chapter.id, lessonIdx)}
-                onMoveDown={() => onMoveLessonDown(chapter.id, lessonIdx)}
-              />
-            ))
-          )}
+      {/* Accordion Body (Animated Height) */}
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            style={{ overflow: 'hidden' }}
+            className={styles.accordionBody}
+          >
+            {/* Render Lessons */}
+            {chapter.lessons && chapter.lessons.length > 0 && (
+              chapter.lessons.map((lesson, lessonIdx) => (
+                <LessonItem
+                  key={lesson.id}
+                  lesson={lesson}
+                  index={lessonIdx}
+                  isFirst={lessonIdx === 0}
+                  isLast={lessonIdx === chapter.lessons.length - 1}
+                  onUpdate={(updated) => onUpdateLesson(chapter.id, lesson.id, updated)}
+                  onEdit={() => onOpenEditLesson(chapter.id, lesson)}
+                  onDelete={() => onDeleteLesson(chapter.id, lesson.id)}
+                  onMoveUp={() => onMoveLessonUp(chapter.id, lessonIdx)}
+                  onMoveDown={() => onMoveLessonDown(chapter.id, lessonIdx)}
+                />
+              ))
+            )}
 
-          {/* Render Assignments */}
-          {chapter.assignments && chapter.assignments.length > 0 && (
-            chapter.assignments.map((assignment, assignIdx) => (
-              <AssignmentItem
-                key={assignment.id}
-                assignment={assignment}
-                index={assignIdx}
-                isFirst={assignIdx === 0}
-                isLast={assignIdx === chapter.assignments.length - 1}
-                onEdit={() => onOpenEditAssignment(chapter.id, assignment)}
-                onDelete={() => onDeleteAssignment(chapter.id, assignment.id)}
-                onMoveUp={() => onMoveAssignmentUp(chapter.id, assignIdx)}
-                onMoveDown={() => onMoveAssignmentDown(chapter.id, assignIdx)}
-              />
-            ))
-          )}
+            {/* Render Assignments */}
+            {chapter.assignments && chapter.assignments.length > 0 && (
+              chapter.assignments.map((assignment, assignIdx) => (
+                <AssignmentItem
+                  key={assignment.id}
+                  assignment={assignment}
+                  index={assignIdx}
+                  isFirst={assignIdx === 0}
+                  isLast={assignIdx === chapter.assignments.length - 1}
+                  onEdit={() => onOpenEditAssignment(chapter.id, assignment)}
+                  onDelete={() => onDeleteAssignment(chapter.id, assignment.id)}
+                  onMoveUp={() => onMoveAssignmentUp(chapter.id, assignIdx)}
+                  onMoveDown={() => onMoveAssignmentDown(chapter.id, assignIdx)}
+                />
+              ))
+            )}
 
-          {totalItemsCount === 0 && (
-            <div className={styles.emptyLessons}>
-              Chưa có bài học hoặc bài tập nào trong Chương này. Hãy bấm các nút bên dưới để thêm nội dung!
+            {totalItemsCount === 0 && (
+              <div className={styles.emptyLessons}>
+                Chưa có bài học hoặc bài tập nào trong Chương này. Hãy bấm các nút bên dưới để thêm nội dung!
+              </div>
+            )}
+
+            {/* Action Buttons Row: + Thêm Bài học & + Thêm Bài tập */}
+            <div className={styles.actionButtonsRow}>
+              <button
+                onClick={() => onOpenAddLesson(chapter.id)}
+                className={styles.addLessonBtn}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Thêm Bài học</span>
+              </button>
+
+              <button
+                onClick={() => onOpenAddAssignment(chapter.id)}
+                className={styles.addAssignmentBtn}
+              >
+                <FileCheck className="w-3.5 h-3.5 text-amber-600" />
+                <span>Thêm Bài tập</span>
+              </button>
             </div>
-          )}
-
-          {/* Action Buttons Row: + Thêm Bài học & + Thêm Bài tập */}
-          <div className={styles.actionButtonsRow}>
-            <button
-              onClick={() => onOpenAddLesson(chapter.id)}
-              className={styles.addLessonBtn}
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Thêm Bài học</span>
-            </button>
-
-            <button
-              onClick={() => onOpenAddAssignment(chapter.id)}
-              className={styles.addAssignmentBtn}
-            >
-              <FileCheck className="w-3.5 h-3.5 text-amber-600" />
-              <span>Thêm Bài tập</span>
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };

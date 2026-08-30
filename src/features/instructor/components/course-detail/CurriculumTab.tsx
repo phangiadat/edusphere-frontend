@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Plus, Layers } from 'lucide-react';
 import { ChapterItem } from './ChapterItem';
 import type { ChapterModel } from './ChapterItem';
@@ -17,6 +18,16 @@ interface CurriculumTabProps {
   onUpdateChapters: (updatedChapters: ChapterModel[]) => void;
   onShowToast: (msg: string) => void;
 }
+
+const listContainerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
 
 export const CurriculumTab: React.FC<CurriculumTabProps> = ({
   courseId,
@@ -471,7 +482,12 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
 
       {/* Chapter Accordion List */}
       {chapters.length > 0 ? (
-        <div className={styles.chapterList}>
+        <motion.div
+          variants={listContainerVariants}
+          initial="hidden"
+          animate="show"
+          className={styles.chapterList}
+        >
           {chapters.map((chapter, idx) => (
             <ChapterItem
               key={chapter.id}
@@ -496,7 +512,7 @@ export const CurriculumTab: React.FC<CurriculumTabProps> = ({
               onMoveAssignmentDown={handleMoveAssignmentDown}
             />
           ))}
-        </div>
+        </motion.div>
       ) : (
         <div className={styles.emptyState}>
           <Layers className="w-8 h-8 text-purple-500" />

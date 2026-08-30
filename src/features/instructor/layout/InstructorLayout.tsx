@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { InstructorSidebar } from './InstructorSidebar';
 import { InstructorTopbar } from './InstructorTopbar';
 import styles from './InstructorLayout.module.css';
@@ -35,9 +36,15 @@ export const InstructorLayout: React.FC = () => {
         {/* Topbar (Trên) */}
         <InstructorTopbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
-        {/* Main Content Area (Outlet render trang con) */}
+        {/* Main Content Area (Outlet render trang con với hiệu ứng mượt) */}
         <main className={styles.contentBody}>
-          <Outlet />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Outlet />
+          </motion.div>
         </main>
       </div>
     </div>

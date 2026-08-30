@@ -126,7 +126,10 @@ export const InstructorCourseDetailPage: React.FC = () => {
         }
       }
 
-      toast.success('🎉 Đã lưu toàn bộ cấu hình và cập nhật trạng thái khóa học!');
+      toast.success('🎉 Đã lưu cấu hình khóa học thành công! Đang chuyển hướng về trang Khóa học của tôi...');
+      setTimeout(() => {
+        navigate('/instructor/courses');
+      }, 1000);
     } catch (e: any) {
       const message = e?.response?.data?.message || 'Không thể lưu thay đổi thông tin khóa học';
       toast.error(message);

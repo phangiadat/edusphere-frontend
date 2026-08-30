@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, Send, Loader2 } from 'lucide-react';
 import { aiService } from '../../../services/api/aiService';
 import { CodeBlockRenderer } from './CodeBlockRenderer';
@@ -55,8 +56,6 @@ export const AiAssistantDrawer: React.FC<AiAssistantDrawerProps> = ({
       }
     });
   };
-
-  if (!isOpen) return null;
 
   const handleSendPrompt = async (promptText: string) => {
     if (!promptText.trim() || isLoading) return;
@@ -118,26 +117,42 @@ console.log(data.answer);
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.drawerCard}>
-        {/* Header */}
-        <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <div className={styles.sparklesBadge}>
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div className={styles.titleBox}>
-              <h3 className={styles.title}>Trợ lý AI Gemini 2.0</h3>
-              <span className={styles.subtitle}>
-                {lessonTitle ? `Đang hỗ trợ: ${lessonTitle}` : 'Giải đáp kiến thức 24/7'}
-              </span>
-            </div>
-          </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className={styles.overlay}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className={styles.drawerCard}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className={styles.header}>
+              <div className={styles.headerLeft}>
+                <div className={styles.sparklesBadge}>
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className={styles.titleBox}>
+                  <h3 className={styles.title}>Trợ lý AI Gemini 2.0</h3>
+                  <span className={styles.subtitle}>
+                    {lessonTitle ? `Đang hỗ trợ: ${lessonTitle}` : 'Giải đáp kiến thức 24/7'}
+                  </span>
+                </div>
+              </div>
 
-          <button onClick={onClose} className={styles.closeBtn} title="Đóng">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+              <button onClick={onClose} className={styles.closeBtn} title="Đóng">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
         {/* Quick Prompts Bar */}
         <div className={styles.promptsBar}>
@@ -220,7 +235,9 @@ console.log(data.answer);
             </button>
           </form>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

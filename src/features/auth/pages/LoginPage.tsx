@@ -50,25 +50,7 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleQuickLogin = async (demoEmail: string, demoPass: string = '123456') => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    try {
-      await login({ email: demoEmail, password: demoPass });
-      const storedUser = localStorage.getItem('user_info');
-      const user = storedUser ? JSON.parse(storedUser) : null;
 
-      if (user && user.role === 'ADMIN') {
-        navigate('/admin/dashboard', { replace: true });
-      } else if (user && user.role === 'INSTRUCTOR') {
-        navigate('/instructor/dashboard', { replace: true });
-      } else {
-        navigate('/', { replace: true });
-      }
-    } catch (err: unknown) {
-      setErrorMessage('Không thể đăng nhập bằng tài khoản mẫu.');
-    }
-  };
 
   return (
     <div className={styles.pageContainer}>
@@ -183,38 +165,6 @@ export const LoginPage: React.FC = () => {
             className="font-bold text-purple-600 dark:text-purple-400 hover:underline cursor-pointer"
           >
             Trở về trang chủ và chọn Đăng ký
-          </button>
-        </div>
-
-        {/* Quick Demo Accounts */}
-        <div className={styles.quickAccounts}>
-          <div className={styles.quickLabel}>Tài khoản thử nghiệm nhanh:</div>
-
-          <button
-            type="button"
-            onClick={() => handleQuickLogin('admin@gmail.com', 'admin123')}
-            className={`${styles.quickBtn} border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/30`}
-          >
-            <span>🛡️ admin@gmail.com (Tài khoản ADMIN)</span>
-            <span className="text-purple-600 font-mono text-xs">Mật khẩu: admin123</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => handleQuickLogin('dat.phan@edusphere.vn', '123456')}
-            className={styles.quickBtn}
-          >
-            <span>👨‍🏫 dat.phan@edusphere.vn (Phan Gia Đạt - INSTRUCTOR)</span>
-            <span className="text-purple-600 font-mono text-xs">Mật khẩu: 123456</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleQuickLogin('minh.anh@edusphere.vn', '123456')}
-            className={styles.quickBtn}
-          >
-            <span>👩‍🏫 minh.anh@edusphere.vn (Minh Anh - INSTRUCTOR)</span>
-            <span className="text-purple-600 font-mono text-xs">Mật khẩu: 123456</span>
           </button>
         </div>
 

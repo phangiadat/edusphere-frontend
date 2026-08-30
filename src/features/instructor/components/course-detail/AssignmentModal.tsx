@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, FileCheck, Save } from 'lucide-react';
 import type { AssignmentModel } from './AssignmentItem';
 import { RichTextEditor } from '../../../../components/common/RichTextEditor/RichTextEditor';
@@ -51,8 +52,6 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
     }
   }, [initialData, isOpen]);
 
-  if (!isOpen) return null;
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
@@ -65,8 +64,24 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modalCard}>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className={styles.overlay}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className={styles.modalCard}
+            onClick={(e) => e.stopPropagation()}
+          >
         {/* Header */}
         <div className={styles.header}>
           <div className="flex items-center gap-2">
@@ -133,7 +148,9 @@ export const AssignmentModal: React.FC<AssignmentModalProps> = ({
             </span>
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 };

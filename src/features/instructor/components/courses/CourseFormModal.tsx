@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, Save, UploadCloud, Info, RefreshCw } from 'lucide-react';
 import type { CourseItem, CourseStatusType } from './CourseCard';
 import { RichTextEditor } from '../../../../components/common/RichTextEditor/RichTextEditor';
@@ -70,8 +71,6 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -118,8 +117,24 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modalCard}>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className={styles.overlay}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className={styles.modalCard}
+            onClick={(e) => e.stopPropagation()}
+          >
         {/* Header */}
         <div className={styles.header}>
           <div className="flex items-center gap-2">
@@ -267,7 +282,9 @@ export const CourseFormModal: React.FC<CourseFormModalProps> = ({
             </span>
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 };
